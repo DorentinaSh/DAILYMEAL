@@ -1,6 +1,7 @@
 /**
- * Real responses, captured from the live endpoint and trimmed to the fields we
- * read. Tests run against these so the suite never touches the network.
+ * Rows captured from the live endpoint, trimmed to the fields we read. Chicken
+ * Handi's instructions are shortened to three lines; everything else is as the
+ * source sent it. Tests run against these so the suite never touches the network.
  */
 import type { RawMeal } from './types';
 
@@ -32,7 +33,7 @@ export const CHICKEN_HANDI: RawMeal = {
   idMeal: '52795',
   strMeal: 'Chicken Handi',
   strCategory: 'Chicken',
-  strArea: 'Indian',
+  strArea: 'India',
   strMealThumb: 'https://www.themealdb.com/images/media/meals/wyxwsp1486979827.jpg',
   strInstructions:
     'Heat the oil and fry the onion until deep golden brown.\r\n' +
