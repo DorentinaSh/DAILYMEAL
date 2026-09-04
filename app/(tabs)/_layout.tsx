@@ -8,7 +8,13 @@ import { color, font } from '@/ui/theme';
  * cycle strip on the cards, so the app's one visual idea carries into the
  * chrome instead of borrowing a stock icon set.
  */
-function TabMark({ shape, focused }: { shape: 'today' | 'meals' | 'settings'; focused: boolean }) {
+function TabMark({
+  shape,
+  focused,
+}: {
+  shape: 'today' | 'search' | 'meals' | 'settings';
+  focused: boolean;
+}) {
   const tint = focused ? color.ink : color.mute;
   if (shape === 'today') {
     return (
@@ -16,6 +22,14 @@ function TabMark({ shape, focused }: { shape: 'today' | 'meals' | 'settings'; fo
         <View style={[styles.tick, { backgroundColor: focused ? color.yolk : tint, height: 16 }]} />
         <View style={[styles.tick, { backgroundColor: tint }]} />
         <View style={[styles.tick, { backgroundColor: tint }]} />
+      </View>
+    );
+  }
+  if (shape === 'search') {
+    return (
+      <View style={styles.markSearch}>
+        <View style={[styles.ring, { borderColor: tint }]} />
+        <View style={[styles.handle, { backgroundColor: tint }]} />
       </View>
     );
   }
@@ -67,6 +81,13 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="search"
+        options={{
+          title: 'Search',
+          tabBarIcon: ({ focused }) => <TabMark shape="search" focused={focused} />,
+        }}
+      />
+      <Tabs.Screen
         name="meals"
         options={{
           title: 'Meals',
@@ -89,4 +110,14 @@ const styles = StyleSheet.create({
   markStack: { gap: 3, height: 18, justifyContent: 'center' },
   tick: { width: 3, height: 9, borderRadius: 1.5 },
   bar: { width: 15, height: 3, borderRadius: 1.5 },
+  markSearch: { flexDirection: 'row', alignItems: 'flex-end', height: 18 },
+  ring: { width: 13, height: 13, borderRadius: 6.5, borderWidth: 2 },
+  handle: {
+    width: 3,
+    height: 7,
+    borderRadius: 1.5,
+    marginLeft: -2,
+    marginBottom: 1,
+    transform: [{ rotate: '-45deg' }],
+  },
 });
