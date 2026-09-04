@@ -94,6 +94,11 @@ export default function SettingsScreen() {
                     value={toDate(time)}
                     mode="time"
                     display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    // The app is light-only, but iOS draws the spinner in the
+                    // device's appearance — white digits on a white card in dark
+                    // mode. Match the time on the row above instead.
+                    themeVariant="light"
+                    textColor={color.ink}
                     onChange={(event, picked) => {
                       if (Platform.OS !== 'ios') setEditing(null);
                       if (event.type === 'set' && picked) {
