@@ -1,16 +1,18 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { mealById } from '@/domain/cycle';
 import { CATEGORY_LABEL } from '@/domain/types';
 import { useAppStore } from '@/store/useAppStore';
 import { Button } from '@/ui/Button';
+import { SaveMark } from '@/ui/SaveMark';
 import { color, eyebrow, font, radius, space } from '@/ui/theme';
 
 export default function MealDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const meal = useAppStore((s) => mealById(s, id ?? null));
   const removeMeal = useAppStore((s) => s.removeMeal);
+  const toggleSaved = useAppStore((s) => s.toggleSaved);
 
   if (!meal) {
     return (
@@ -37,7 +39,18 @@ export default function MealDetailScreen() {
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
-      <Text style={eyebrow}>{CATEGORY_LABEL[meal.category]}</Text>
+      <View style={styles.head}>
+        <Text style={eyebrow}>{CATEGORY_LABEL[meal.category]}</Text>
+        <Pressable
+          onPress={() => toggleSaved(meal.id)}
+          hitSlop={16}
+          accessibilityRole="button"
+          accessibilityState={{ selected: !!meal.saved }}
+          accessibilityLabel={meal.saved ? 'Remove from saved' : 'Save for later'}
+        >
+          <SaveMark saved={!!meal.saved} />
+        </Pressable>
+      </View>
       <Text style={styles.name}>{meal.name}</Text>
       {meal.prepMinutes ? (
         <Text style={styles.meta}>{meal.prepMinutes} min</Text>
@@ -87,6 +100,7 @@ export default function MealDetailScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.porcelain },
   content: { padding: space.xl, paddingBottom: space.huge },
+  head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   name: {
     fontFamily: font.displayBold,
     fontSize: 36,

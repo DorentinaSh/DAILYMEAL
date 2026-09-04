@@ -8,6 +8,7 @@ import {
   mealsIn,
   rollover,
   skip,
+  toggleSaved,
   updateMeal,
 } from './cycle';
 import type { AppState, Category, Meal } from './types';
@@ -364,6 +365,47 @@ describe('mealsIn', () => {
     };
     expect(mealsIn(s, 'breakfast').map((m) => m.id)).toEqual(['a', 'b']);
     expect(mealsIn(s, 'lunch').map((m) => m.id)).toEqual(['x']);
+  });
+});
+
+describe('toggleSaved', () => {
+  it('marks an unsaved meal as saved', () => {
+    const state = addMeal(createEmptyState(), meal('a'), zero);
+
+    expect(toggleSaved(state, 'a').meals[0].saved).toBe(true);
+  });
+
+  it('unmarks a saved meal', () => {
+    const state = toggleSaved(addMeal(createEmptyState(), meal('a'), zero), 'a');
+
+    expect(toggleSaved(state, 'a').meals[0].saved).toBe(false);
+  });
+
+  it('leaves every other meal alone', () => {
+    let state = addMeal(createEmptyState(), meal('a'), zero);
+    state = addMeal(state, meal('b'), zero);
+
+    const after = toggleSaved(state, 'a');
+
+    expect(after.meals.find((m) => m.id === 'b')?.saved).toBeUndefined();
+  });
+
+  // The whole point of a separate function: saving must not touch the rotation.
+  it('leaves the cycles and today’s pick untouched', () => {
+    let state = addMeal(createEmptyState(), meal('a'), zero);
+    state = addMeal(state, meal('b'), zero);
+    state = rollover(state, '2026-09-04');
+
+    const after = toggleSaved(state, 'a');
+
+    expect(after.cycles).toEqual(state.cycles);
+    expect(after.today).toEqual(state.today);
+  });
+
+  it('ignores an id that is not there', () => {
+    const state = addMeal(createEmptyState(), meal('a'), zero);
+
+    expect(toggleSaved(state, 'nope')).toEqual(state);
   });
 });
 

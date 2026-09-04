@@ -13,6 +13,7 @@ import {
   makeId,
   rollover,
   skip,
+  toggleSaved,
   updateMeal,
 } from '@/domain/cycle';
 import type { AppState, Category, Meal } from '@/domain/types';
@@ -27,6 +28,7 @@ type Actions = {
   createMeal: (draft: MealDraft) => void;
   saveMeal: (meal: Meal) => void;
   removeMeal: (id: string) => void;
+  toggleSaved: (id: string) => void;
   setNotify: (category: Category, notify: boolean) => void;
   setTime: (category: Category, time: string) => void;
 };
@@ -48,6 +50,8 @@ export const useAppStore = create<Store>()(
       saveMeal: (meal) => set((s) => updateMeal(s, meal)),
 
       removeMeal: (id) => set((s) => deleteMeal(s, id)),
+
+      toggleSaved: (id) => set((s) => toggleSaved(s, id)),
 
       setNotify: (category, notify) =>
         set((s) => ({
