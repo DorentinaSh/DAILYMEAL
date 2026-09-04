@@ -84,6 +84,7 @@ export default function RootLayout() {
           name="meal/edit"
           options={{ title: '', presentation: 'modal' }}
         />
+        <Stack.Screen name="search/[id]" options={{ title: '' }} />
       </Stack>
     </>
   );
