@@ -75,6 +75,11 @@ export default function RootLayout() {
           headerStyle: { backgroundColor: color.porcelain },
           headerShadowVisible: false,
           headerTintColor: color.ink,
+          // Without this the back button borrows the previous screen's title,
+          // and the tab group has none — so iOS falls back to its route name
+          // and puts the literal '(tabs)' in the chrome. A bare chevron suits
+          // headers that carry no title anyway.
+          headerBackButtonDisplayMode: 'minimal',
           headerTitleStyle: { fontFamily: font.bodyBold, fontSize: 17 },
         }}
       >
