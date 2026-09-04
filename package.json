@@ -43,6 +43,9 @@
     "testMatch": [
       "**/src/**/*.test.ts"
     ],
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/src/$1"
+    },
     "transform": {
       "^.+\\.tsx?$": [
         "babel-jest",
