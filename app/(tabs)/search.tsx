@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -13,7 +13,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { RecipeHit } from '@/search/types';
-import { useAppStore } from '@/store/useAppStore';
 import { useSearchStore, type SearchStatus } from '@/store/useSearchStore';
 import { Button } from '@/ui/Button';
 import { color, eyebrow, font, radius, space } from '@/ui/theme';
@@ -27,14 +26,6 @@ export default function SearchScreen() {
   const hits = useSearchStore((s) => s.hits);
   const setQuery = useSearchStore((s) => s.setQuery);
   const run = useSearchStore((s) => s.run);
-
-  // Selecting the array and deriving here: a selector that built the Set would
-  // return a new object every render and never settle.
-  const meals = useAppStore((s) => s.meals);
-  const savedNames = useMemo(
-    () => new Set(meals.map((meal) => meal.name.trim().toLowerCase())),
-    [meals],
-  );
 
   useEffect(() => {
     const timer = setTimeout(() => void run(query), DEBOUNCE_MS);
@@ -81,9 +72,7 @@ export default function SearchScreen() {
         contentContainerStyle={styles.list}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
-        renderItem={({ item }) => (
-          <ResultCard hit={item} saved={savedNames.has(item.name.trim().toLowerCase())} />
-        )}
+        renderItem={({ item }) => <ResultCard hit={item} />}
         ListEmptyComponent={
           <Empty status={status} query={query} onRetry={() => void run(query)} />
         }
@@ -92,7 +81,7 @@ export default function SearchScreen() {
   );
 }
 
-function ResultCard({ hit, saved }: { hit: RecipeHit; saved: boolean }) {
+function ResultCard({ hit }: { hit: RecipeHit }) {
   return (
     <Pressable
       onPress={() => router.push(`/search/${hit.id}`)}
@@ -121,7 +110,7 @@ function ResultCard({ hit, saved }: { hit: RecipeHit; saved: boolean }) {
         </Text>
       </View>
 
-      {saved ? <Text style={styles.added}>Added</Text> : <Text style={styles.chevron}>›</Text>}
+      <Text style={styles.chevron}>›</Text>
     </Pressable>
   );
 }
@@ -224,7 +213,6 @@ const styles = StyleSheet.create({
   cardName: { fontFamily: font.bodyMedium, fontSize: 16, color: color.ink },
   cardMeta: { ...eyebrow, fontSize: 10 },
   chevron: { fontFamily: font.body, fontSize: 22, color: color.mute },
-  added: { ...eyebrow, color: color.yolk },
   spinner: { marginTop: space.xxl },
   empty: { marginTop: space.lg, gap: space.lg },
   emptyText: {

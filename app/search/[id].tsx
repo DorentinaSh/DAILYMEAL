@@ -8,6 +8,7 @@ import { defaultCategory } from '@/search/normalize';
 import { useAppStore } from '@/store/useAppStore';
 import { useSearchStore } from '@/store/useSearchStore';
 import { Button } from '@/ui/Button';
+import { SaveMark } from '@/ui/SaveMark';
 import { color, eyebrow, font, radius, space } from '@/ui/theme';
 
 export default function RecipePreviewScreen() {
@@ -19,6 +20,8 @@ export default function RecipePreviewScreen() {
   const [category, setCategory] = useState<Category>(
     hit ? defaultCategory(hit.sourceCategory) : 'lunch',
   );
+  // Decided here, applied when the meal is actually created below.
+  const [keepForLater, setKeepForLater] = useState(false);
 
   if (!hit) {
     return (
@@ -36,6 +39,7 @@ export default function RecipePreviewScreen() {
       category,
       ingredients: hit.ingredients,
       steps: hit.steps,
+      saved: keepForLater,
       // The source doesn't publish a prep time; it stays yours to fill in.
       prepMinutes: null,
     });
@@ -48,7 +52,20 @@ export default function RecipePreviewScreen() {
         <Image source={hit.imageUrl} style={styles.photo} contentFit="cover" transition={180} />
       )}
 
-      <Text style={eyebrow}>{[hit.sourceCategory, hit.area].filter(Boolean).join('  ·  ')}</Text>
+      <View style={styles.head}>
+        <Text style={eyebrow}>
+          {[hit.sourceCategory, hit.area].filter(Boolean).join('  ·  ')}
+        </Text>
+        <Pressable
+          onPress={() => setKeepForLater((on) => !on)}
+          hitSlop={16}
+          accessibilityRole="button"
+          accessibilityState={{ selected: keepForLater }}
+          accessibilityLabel={keepForLater ? 'Do not keep for later' : 'Keep for later'}
+        >
+          <SaveMark saved={keepForLater} />
+        </Pressable>
+      </View>
       <Text style={styles.name}>{hit.name}</Text>
 
       <View style={styles.pickRow}>
@@ -106,6 +123,7 @@ export default function RecipePreviewScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.porcelain },
   content: { padding: space.xl, paddingBottom: space.huge, gap: space.md },
+  head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   gone: {
     flex: 1,
     backgroundColor: color.porcelain,
