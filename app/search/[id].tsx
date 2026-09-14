@@ -8,6 +8,7 @@ import { defaultCategory } from '@/search/normalize';
 import { useAppStore } from '@/store/useAppStore';
 import { useSearchStore } from '@/store/useSearchStore';
 import { Button } from '@/ui/Button';
+import { RecipeBody } from '@/ui/RecipeBody';
 import { SaveButton } from '@/ui/SaveButton';
 import { color, eyebrow, font, radius, space } from '@/ui/theme';
 
@@ -83,28 +84,7 @@ export default function RecipePreviewScreen() {
         })}
       </View>
 
-      {hit.ingredients.length > 0 && (
-        <View style={styles.section}>
-          <Text style={eyebrow}>Ingredients</Text>
-          {hit.ingredients.map((line, i) => (
-            <Text key={`${line}-${i}`} style={styles.line}>
-              {line}
-            </Text>
-          ))}
-        </View>
-      )}
-
-      {hit.steps.length > 0 && (
-        <View style={styles.section}>
-          <Text style={eyebrow}>Steps</Text>
-          {hit.steps.map((step, i) => (
-            <View key={`${i}-${step.slice(0, 12)}`} style={styles.stepRow}>
-              <Text style={styles.stepNumber}>{i + 1}</Text>
-              <Text style={styles.line}>{step}</Text>
-            </View>
-          ))}
-        </View>
-      )}
+      <RecipeBody ingredients={hit.ingredients} steps={hit.steps} />
 
       <Button
         label={`Add to ${CATEGORY_LABEL[category].toLowerCase()}`}
@@ -155,15 +135,5 @@ const styles = StyleSheet.create({
   pickActive: { backgroundColor: color.ink, borderColor: color.ink },
   pickLabel: { fontFamily: font.bodyMedium, fontSize: 14, color: color.slate },
   pickLabelActive: { color: color.tile },
-  section: { gap: space.sm, marginTop: space.lg },
-  line: { flex: 1, fontFamily: font.body, fontSize: 15, color: color.ink, lineHeight: 22 },
-  stepRow: { flexDirection: 'row', gap: space.md },
-  stepNumber: {
-    fontFamily: font.monoMedium,
-    fontSize: 13,
-    color: color.mute,
-    lineHeight: 22,
-    width: 18,
-  },
   save: { marginTop: space.xl },
 });
