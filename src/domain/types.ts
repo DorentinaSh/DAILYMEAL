@@ -17,12 +17,6 @@ export type Meal = {
   /** One entry per line, as typed in the editor. */
   steps: string[];
   prepMinutes: number | null;
-  /**
-   * Kept for later, for whatever reason — not a favourite, and nothing to do
-   * with the rotation. Optional because meals stored before this existed have
-   * no such field, and absent reads as unsaved.
-   */
-  saved?: boolean;
 };
 
 /**

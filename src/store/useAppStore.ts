@@ -14,7 +14,6 @@ import {
   makeId,
   rollover,
   skip,
-  toggleSaved,
   updateMeal,
 } from '@/domain/cycle';
 import { saveFromHit, saveFromMeal, savedById, unsave } from '@/domain/saved';
@@ -32,7 +31,6 @@ type Actions = {
   createMeal: (draft: MealDraft) => void;
   saveMeal: (meal: Meal) => void;
   removeMeal: (id: string) => void;
-  toggleSaved: (id: string) => void;
   /** Bookmarks a meal already in the rotation. */
   saveRecipeFromMeal: (meal: Meal) => void;
   /** Bookmarks a recipe found in search, before any decision about meals. */
@@ -61,8 +59,6 @@ export const useAppStore = create<Store>()(
       saveMeal: (meal) => set((s) => updateMeal(s, meal)),
 
       removeMeal: (id) => set((s) => deleteMeal(s, id)),
-
-      toggleSaved: (id) => set((s) => toggleSaved(s, id)),
 
       saveRecipeFromMeal: (meal) => set((s) => saveFromMeal(s, meal, makeId())),
 

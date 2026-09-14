@@ -262,19 +262,6 @@ export function deleteMeal(
   );
 }
 
-/**
- * Keeps a meal for later, or stops keeping it. Deliberately not routed through
- * updateMeal: that path calls syncToday and re-derives the day's pick, and
- * bookmarking a dish has no business moving what you're eating.
- */
-export function toggleSaved(state: AppState, id: string): AppState {
-  if (!mealById(state, id)) return state;
-  return {
-    ...state,
-    meals: state.meals.map((m) => (m.id === id ? { ...m, saved: !m.saved } : m)),
-  };
-}
-
 export function updateMeal(
   state: AppState,
   meal: Meal,
