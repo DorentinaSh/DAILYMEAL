@@ -75,6 +75,7 @@ export const useAppStore = create<Store>()(
       // Only the data is persisted; actions and the hydration flag are not.
       partialize: (s): AppState => ({
         meals: s.meals,
+        saved: s.saved,
         cycles: s.cycles,
         today: s.today,
         settings: s.settings,

@@ -63,7 +63,7 @@ export function createEmptyState(now: Date = new Date()): AppState {
     today[c] = { date: key, mealId: null, skippedToday: [] };
     settings[c] = { notify: false, time: DEFAULT_TIMES[c] };
   }
-  return { meals: [], cycles, today, settings };
+  return { meals: [], saved: [], cycles, today, settings };
 }
 
 export function mealsIn(state: AppState, category: Category): Meal[] {
