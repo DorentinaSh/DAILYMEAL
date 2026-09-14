@@ -6,6 +6,7 @@
  * storage, or the Expo SDK, which is what makes the rules below testable
  * without a simulator.
  */
+import { savedForMeal, unlinkMeal } from './saved';
 import {
   CATEGORIES,
   DEFAULT_TIMES,
@@ -13,6 +14,7 @@ import {
   type Category,
   type Cycle,
   type Meal,
+  type SavedRecipe,
 } from './types';
 
 /** Injectable random source so shuffles are reproducible under test. */
@@ -63,7 +65,7 @@ export function createEmptyState(now: Date = new Date()): AppState {
     today[c] = { date: key, mealId: null, skippedToday: [] };
     settings[c] = { notify: false, time: DEFAULT_TIMES[c] };
   }
-  return { meals: [], cycles, today, settings };
+  return { meals: [], saved: [], cycles, today, settings };
 }
 
 export function mealsIn(state: AppState, category: Category): Meal[] {
@@ -245,26 +247,39 @@ export function deleteMeal(
     cycle = { order: rest, position: nextPosition };
   }
 
-  return syncToday(
-    {
-      ...state,
-      meals: state.meals.filter((m) => m.id !== id),
-      cycles: { ...state.cycles, [category]: cycle },
-    },
-    category,
+  // The bookmark outlives the meal: it reverts to a plain saved recipe rather
+  // than vanishing with the rotation entry.
+  return unlinkMeal(
+    syncToday(
+      {
+        ...state,
+        meals: state.meals.filter((m) => m.id !== id),
+        cycles: { ...state.cycles, [category]: cycle },
+      },
+      category,
+    ),
+    id,
   );
 }
 
 /**
- * Keeps a meal for later, or stops keeping it. Deliberately not routed through
- * updateMeal: that path calls syncToday and re-derives the day's pick, and
- * bookmarking a dish has no business moving what you're eating.
+ * Writes a meal's current text onto its linked saved entry, if it has one,
+ * plus whatever else changed about the link (only a category move needs to
+ * touch `mealId`/`category`). The copy in `saved` is there so a bookmark
+ * survives the meal's deletion, not so it drifts from a meal that still
+ * exists, so every edit that reaches `updateMeal` reaches the entry too.
  */
-export function toggleSaved(state: AppState, id: string): AppState {
-  if (!mealById(state, id)) return state;
+function syncSavedRecipe(
+  state: AppState,
+  savedId: string,
+  patch: Pick<Meal, 'name' | 'ingredients' | 'steps' | 'prepMinutes'> &
+    Partial<Pick<SavedRecipe, 'mealId' | 'category'>>,
+): AppState {
   return {
     ...state,
-    meals: state.meals.map((m) => (m.id === id ? { ...m, saved: !m.saved } : m)),
+    saved: state.saved.map((recipe) =>
+      recipe.id === savedId ? { ...recipe, ...patch } : recipe,
+    ),
   };
 }
 
@@ -276,16 +291,67 @@ export function updateMeal(
   const existing = mealById(state, meal.id);
   if (!existing) return state;
 
+  const kept = savedForMeal(state, meal.id);
+  const text = {
+    name: meal.name,
+    ingredients: meal.ingredients,
+    steps: meal.steps,
+    prepMinutes: meal.prepMinutes,
+  };
+
   if (existing.category === meal.category) {
-    return syncToday(
+    const next = syncToday(
       {
         ...state,
         meals: state.meals.map((m) => (m.id === meal.id ? meal : m)),
       },
       meal.category,
     );
+    return kept ? syncSavedRecipe(next, kept.id, text) : next;
   }
 
-  // A category change is a move between two loops.
-  return addMeal(deleteMeal(state, meal.id, rng), meal, rng);
+  // A category change is a move between two loops. It goes through deleteMeal,
+  // which unlinks any bookmark on the way out — but the meal is not leaving, so
+  // the link is restored on the other side, with the text a plain edit would
+  // have synced too.
+  const moved = addMeal(deleteMeal(state, meal.id, rng), meal, rng);
+  if (!kept) return moved;
+  return syncSavedRecipe(moved, kept.id, {
+    ...text,
+    mealId: meal.id,
+    category: meal.category,
+  });
+}
+
+/**
+ * Promotes a saved recipe into the rotation. One transition rather than two
+ * calls, so there is never a moment where the meal exists and its bookmark
+ * does not point at it. The chosen category is written back to the recipe, so
+ * the two can never disagree.
+ */
+export function addSavedToMeals(
+  state: AppState,
+  saved: SavedRecipe,
+  category: Category,
+  id: string,
+  rng: Rng = defaultRng,
+): AppState {
+  if (saved.mealId) return state;
+
+  const meal: Meal = {
+    id,
+    name: saved.name,
+    category,
+    ingredients: saved.ingredients,
+    steps: saved.steps,
+    prepMinutes: saved.prepMinutes,
+  };
+
+  const next = addMeal(state, meal, rng);
+  return {
+    ...next,
+    saved: next.saved.map((recipe) =>
+      recipe.id === saved.id ? { ...recipe, mealId: id, category } : recipe,
+    ),
+  };
 }

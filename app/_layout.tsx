@@ -90,6 +90,7 @@ export default function RootLayout() {
           options={{ title: '', presentation: 'modal' }}
         />
         <Stack.Screen name="search/[id]" options={{ title: '' }} />
+        <Stack.Screen name="saved/[id]" options={{ title: '' }} />
       </Stack>
     </>
   );

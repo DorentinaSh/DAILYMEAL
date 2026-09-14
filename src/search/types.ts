@@ -1,6 +1,9 @@
 /**
- * Search results are transient. Nothing here is persisted: a recipe you keep
- * becomes an ordinary Meal, and everything else is thrown away with the session.
+ * Search results are transient. Nothing in this file is persisted: a hit
+ * lives in the search store only for the length of the session. Keeping one
+ * copies it out — into a SavedRecipe, with its photo, ingredients and steps,
+ * or into a Meal once it joins the rotation — and either copy outlives the
+ * hit it came from.
  */
 
 /** One dish from the recipe source, in our shape rather than theirs. */

@@ -1,5 +1,6 @@
 import {
   addMeal,
+  addSavedToMeals,
   canSkip,
   createEmptyState,
   currentMeal,
@@ -8,9 +9,9 @@ import {
   mealsIn,
   rollover,
   skip,
-  toggleSaved,
   updateMeal,
 } from './cycle';
+import { saveFromMeal, savedById, savedForMeal } from './saved';
 import type { AppState, Category, Meal } from './types';
 
 /** Deterministic RNG so shuffles are reproducible in tests. */
@@ -368,63 +369,6 @@ describe('mealsIn', () => {
   });
 });
 
-describe('addMeal keeps the saved flag', () => {
-  // The path a recipe takes from search: bookmarked on its page, created
-  // already kept, and so present under the Meals filter without a second tap.
-  it('files a meal that arrives already saved', () => {
-    const state = addMeal(createEmptyState(), { ...meal('a'), saved: true }, zero);
-
-    expect(state.meals.filter((m) => m.saved).map((m) => m.id)).toEqual(['a']);
-  });
-
-  it('leaves a meal that arrives without the flag unsaved', () => {
-    const state = addMeal(createEmptyState(), meal('a'), zero);
-
-    expect(state.meals.filter((m) => m.saved)).toEqual([]);
-  });
-});
-
-describe('toggleSaved', () => {
-  it('marks an unsaved meal as saved', () => {
-    const state = addMeal(createEmptyState(), meal('a'), zero);
-
-    expect(toggleSaved(state, 'a').meals[0].saved).toBe(true);
-  });
-
-  it('unmarks a saved meal', () => {
-    const state = toggleSaved(addMeal(createEmptyState(), meal('a'), zero), 'a');
-
-    expect(toggleSaved(state, 'a').meals[0].saved).toBe(false);
-  });
-
-  it('leaves every other meal alone', () => {
-    let state = addMeal(createEmptyState(), meal('a'), zero);
-    state = addMeal(state, meal('b'), zero);
-
-    const after = toggleSaved(state, 'a');
-
-    expect(after.meals.find((m) => m.id === 'b')?.saved).toBeUndefined();
-  });
-
-  // The whole point of a separate function: saving must not touch the rotation.
-  it('leaves the cycles and today’s pick untouched', () => {
-    let state = addMeal(createEmptyState(), meal('a'), zero);
-    state = addMeal(state, meal('b'), zero);
-    state = rollover(state, '2026-09-04');
-
-    const after = toggleSaved(state, 'a');
-
-    expect(after.cycles).toEqual(state.cycles);
-    expect(after.today).toEqual(state.today);
-  });
-
-  it('ignores an id that is not there', () => {
-    const state = addMeal(createEmptyState(), meal('a'), zero);
-
-    expect(toggleSaved(state, 'nope')).toEqual(state);
-  });
-});
-
 describe('state is never mutated in place', () => {
   it('leaves the input untouched across every operation', () => {
     const s = stateWith(['a', 'b', 'c'], 0);
@@ -435,5 +379,171 @@ describe('state is never mutated in place', () => {
     deleteMeal(s, 'a', zero);
     updateMeal(s, { ...meal('a'), name: 'Changed' }, zero);
     expect(JSON.stringify(s)).toBe(snapshot);
+  });
+});
+
+describe('deleteMeal and the saved list', () => {
+  it('keeps the saved recipe and cuts its link', () => {
+    const added = addMeal(createEmptyState(), meal('a'), zero);
+    const kept = saveFromMeal(added, meal('a'), 's1');
+
+    const after = deleteMeal(kept, 'a', zero);
+
+    expect(after.meals).toEqual([]);
+    expect(after.saved).toHaveLength(1);
+    expect(after.saved[0].mealId).toBeNull();
+    expect(after.saved[0].name).toBe('Meal a');
+  });
+
+  it('leaves a recipe saved from search untouched', () => {
+    const added = addMeal(createEmptyState(), meal('a'), zero);
+    const kept = saveFromMeal(added, meal('b'), 's1');
+
+    const after = deleteMeal(kept, 'a', zero);
+
+    expect(savedById(after, 's1')?.mealId).toBe('b');
+  });
+});
+
+describe('updateMeal and the saved list', () => {
+  it('keeps a category change linked to its bookmark', () => {
+    const added = addMeal(createEmptyState(), meal('a', 'breakfast'), zero);
+    const kept = saveFromMeal(added, meal('a', 'breakfast'), 's1');
+
+    const after = updateMeal(kept, meal('a', 'lunch'), zero);
+
+    expect(savedForMeal(after, 'a')?.id).toBe('s1');
+  });
+
+  it('moves the bookmark’s category along with the meal’s', () => {
+    const added = addMeal(createEmptyState(), meal('a', 'breakfast'), zero);
+    const kept = saveFromMeal(added, meal('a', 'breakfast'), 's1');
+
+    const after = updateMeal(kept, meal('a', 'lunch'), zero);
+
+    expect(savedForMeal(after, 'a')?.category).toBe('lunch');
+  });
+
+  it('leaves the saved list untouched when there is no bookmark', () => {
+    const added = addMeal(createEmptyState(), meal('a', 'breakfast'), zero);
+
+    const after = updateMeal(added, meal('a', 'lunch'), zero);
+
+    expect(after.saved).toEqual([]);
+  });
+
+  it('syncs a bookmarked meal’s edited text onto its linked entry', () => {
+    const added = addMeal(createEmptyState(), meal('a', 'breakfast'), zero);
+    const kept = saveFromMeal(added, meal('a', 'breakfast'), 's1');
+    const edited: Meal = {
+      ...meal('a', 'breakfast'),
+      name: 'Renamed dish',
+      ingredients: ['new ingredient'],
+      steps: ['new step'],
+      prepMinutes: 42,
+    };
+
+    const after = updateMeal(kept, edited, zero);
+
+    expect(savedForMeal(after, 'a')).toMatchObject({
+      name: 'Renamed dish',
+      ingredients: ['new ingredient'],
+      steps: ['new step'],
+      prepMinutes: 42,
+    });
+  });
+
+  it('leaves an unrelated saved entry alone when editing a meal with no bookmark of its own', () => {
+    const twoMeals = addMeal(
+      addMeal(createEmptyState(), meal('a', 'breakfast'), zero),
+      meal('b', 'breakfast'),
+      zero,
+    );
+    const base = saveFromMeal(twoMeals, meal('a', 'breakfast'), 's1');
+    const edited = { ...meal('b', 'breakfast'), name: 'Edited b' };
+
+    const after = updateMeal(base, edited, zero);
+
+    expect(after.saved).toEqual(base.saved);
+  });
+
+  it('syncs the recipe text along with the category on a category change', () => {
+    const added = addMeal(createEmptyState(), meal('a', 'breakfast'), zero);
+    const kept = saveFromMeal(added, meal('a', 'breakfast'), 's1');
+    const edited: Meal = {
+      ...meal('a', 'lunch'),
+      name: 'Renamed dish',
+      ingredients: ['new ingredient'],
+    };
+
+    const after = updateMeal(kept, edited, zero);
+
+    expect(savedForMeal(after, 'a')).toMatchObject({
+      name: 'Renamed dish',
+      ingredients: ['new ingredient'],
+      category: 'lunch',
+    });
+  });
+});
+
+describe('addSavedToMeals', () => {
+  const recipe = {
+    id: 's1',
+    name: 'Chicken Handi',
+    imageUrl: 'https://example.test/handi.jpg',
+    ingredients: ['1.2 kg Chicken'],
+    steps: ['Fry the onion'],
+    prepMinutes: null,
+    category: 'lunch' as const,
+    sourceId: '52795',
+    mealId: null,
+  };
+
+  function withRecipe() {
+    return { ...createEmptyState(), saved: [recipe] };
+  }
+
+  it('creates the meal from the recipe', () => {
+    const after = addSavedToMeals(withRecipe(), recipe, 'lunch', 'm1', zero);
+
+    expect(mealsIn(after, 'lunch')).toEqual([
+      {
+        id: 'm1',
+        name: 'Chicken Handi',
+        category: 'lunch',
+        ingredients: ['1.2 kg Chicken'],
+        steps: ['Fry the onion'],
+        prepMinutes: null,
+      },
+    ]);
+  });
+
+  it('links the saved recipe to the meal it made', () => {
+    const after = addSavedToMeals(withRecipe(), recipe, 'lunch', 'm1', zero);
+
+    expect(savedForMeal(after, 'm1')?.id).toBe('s1');
+  });
+
+  it('puts the meal into the rotation', () => {
+    const after = addSavedToMeals(withRecipe(), recipe, 'lunch', 'm1', zero);
+
+    expect(after.cycles.lunch.order).toEqual(['m1']);
+  });
+
+  // The category chosen on the way in is the one the recipe keeps, so the
+  // bookmark and the meal never disagree about what kind of dish it is.
+  it('records the category that was chosen', () => {
+    const after = addSavedToMeals(withRecipe(), recipe, 'breakfast', 'm1', zero);
+
+    expect(savedById(after, 's1')?.category).toBe('breakfast');
+    expect(mealsIn(after, 'breakfast')).toHaveLength(1);
+  });
+
+  it('refuses a recipe already in the rotation', () => {
+    const once = addSavedToMeals(withRecipe(), recipe, 'lunch', 'm1', zero);
+    const linked = savedById(once, 's1');
+    const twice = addSavedToMeals(once, linked!, 'lunch', 'm2', zero);
+
+    expect(twice).toBe(once);
   });
 });

@@ -2,6 +2,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { mealById } from '@/domain/cycle';
+import { savedForMeal } from '@/domain/saved';
 import { CATEGORY_LABEL } from '@/domain/types';
 import { useAppStore } from '@/store/useAppStore';
 import { Button } from '@/ui/Button';
@@ -12,7 +13,9 @@ export default function MealDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const meal = useAppStore((s) => mealById(s, id ?? null));
   const removeMeal = useAppStore((s) => s.removeMeal);
-  const toggleSaved = useAppStore((s) => s.toggleSaved);
+  const savedRecipe = useAppStore((s) => (id ? savedForMeal(s, id) : null));
+  const saveRecipeFromMeal = useAppStore((s) => s.saveRecipeFromMeal);
+  const unsaveRecipe = useAppStore((s) => s.unsaveRecipe);
 
   if (!meal) {
     return (
@@ -42,9 +45,13 @@ export default function MealDetailScreen() {
       <View style={styles.head}>
         <Text style={eyebrow}>{CATEGORY_LABEL[meal.category]}</Text>
         <SaveButton
-          saved={!!meal.saved}
-          onPress={() => toggleSaved(meal.id)}
-          accessibilityLabel={meal.saved ? 'Remove from saved' : 'Save for later'}
+          saved={!!savedRecipe}
+          onPress={() => {
+            if (!meal) return;
+            if (savedRecipe) unsaveRecipe(savedRecipe.id);
+            else saveRecipeFromMeal(meal);
+          }}
+          accessibilityLabel={savedRecipe ? 'Remove from saved' : 'Save for later'}
         />
       </View>
       <Text style={styles.name}>{meal.name}</Text>

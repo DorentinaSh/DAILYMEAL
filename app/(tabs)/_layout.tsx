@@ -12,7 +12,7 @@ function TabMark({
   shape,
   focused,
 }: {
-  shape: 'today' | 'search' | 'meals' | 'settings';
+  shape: 'today' | 'search' | 'meals' | 'saved' | 'settings';
   focused: boolean;
 }) {
   const tint = focused ? color.ink : color.mute;
@@ -39,6 +39,16 @@ function TabMark({
         <View style={[styles.bar, { backgroundColor: tint }]} />
         <View style={[styles.bar, { backgroundColor: tint }]} />
         <View style={[styles.bar, { backgroundColor: tint, width: 10 }]} />
+      </View>
+    );
+  }
+  if (shape === 'saved') {
+    return (
+      <View style={styles.markSaved}>
+        <View style={[styles.bookmark, { backgroundColor: tint }]}>
+          {/* The notch is painted in the bar behind it, as on the save button. */}
+          <View style={[styles.bookmarkNotch, { borderBottomColor: color.tile }]} />
+        </View>
       </View>
     );
   }
@@ -95,6 +105,13 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="saved"
+        options={{
+          title: 'Saved',
+          tabBarIcon: ({ focused }) => <TabMark shape="saved" focused={focused} />,
+        }}
+      />
+      <Tabs.Screen
         name="settings"
         options={{
           title: 'Settings',
@@ -119,5 +136,22 @@ const styles = StyleSheet.create({
     marginLeft: -2,
     marginBottom: 1,
     transform: [{ rotate: '-45deg' }],
+  },
+  markSaved: { height: 18, justifyContent: 'center' },
+  bookmark: {
+    width: 13,
+    height: 17,
+    borderTopLeftRadius: 2,
+    borderTopRightRadius: 2,
+    justifyContent: 'flex-end',
+  },
+  bookmarkNotch: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 6.5,
+    borderRightWidth: 6.5,
+    borderBottomWidth: 5,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
   },
 });

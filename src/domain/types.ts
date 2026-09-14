@@ -17,12 +17,27 @@ export type Meal = {
   /** One entry per line, as typed in the editor. */
   steps: string[];
   prepMinutes: number | null;
-  /**
-   * Kept for later, for whatever reason — not a favourite, and nothing to do
-   * with the rotation. Optional because meals stored before this existed have
-   * no such field, and absent reads as unsaved.
-   */
-  saved?: boolean;
+};
+
+/**
+ * A recipe kept for later. It holds the whole recipe rather than a pointer,
+ * which is what lets a bookmark outlive the meal made from it: deleting the
+ * meal nulls `mealId` and leaves the text and photo untouched.
+ */
+export type SavedRecipe = {
+  /** Ours, not the source's. */
+  id: string;
+  name: string;
+  imageUrl: string | null;
+  ingredients: string[];
+  steps: string[];
+  prepMinutes: number | null;
+  /** Which rotation it would join. The category picker's starting point. */
+  category: Category;
+  /** The source's own id, so one dish cannot be saved twice from search. */
+  sourceId: string | null;
+  /** Set while this recipe is also a meal in the rotation. */
+  mealId: string | null;
 };
 
 /** The current loop for one category: a shuffled order and where we are in it. */
@@ -50,6 +65,8 @@ export type CategorySettings = {
 
 export type AppState = {
   meals: Meal[];
+  /** Newest first. Insertion order is the list's order. */
+  saved: SavedRecipe[];
   cycles: Record<Category, Cycle>;
   today: Record<Category, DayPick>;
   settings: Record<Category, CategorySettings>;

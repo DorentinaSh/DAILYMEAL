@@ -3,11 +3,13 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { savedForSource } from '@/domain/saved';
 import { CATEGORIES, CATEGORY_LABEL, type Category } from '@/domain/types';
 import { defaultCategory } from '@/search/normalize';
 import { useAppStore } from '@/store/useAppStore';
 import { useSearchStore } from '@/store/useSearchStore';
 import { Button } from '@/ui/Button';
+import { RecipeBody } from '@/ui/RecipeBody';
 import { SaveButton } from '@/ui/SaveButton';
 import { color, eyebrow, font, radius, space } from '@/ui/theme';
 
@@ -16,12 +18,16 @@ export default function RecipePreviewScreen() {
   // The list already fetched the whole recipe, so opening it costs no request.
   const hit = useSearchStore((s) => s.hits.find((candidate) => candidate.id === id) ?? null);
   const createMeal = useAppStore((s) => s.createMeal);
+  const addSavedToMeals = useAppStore((s) => s.addSavedToMeals);
 
   const [category, setCategory] = useState<Category>(
     hit ? defaultCategory(hit.sourceCategory) : 'lunch',
   );
-  // Decided here, applied when the meal is actually created below.
-  const [keepForLater, setKeepForLater] = useState(false);
+  // Saving is its own decision now, taken the moment the bookmark is tapped
+  // rather than banked until a meal gets created.
+  const savedRecipe = useAppStore((s) => (hit ? savedForSource(s, hit.id) : null));
+  const saveRecipeFromHit = useAppStore((s) => s.saveRecipeFromHit);
+  const unsaveRecipe = useAppStore((s) => s.unsaveRecipe);
 
   if (!hit) {
     return (
@@ -34,15 +40,20 @@ export default function RecipePreviewScreen() {
 
   function save() {
     if (!hit) return;
-    createMeal({
-      name: hit.name,
-      category,
-      ingredients: hit.ingredients,
-      steps: hit.steps,
-      saved: keepForLater,
-      // The source doesn't publish a prep time; it stays yours to fill in.
-      prepMinutes: null,
-    });
+    // A hit already bookmarked links its new meal to that entry rather than
+    // creating a second one — nothing here is ever duplicated.
+    if (savedRecipe) {
+      addSavedToMeals(savedRecipe.id, category);
+    } else {
+      createMeal({
+        name: hit.name,
+        category,
+        ingredients: hit.ingredients,
+        steps: hit.steps,
+        // The source doesn't publish a prep time; it stays yours to fill in.
+        prepMinutes: null,
+      });
+    }
     router.back();
   }
 
@@ -57,9 +68,13 @@ export default function RecipePreviewScreen() {
           {[hit.sourceCategory, hit.area].filter(Boolean).join('  ·  ')}
         </Text>
         <SaveButton
-          saved={keepForLater}
-          onPress={() => setKeepForLater((on) => !on)}
-          accessibilityLabel={keepForLater ? 'Do not keep for later' : 'Keep for later'}
+          saved={!!savedRecipe}
+          onPress={() => {
+            if (!hit) return;
+            if (savedRecipe) unsaveRecipe(savedRecipe.id);
+            else saveRecipeFromHit(hit, category);
+          }}
+          accessibilityLabel={savedRecipe ? 'Remove from saved' : 'Save for later'}
         />
       </View>
       <Text style={styles.name}>{hit.name}</Text>
@@ -83,28 +98,7 @@ export default function RecipePreviewScreen() {
         })}
       </View>
 
-      {hit.ingredients.length > 0 && (
-        <View style={styles.section}>
-          <Text style={eyebrow}>Ingredients</Text>
-          {hit.ingredients.map((line, i) => (
-            <Text key={`${line}-${i}`} style={styles.line}>
-              {line}
-            </Text>
-          ))}
-        </View>
-      )}
-
-      {hit.steps.length > 0 && (
-        <View style={styles.section}>
-          <Text style={eyebrow}>Steps</Text>
-          {hit.steps.map((step, i) => (
-            <View key={`${i}-${step.slice(0, 12)}`} style={styles.stepRow}>
-              <Text style={styles.stepNumber}>{i + 1}</Text>
-              <Text style={styles.line}>{step}</Text>
-            </View>
-          ))}
-        </View>
-      )}
+      <RecipeBody ingredients={hit.ingredients} steps={hit.steps} />
 
       <Button
         label={`Add to ${CATEGORY_LABEL[category].toLowerCase()}`}
@@ -155,15 +149,5 @@ const styles = StyleSheet.create({
   pickActive: { backgroundColor: color.ink, borderColor: color.ink },
   pickLabel: { fontFamily: font.bodyMedium, fontSize: 14, color: color.slate },
   pickLabelActive: { color: color.tile },
-  section: { gap: space.sm, marginTop: space.lg },
-  line: { flex: 1, fontFamily: font.body, fontSize: 15, color: color.ink, lineHeight: 22 },
-  stepRow: { flexDirection: 'row', gap: space.md },
-  stepNumber: {
-    fontFamily: font.monoMedium,
-    fontSize: 13,
-    color: color.mute,
-    lineHeight: 22,
-    width: 18,
-  },
   save: { marginTop: space.xl },
 });
