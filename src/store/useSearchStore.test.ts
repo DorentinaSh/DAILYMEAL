@@ -52,7 +52,10 @@ describe('useSearchStore', () => {
     const done = useSearchStore.getState().run('');
     expect(useSearchStore.getState().status).toBe('loading');
 
+    // A browse asks the whole alphabet at once. Only one letter holds a dish.
+    expect(pending).toHaveLength(26);
     pending[0]({ meals: [CHICKEN_HANDI] });
+    pending.slice(1).forEach((answer) => answer({ meals: null }));
     await done;
 
     expect(useSearchStore.getState().status).toBe('done');
