@@ -108,6 +108,7 @@ React, storage, or the Expo SDK.
 | `unlinkMeal(state, mealId)` | Nulls `mealId` on any entry pointing at that meal. Removes nothing. |
 | `savedForMeal(state, mealId)` | The entry linked to that meal, or null. |
 | `savedForSource(state, sourceId)` | The entry saved from that source id, or null. |
+| `savedById(state, id)` | The entry with that id, or null. The detail screen's lookup, a peer of `mealById`. |
 
 It imports `types.ts` and the search `RecipeHit` type, and never imports the cycle
 engine, so the dependency runs one way and cannot become a cycle.
