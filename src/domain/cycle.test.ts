@@ -431,6 +431,59 @@ describe('updateMeal and the saved list', () => {
 
     expect(after.saved).toEqual([]);
   });
+
+  it('syncs a bookmarked meal’s edited text onto its linked entry', () => {
+    const added = addMeal(createEmptyState(), meal('a', 'breakfast'), zero);
+    const kept = saveFromMeal(added, meal('a', 'breakfast'), 's1');
+    const edited: Meal = {
+      ...meal('a', 'breakfast'),
+      name: 'Renamed dish',
+      ingredients: ['new ingredient'],
+      steps: ['new step'],
+      prepMinutes: 42,
+    };
+
+    const after = updateMeal(kept, edited, zero);
+
+    expect(savedForMeal(after, 'a')).toMatchObject({
+      name: 'Renamed dish',
+      ingredients: ['new ingredient'],
+      steps: ['new step'],
+      prepMinutes: 42,
+    });
+  });
+
+  it('leaves an unrelated saved entry alone when editing a meal with no bookmark of its own', () => {
+    const twoMeals = addMeal(
+      addMeal(createEmptyState(), meal('a', 'breakfast'), zero),
+      meal('b', 'breakfast'),
+      zero,
+    );
+    const base = saveFromMeal(twoMeals, meal('a', 'breakfast'), 's1');
+    const edited = { ...meal('b', 'breakfast'), name: 'Edited b' };
+
+    const after = updateMeal(base, edited, zero);
+
+    expect(after.saved).toEqual(base.saved);
+  });
+
+  it('syncs the recipe text along with the category on a category change', () => {
+    const added = addMeal(createEmptyState(), meal('a', 'breakfast'), zero);
+    const kept = saveFromMeal(added, meal('a', 'breakfast'), 's1');
+    const edited: Meal = {
+      ...meal('a', 'lunch'),
+      name: 'Renamed dish',
+      ingredients: ['new ingredient'],
+    };
+
+    const after = updateMeal(kept, edited, zero);
+
+    expect(savedForMeal(after, 'a')).toMatchObject({
+      name: 'Renamed dish',
+      ingredients: ['new ingredient'],
+      category: 'lunch',
+    });
+  });
 });
 
 describe('addSavedToMeals', () => {

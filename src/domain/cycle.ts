@@ -262,6 +262,27 @@ export function deleteMeal(
   );
 }
 
+/**
+ * Writes a meal's current text onto its linked saved entry, if it has one,
+ * plus whatever else changed about the link (only a category move needs to
+ * touch `mealId`/`category`). The copy in `saved` is there so a bookmark
+ * survives the meal's deletion, not so it drifts from a meal that still
+ * exists, so every edit that reaches `updateMeal` reaches the entry too.
+ */
+function syncSavedRecipe(
+  state: AppState,
+  savedId: string,
+  patch: Pick<Meal, 'name' | 'ingredients' | 'steps' | 'prepMinutes'> &
+    Partial<Pick<SavedRecipe, 'mealId' | 'category'>>,
+): AppState {
+  return {
+    ...state,
+    saved: state.saved.map((recipe) =>
+      recipe.id === savedId ? { ...recipe, ...patch } : recipe,
+    ),
+  };
+}
+
 export function updateMeal(
   state: AppState,
   meal: Meal,
@@ -270,30 +291,36 @@ export function updateMeal(
   const existing = mealById(state, meal.id);
   if (!existing) return state;
 
+  const kept = savedForMeal(state, meal.id);
+  const text = {
+    name: meal.name,
+    ingredients: meal.ingredients,
+    steps: meal.steps,
+    prepMinutes: meal.prepMinutes,
+  };
+
   if (existing.category === meal.category) {
-    return syncToday(
+    const next = syncToday(
       {
         ...state,
         meals: state.meals.map((m) => (m.id === meal.id ? meal : m)),
       },
       meal.category,
     );
+    return kept ? syncSavedRecipe(next, kept.id, text) : next;
   }
 
   // A category change is a move between two loops. It goes through deleteMeal,
   // which unlinks any bookmark on the way out — but the meal is not leaving, so
-  // the link is restored on the other side.
-  const kept = savedForMeal(state, meal.id);
+  // the link is restored on the other side, with the text a plain edit would
+  // have synced too.
   const moved = addMeal(deleteMeal(state, meal.id, rng), meal, rng);
   if (!kept) return moved;
-  return {
-    ...moved,
-    saved: moved.saved.map((recipe) =>
-      recipe.id === kept.id
-        ? { ...recipe, mealId: meal.id, category: meal.category }
-        : recipe,
-    ),
-  };
+  return syncSavedRecipe(moved, kept.id, {
+    ...text,
+    mealId: meal.id,
+    category: meal.category,
+  });
 }
 
 /**
