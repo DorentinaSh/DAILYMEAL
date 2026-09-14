@@ -368,6 +368,22 @@ describe('mealsIn', () => {
   });
 });
 
+describe('addMeal keeps the saved flag', () => {
+  // The path a recipe takes from search: bookmarked on its page, created
+  // already kept, and so present under the Meals filter without a second tap.
+  it('files a meal that arrives already saved', () => {
+    const state = addMeal(createEmptyState(), { ...meal('a'), saved: true }, zero);
+
+    expect(state.meals.filter((m) => m.saved).map((m) => m.id)).toEqual(['a']);
+  });
+
+  it('leaves a meal that arrives without the flag unsaved', () => {
+    const state = addMeal(createEmptyState(), meal('a'), zero);
+
+    expect(state.meals.filter((m) => m.saved)).toEqual([]);
+  });
+});
+
 describe('toggleSaved', () => {
   it('marks an unsaved meal as saved', () => {
     const state = addMeal(createEmptyState(), meal('a'), zero);
