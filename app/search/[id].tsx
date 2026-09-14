@@ -3,6 +3,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { savedForSource } from '@/domain/saved';
 import { CATEGORIES, CATEGORY_LABEL, type Category } from '@/domain/types';
 import { defaultCategory } from '@/search/normalize';
 import { useAppStore } from '@/store/useAppStore';
@@ -21,8 +22,11 @@ export default function RecipePreviewScreen() {
   const [category, setCategory] = useState<Category>(
     hit ? defaultCategory(hit.sourceCategory) : 'lunch',
   );
-  // Decided here, applied when the meal is actually created below.
-  const [keepForLater, setKeepForLater] = useState(false);
+  // Saving is its own decision now, taken the moment the bookmark is tapped
+  // rather than banked until a meal gets created.
+  const savedRecipe = useAppStore((s) => (hit ? savedForSource(s, hit.id) : null));
+  const saveRecipeFromHit = useAppStore((s) => s.saveRecipeFromHit);
+  const unsaveRecipe = useAppStore((s) => s.unsaveRecipe);
 
   if (!hit) {
     return (
@@ -40,7 +44,6 @@ export default function RecipePreviewScreen() {
       category,
       ingredients: hit.ingredients,
       steps: hit.steps,
-      saved: keepForLater,
       // The source doesn't publish a prep time; it stays yours to fill in.
       prepMinutes: null,
     });
@@ -58,9 +61,13 @@ export default function RecipePreviewScreen() {
           {[hit.sourceCategory, hit.area].filter(Boolean).join('  ·  ')}
         </Text>
         <SaveButton
-          saved={keepForLater}
-          onPress={() => setKeepForLater((on) => !on)}
-          accessibilityLabel={keepForLater ? 'Do not keep for later' : 'Keep for later'}
+          saved={!!savedRecipe}
+          onPress={() => {
+            if (!hit) return;
+            if (savedRecipe) unsaveRecipe(savedRecipe.id);
+            else saveRecipeFromHit(hit, category);
+          }}
+          accessibilityLabel={savedRecipe ? 'Remove from saved' : 'Save for later'}
         />
       </View>
       <Text style={styles.name}>{hit.name}</Text>
