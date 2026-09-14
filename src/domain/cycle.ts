@@ -6,6 +6,7 @@
  * storage, or the Expo SDK, which is what makes the rules below testable
  * without a simulator.
  */
+import { unlinkMeal } from './saved';
 import {
   CATEGORIES,
   DEFAULT_TIMES,
@@ -13,6 +14,7 @@ import {
   type Category,
   type Cycle,
   type Meal,
+  type SavedRecipe,
 } from './types';
 
 /** Injectable random source so shuffles are reproducible under test. */
@@ -245,13 +247,18 @@ export function deleteMeal(
     cycle = { order: rest, position: nextPosition };
   }
 
-  return syncToday(
-    {
-      ...state,
-      meals: state.meals.filter((m) => m.id !== id),
-      cycles: { ...state.cycles, [category]: cycle },
-    },
-    category,
+  // The bookmark outlives the meal: it reverts to a plain saved recipe rather
+  // than vanishing with the rotation entry.
+  return unlinkMeal(
+    syncToday(
+      {
+        ...state,
+        meals: state.meals.filter((m) => m.id !== id),
+        cycles: { ...state.cycles, [category]: cycle },
+      },
+      category,
+    ),
+    id,
   );
 }
 
@@ -288,4 +295,37 @@ export function updateMeal(
 
   // A category change is a move between two loops.
   return addMeal(deleteMeal(state, meal.id, rng), meal, rng);
+}
+
+/**
+ * Promotes a saved recipe into the rotation. One transition rather than two
+ * calls, so there is never a moment where the meal exists and its bookmark
+ * does not point at it. The chosen category is written back to the recipe, so
+ * the two can never disagree.
+ */
+export function addSavedToMeals(
+  state: AppState,
+  saved: SavedRecipe,
+  category: Category,
+  id: string,
+  rng: Rng = defaultRng,
+): AppState {
+  if (saved.mealId) return state;
+
+  const meal: Meal = {
+    id,
+    name: saved.name,
+    category,
+    ingredients: saved.ingredients,
+    steps: saved.steps,
+    prepMinutes: saved.prepMinutes,
+  };
+
+  const next = addMeal(state, meal, rng);
+  return {
+    ...next,
+    saved: next.saved.map((recipe) =>
+      recipe.id === saved.id ? { ...recipe, mealId: id, category } : recipe,
+    ),
+  };
 }

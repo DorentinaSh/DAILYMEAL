@@ -1,5 +1,6 @@
 import {
   addMeal,
+  addSavedToMeals,
   canSkip,
   createEmptyState,
   currentMeal,
@@ -11,6 +12,7 @@ import {
   toggleSaved,
   updateMeal,
 } from './cycle';
+import { saveFromMeal, savedById, savedForMeal } from './saved';
 import type { AppState, Category, Meal } from './types';
 
 /** Deterministic RNG so shuffles are reproducible in tests. */
@@ -435,5 +437,90 @@ describe('state is never mutated in place', () => {
     deleteMeal(s, 'a', zero);
     updateMeal(s, { ...meal('a'), name: 'Changed' }, zero);
     expect(JSON.stringify(s)).toBe(snapshot);
+  });
+});
+
+describe('deleteMeal and the saved list', () => {
+  it('keeps the saved recipe and cuts its link', () => {
+    const added = addMeal(createEmptyState(), meal('a'), zero);
+    const kept = saveFromMeal(added, meal('a'), 's1');
+
+    const after = deleteMeal(kept, 'a', zero);
+
+    expect(after.meals).toEqual([]);
+    expect(after.saved).toHaveLength(1);
+    expect(after.saved[0].mealId).toBeNull();
+    expect(after.saved[0].name).toBe('Meal a');
+  });
+
+  it('leaves a recipe saved from search untouched', () => {
+    const added = addMeal(createEmptyState(), meal('a'), zero);
+    const kept = saveFromMeal(added, meal('b'), 's1');
+
+    const after = deleteMeal(kept, 'a', zero);
+
+    expect(savedById(after, 's1')?.mealId).toBe('b');
+  });
+});
+
+describe('addSavedToMeals', () => {
+  const recipe = {
+    id: 's1',
+    name: 'Chicken Handi',
+    imageUrl: 'https://example.test/handi.jpg',
+    ingredients: ['1.2 kg Chicken'],
+    steps: ['Fry the onion'],
+    prepMinutes: null,
+    category: 'lunch' as const,
+    sourceId: '52795',
+    mealId: null,
+  };
+
+  function withRecipe() {
+    return { ...createEmptyState(), saved: [recipe] };
+  }
+
+  it('creates the meal from the recipe', () => {
+    const after = addSavedToMeals(withRecipe(), recipe, 'lunch', 'm1', zero);
+
+    expect(mealsIn(after, 'lunch')).toEqual([
+      {
+        id: 'm1',
+        name: 'Chicken Handi',
+        category: 'lunch',
+        ingredients: ['1.2 kg Chicken'],
+        steps: ['Fry the onion'],
+        prepMinutes: null,
+      },
+    ]);
+  });
+
+  it('links the saved recipe to the meal it made', () => {
+    const after = addSavedToMeals(withRecipe(), recipe, 'lunch', 'm1', zero);
+
+    expect(savedForMeal(after, 'm1')?.id).toBe('s1');
+  });
+
+  it('puts the meal into the rotation', () => {
+    const after = addSavedToMeals(withRecipe(), recipe, 'lunch', 'm1', zero);
+
+    expect(after.cycles.lunch.order).toEqual(['m1']);
+  });
+
+  // The category chosen on the way in is the one the recipe keeps, so the
+  // bookmark and the meal never disagree about what kind of dish it is.
+  it('records the category that was chosen', () => {
+    const after = addSavedToMeals(withRecipe(), recipe, 'breakfast', 'm1', zero);
+
+    expect(savedById(after, 's1')?.category).toBe('breakfast');
+    expect(mealsIn(after, 'breakfast')).toHaveLength(1);
+  });
+
+  it('refuses a recipe already in the rotation', () => {
+    const once = addSavedToMeals(withRecipe(), recipe, 'lunch', 'm1', zero);
+    const linked = savedById(once, 's1');
+    const twice = addSavedToMeals(once, linked!, 'lunch', 'm2', zero);
+
+    expect(twice).toBe(once);
   });
 });
