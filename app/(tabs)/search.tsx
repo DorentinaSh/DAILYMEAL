@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { MIN_QUERY } from '@/search/mealdb';
 import type { RecipeHit } from '@/search/types';
 import { useSearchStore, type SearchStatus } from '@/store/useSearchStore';
 import { Button } from '@/ui/Button';
@@ -140,12 +141,15 @@ function Empty({
   }
 
   if (status === 'done') {
+    // An empty list with nothing typed is a browse that came back empty, and
+    // "nothing found for ''" would be nonsense.
+    const text =
+      query.trim().length < MIN_QUERY
+        ? 'Nothing to show just now. Type a dish to go looking for it.'
+        : `Nothing found for “${query.trim()}”. The recipe catalogue is small — try a plainer word like “chicken” or “rice”.`;
     return (
       <View style={styles.empty}>
-        <Text style={styles.emptyText}>
-          Nothing found for “{query.trim()}”. The recipe catalogue is small — try a
-          plainer word like “chicken” or “rice”.
-        </Text>
+        <Text style={styles.emptyText}>{text}</Text>
       </View>
     );
   }

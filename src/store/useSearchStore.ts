@@ -6,7 +6,7 @@
  */
 import { create } from 'zustand';
 
-import { MIN_QUERY, searchRecipes } from '@/search/mealdb';
+import { browseRecipes, MIN_QUERY, searchRecipes } from '@/search/mealdb';
 import type { RecipeHit } from '@/search/types';
 
 export type SearchStatus = 'idle' | 'loading' | 'done' | 'error';
@@ -32,15 +32,12 @@ export const useSearchStore = create<SearchStore>((set) => {
 
     run: async (query) => {
       const seq = ++latest;
-
-      if (query.trim().length < MIN_QUERY) {
-        set({ status: 'idle', hits: [] });
-        return;
-      }
+      // Nothing typed yet is not nothing to show: the tab opens on a browse.
+      const searching = query.trim().length >= MIN_QUERY;
 
       set({ status: 'loading' });
       try {
-        const hits = await searchRecipes(query);
+        const hits = searching ? await searchRecipes(query) : await browseRecipes();
         if (seq !== latest) return;
         set({ hits, status: 'done' });
       } catch {

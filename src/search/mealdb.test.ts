@@ -1,5 +1,5 @@
-import { BREAD_OMELETTE } from './fixtures';
-import { MIN_QUERY, SearchError, searchRecipes } from './mealdb';
+import { BREAD_OMELETTE, CHICKEN_HANDI } from './fixtures';
+import { browseRecipes, MIN_QUERY, SearchError, searchRecipes } from './mealdb';
 
 const realFetch = globalThis.fetch;
 
@@ -79,5 +79,66 @@ describe('searchRecipes', () => {
     }) as unknown as Response);
 
     await expect(searchRecipes('chicken')).rejects.toBeInstanceOf(SearchError);
+  });
+});
+
+describe('browseRecipes', () => {
+  /** Always picks the last remaining item, so the shuffle is reproducible. */
+  const lastRng = () => 0.999999;
+
+  it('browses by first letter, the only listing that carries whole recipes', async () => {
+    const calls = stubFetch(ok({ meals: [BREAD_OMELETTE] }));
+
+    await browseRecipes(lastRng);
+
+    expect(calls[0]).toMatch(
+      /^https:\/\/www\.themealdb\.com\/api\/json\/v1\/1\/search\.php\?f=[a-z]$/,
+    );
+  });
+
+  it('returns hits with their ingredients and steps intact', async () => {
+    stubFetch(ok({ meals: [BREAD_OMELETTE] }));
+
+    const [hit] = await browseRecipes(lastRng);
+
+    expect(hit.ingredients).toEqual(['2 Bread', '2 Egg', '0.5 Salt']);
+    expect(hit.steps).toEqual(['Make and enjoy']);
+  });
+
+  it('tries another letter when one holds nothing', async () => {
+    let call = 0;
+    const calls = stubFetch(() => {
+      call += 1;
+      return ok(call === 1 ? { meals: null } : { meals: [CHICKEN_HANDI] })();
+    });
+
+    const hits = await browseRecipes(lastRng);
+
+    expect(calls).toHaveLength(2);
+    expect(hits.map((h) => h.name)).toEqual(['Chicken Handi']);
+  });
+
+  it('gives up rather than trying every letter in the alphabet', async () => {
+    const calls = stubFetch(ok({ meals: null }));
+
+    expect(await browseRecipes(lastRng)).toEqual([]);
+    expect(calls).toHaveLength(3);
+  });
+
+  it('caps the list so it stays browsable', async () => {
+    const many = Array.from({ length: 90 }, (_, i) => ({
+      ...BREAD_OMELETTE,
+      idMeal: String(i),
+      strMeal: `Dish ${i}`,
+    }));
+    stubFetch(ok({ meals: many }));
+
+    expect(await browseRecipes(lastRng)).toHaveLength(20);
+  });
+
+  it('raises SearchError when the network fails', async () => {
+    stubFetch(() => Promise.reject(new TypeError('Network request failed')));
+
+    await expect(browseRecipes(lastRng)).rejects.toBeInstanceOf(SearchError);
   });
 });

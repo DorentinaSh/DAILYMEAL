@@ -48,11 +48,17 @@ describe('useSearchStore', () => {
     expect(useSearchStore.getState().hits).toEqual([]);
   });
 
-  it('goes idle for a query too short to search', async () => {
-    await useSearchStore.getState().run('a');
+  it('browses rather than showing nothing when no query is typed', async () => {
+    const done = useSearchStore.getState().run('');
+    expect(useSearchStore.getState().status).toBe('loading');
 
-    expect(useSearchStore.getState().status).toBe('idle');
-    expect(pending).toHaveLength(0);
+    pending[0]({ meals: [CHICKEN_HANDI] });
+    await done;
+
+    expect(useSearchStore.getState().status).toBe('done');
+    expect(useSearchStore.getState().hits.map((hit) => hit.name)).toEqual([
+      'Chicken Handi',
+    ]);
   });
 
   it('discards a late response for a query that has been replaced', async () => {
