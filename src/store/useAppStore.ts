@@ -7,6 +7,7 @@ import { persist } from 'zustand/middleware';
 
 import {
   addMeal,
+  addSavedToMeals as addSavedToMealsRule,
   createEmptyState,
   dateKey,
   deleteMeal,
@@ -16,7 +17,9 @@ import {
   toggleSaved,
   updateMeal,
 } from '@/domain/cycle';
+import { saveFromHit, saveFromMeal, savedById, unsave } from '@/domain/saved';
 import type { AppState, Category, Meal } from '@/domain/types';
+import type { RecipeHit } from '@/search/types';
 import { migrateState, STATE_VERSION } from './migrate';
 import { persistStorage, STORAGE_KEY } from './storage';
 
@@ -30,6 +33,13 @@ type Actions = {
   saveMeal: (meal: Meal) => void;
   removeMeal: (id: string) => void;
   toggleSaved: (id: string) => void;
+  /** Bookmarks a meal already in the rotation. */
+  saveRecipeFromMeal: (meal: Meal) => void;
+  /** Bookmarks a recipe found in search, before any decision about meals. */
+  saveRecipeFromHit: (found: RecipeHit, category: Category) => void;
+  unsaveRecipe: (savedId: string) => void;
+  /** Promotes a saved recipe into the rotation and links the two. */
+  addSavedToMeals: (savedId: string, category: Category) => void;
   setNotify: (category: Category, notify: boolean) => void;
   setTime: (category: Category, time: string) => void;
 };
@@ -53,6 +63,20 @@ export const useAppStore = create<Store>()(
       removeMeal: (id) => set((s) => deleteMeal(s, id)),
 
       toggleSaved: (id) => set((s) => toggleSaved(s, id)),
+
+      saveRecipeFromMeal: (meal) => set((s) => saveFromMeal(s, meal, makeId())),
+
+      saveRecipeFromHit: (found, category) =>
+        set((s) => saveFromHit(s, found, category, makeId())),
+
+      unsaveRecipe: (savedId) => set((s) => unsave(s, savedId)),
+
+      addSavedToMeals: (savedId, category) =>
+        set((s) => {
+          const recipe = savedById(s, savedId);
+          if (!recipe) return s;
+          return addSavedToMealsRule(s, recipe, category, makeId());
+        }),
 
       setNotify: (category, notify) =>
         set((s) => ({
