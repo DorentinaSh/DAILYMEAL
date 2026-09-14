@@ -7,7 +7,7 @@ import { mealsIn } from '@/domain/cycle';
 import { CATEGORIES, CATEGORY_LABEL, type Category } from '@/domain/types';
 import { useAppStore } from '@/store/useAppStore';
 import { Button } from '@/ui/Button';
-import { SaveMark } from '@/ui/SaveMark';
+import { SaveButton } from '@/ui/SaveButton';
 import { color, eyebrow, font, radius, space } from '@/ui/theme';
 
 export default function MealsScreen() {
@@ -20,15 +20,11 @@ export default function MealsScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.titleRow}>
           <Text style={styles.title}>Meals</Text>
-          <Pressable
+          <SaveButton
+            saved={savedOnly}
             onPress={() => setSavedOnly((on) => !on)}
-            hitSlop={16}
-            accessibilityRole="button"
-            accessibilityState={{ selected: savedOnly }}
             accessibilityLabel={savedOnly ? 'Show all meals' : 'Show saved meals only'}
-          >
-            <SaveMark saved={savedOnly} />
-          </Pressable>
+          />
         </View>
         <Text style={styles.lede}>
           {savedOnly

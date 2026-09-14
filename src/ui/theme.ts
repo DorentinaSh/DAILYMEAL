@@ -63,3 +63,15 @@ export const eyebrow = {
   textTransform: 'uppercase' as const,
   color: color.slate,
 };
+
+/**
+ * The keep-for-later control, as it is drawn in each state. Both states are
+ * checked against WCAG in contrast.test.ts: a bare mark on the page measured
+ * 2:1 off and 1.6:1 on — the accent was *less* visible than the resting
+ * state, so turning it on read as nothing happening. Filling the pill is the
+ * same on/off language the category picker already uses.
+ */
+export const SAVE_COLORS = {
+  off: { pill: color.tile, border: color.edge, mark: color.slate },
+  on: { pill: color.ink, border: color.ink, mark: color.yolk },
+} as const;

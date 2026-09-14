@@ -8,7 +8,7 @@ import { defaultCategory } from '@/search/normalize';
 import { useAppStore } from '@/store/useAppStore';
 import { useSearchStore } from '@/store/useSearchStore';
 import { Button } from '@/ui/Button';
-import { SaveMark } from '@/ui/SaveMark';
+import { SaveButton } from '@/ui/SaveButton';
 import { color, eyebrow, font, radius, space } from '@/ui/theme';
 
 export default function RecipePreviewScreen() {
@@ -56,15 +56,11 @@ export default function RecipePreviewScreen() {
         <Text style={eyebrow}>
           {[hit.sourceCategory, hit.area].filter(Boolean).join('  ·  ')}
         </Text>
-        <Pressable
+        <SaveButton
+          saved={keepForLater}
           onPress={() => setKeepForLater((on) => !on)}
-          hitSlop={16}
-          accessibilityRole="button"
-          accessibilityState={{ selected: keepForLater }}
           accessibilityLabel={keepForLater ? 'Do not keep for later' : 'Keep for later'}
-        >
-          <SaveMark saved={keepForLater} />
-        </Pressable>
+        />
       </View>
       <Text style={styles.name}>{hit.name}</Text>
 

@@ -1,11 +1,11 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { mealById } from '@/domain/cycle';
 import { CATEGORY_LABEL } from '@/domain/types';
 import { useAppStore } from '@/store/useAppStore';
 import { Button } from '@/ui/Button';
-import { SaveMark } from '@/ui/SaveMark';
+import { SaveButton } from '@/ui/SaveButton';
 import { color, eyebrow, font, radius, space } from '@/ui/theme';
 
 export default function MealDetailScreen() {
@@ -41,15 +41,11 @@ export default function MealDetailScreen() {
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <View style={styles.head}>
         <Text style={eyebrow}>{CATEGORY_LABEL[meal.category]}</Text>
-        <Pressable
+        <SaveButton
+          saved={!!meal.saved}
           onPress={() => toggleSaved(meal.id)}
-          hitSlop={16}
-          accessibilityRole="button"
-          accessibilityState={{ selected: !!meal.saved }}
           accessibilityLabel={meal.saved ? 'Remove from saved' : 'Save for later'}
-        >
-          <SaveMark saved={!!meal.saved} />
-        </Pressable>
+        />
       </View>
       <Text style={styles.name}>{meal.name}</Text>
       {meal.prepMinutes ? (
