@@ -18,6 +18,7 @@ export default function RecipePreviewScreen() {
   // The list already fetched the whole recipe, so opening it costs no request.
   const hit = useSearchStore((s) => s.hits.find((candidate) => candidate.id === id) ?? null);
   const createMeal = useAppStore((s) => s.createMeal);
+  const addSavedToMeals = useAppStore((s) => s.addSavedToMeals);
 
   const [category, setCategory] = useState<Category>(
     hit ? defaultCategory(hit.sourceCategory) : 'lunch',
@@ -39,14 +40,20 @@ export default function RecipePreviewScreen() {
 
   function save() {
     if (!hit) return;
-    createMeal({
-      name: hit.name,
-      category,
-      ingredients: hit.ingredients,
-      steps: hit.steps,
-      // The source doesn't publish a prep time; it stays yours to fill in.
-      prepMinutes: null,
-    });
+    // A hit already bookmarked links its new meal to that entry rather than
+    // creating a second one — nothing here is ever duplicated.
+    if (savedRecipe) {
+      addSavedToMeals(savedRecipe.id, category);
+    } else {
+      createMeal({
+        name: hit.name,
+        category,
+        ingredients: hit.ingredients,
+        steps: hit.steps,
+        // The source doesn't publish a prep time; it stays yours to fill in.
+        prepMinutes: null,
+      });
+    }
     router.back();
   }
 
