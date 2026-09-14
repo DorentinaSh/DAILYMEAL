@@ -6,7 +6,7 @@
  * storage, or the Expo SDK, which is what makes the rules below testable
  * without a simulator.
  */
-import { unlinkMeal } from './saved';
+import { savedForMeal, unlinkMeal } from './saved';
 import {
   CATEGORIES,
   DEFAULT_TIMES,
@@ -293,8 +293,20 @@ export function updateMeal(
     );
   }
 
-  // A category change is a move between two loops.
-  return addMeal(deleteMeal(state, meal.id, rng), meal, rng);
+  // A category change is a move between two loops. It goes through deleteMeal,
+  // which unlinks any bookmark on the way out — but the meal is not leaving, so
+  // the link is restored on the other side.
+  const kept = savedForMeal(state, meal.id);
+  const moved = addMeal(deleteMeal(state, meal.id, rng), meal, rng);
+  if (!kept) return moved;
+  return {
+    ...moved,
+    saved: moved.saved.map((recipe) =>
+      recipe.id === kept.id
+        ? { ...recipe, mealId: meal.id, category: meal.category }
+        : recipe,
+    ),
+  };
 }
 
 /**

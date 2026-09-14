@@ -463,6 +463,34 @@ describe('deleteMeal and the saved list', () => {
   });
 });
 
+describe('updateMeal and the saved list', () => {
+  it('keeps a category change linked to its bookmark', () => {
+    const added = addMeal(createEmptyState(), meal('a', 'breakfast'), zero);
+    const kept = saveFromMeal(added, meal('a', 'breakfast'), 's1');
+
+    const after = updateMeal(kept, meal('a', 'lunch'), zero);
+
+    expect(savedForMeal(after, 'a')?.id).toBe('s1');
+  });
+
+  it('moves the bookmark’s category along with the meal’s', () => {
+    const added = addMeal(createEmptyState(), meal('a', 'breakfast'), zero);
+    const kept = saveFromMeal(added, meal('a', 'breakfast'), 's1');
+
+    const after = updateMeal(kept, meal('a', 'lunch'), zero);
+
+    expect(savedForMeal(after, 'a')?.category).toBe('lunch');
+  });
+
+  it('leaves the saved list untouched when there is no bookmark', () => {
+    const added = addMeal(createEmptyState(), meal('a', 'breakfast'), zero);
+
+    const after = updateMeal(added, meal('a', 'lunch'), zero);
+
+    expect(after.saved).toEqual([]);
+  });
+});
+
 describe('addSavedToMeals', () => {
   const recipe = {
     id: 's1',
