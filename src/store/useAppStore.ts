@@ -17,6 +17,7 @@ import {
   updateMeal,
 } from '@/domain/cycle';
 import type { AppState, Category, Meal } from '@/domain/types';
+import { migrateState, STATE_VERSION } from './migrate';
 import { persistStorage, STORAGE_KEY } from './storage';
 
 export type MealDraft = Omit<Meal, 'id'>;
@@ -72,6 +73,8 @@ export const useAppStore = create<Store>()(
     {
       name: STORAGE_KEY,
       storage: persistStorage,
+      version: STATE_VERSION,
+      migrate: (persisted, from) => migrateState(persisted, from),
       // Only the data is persisted; actions and the hydration flag are not.
       partialize: (s): AppState => ({
         meals: s.meals,
