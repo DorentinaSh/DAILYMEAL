@@ -48,7 +48,16 @@ export default function MealsScreen() {
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <View style={styles.header}>
-        <Text style={styles.title}>Meals</Text>
+        <View style={styles.titleRow}>
+          <Text style={styles.title}>Meals</Text>
+          {tab !== 'saved' && (
+            <Button
+              label="Add"
+              variant="solid"
+              onPress={() => router.push(`/meal/edit?category=${tab}`)}
+            />
+          )}
+        </View>
         <Text style={styles.lede}>
           {tab === 'saved'
             ? 'The ones you kept for later. They rotate like everything else.'
@@ -62,7 +71,7 @@ export default function MealsScreen() {
           <Text style={styles.empty}>
             {tab === 'saved'
               ? 'Nothing saved yet. Open a meal and tap the bookmark to keep it here.'
-              : `No ${CATEGORY_LABEL[tab].toLowerCase()}s yet. Add one below.`}
+              : `No ${CATEGORY_LABEL[tab].toLowerCase()}s yet. Tap Add to make one.`}
           </Text>
         ) : (
           <View style={styles.list}>
@@ -82,14 +91,6 @@ export default function MealsScreen() {
             ))}
           </View>
         )}
-
-        {tab !== 'saved' && (
-          <Button
-            label={`Add a ${CATEGORY_LABEL[tab].toLowerCase()}`}
-            onPress={() => router.push(`/meal/edit?category=${tab}`)}
-            style={styles.add}
-          />
-        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -105,6 +106,12 @@ const styles = StyleSheet.create({
     paddingBottom: space.lg,
   },
   content: { paddingHorizontal: space.xl, paddingBottom: space.huge },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: space.md,
+  },
   title: {
     fontFamily: font.displayBold,
     fontSize: 40,
@@ -161,5 +168,4 @@ const styles = StyleSheet.create({
     fontSize: 22,
     color: color.mute,
   },
-  add: { marginTop: space.lg },
 });
