@@ -53,7 +53,6 @@ export default function MealsScreen() {
           {tab !== 'saved' && (
             <Button
               label="Add"
-              variant="solid"
               size="sm"
               onPress={() => router.push(`/meal/edit?category=${tab}`)}
             />
