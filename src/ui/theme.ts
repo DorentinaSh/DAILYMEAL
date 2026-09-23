@@ -75,3 +75,16 @@ export const SAVE_COLORS = {
   off: { pill: color.tile, border: color.edge, mark: color.slate },
   on: { pill: color.ink, border: color.ink, mark: color.yolk },
 } as const;
+
+/**
+ * The segmented picker, as each pill is drawn. Yolk is deliberately absent:
+ * the accent means "this is what you're eating today" everywhere else in the
+ * app, and spending it on "this is the list you're looking at" would blunt it.
+ * The filled pill carries the selection instead. Both states are checked as
+ * text contrast in contrast.test.ts — the count is the smallest type here, so
+ * it sets the floor, not the label.
+ */
+export const TAB_COLORS = {
+  off: { pill: color.tile, label: color.slate, count: color.slate },
+  on: { pill: color.ink, label: color.tile, count: color.mute },
+} as const;

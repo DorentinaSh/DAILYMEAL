@@ -3,7 +3,6 @@ import { useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -15,6 +14,7 @@ import { mealById } from '@/domain/cycle';
 import { CATEGORIES, CATEGORY_LABEL, type Category } from '@/domain/types';
 import { useAppStore } from '@/store/useAppStore';
 import { Button } from '@/ui/Button';
+import { Segment } from '@/ui/Segment';
 import { color, eyebrow, font, radius, space } from '@/ui/theme';
 
 /** Blank lines are dropped so a stray return does not become an empty step. */
@@ -84,24 +84,11 @@ export default function MealEditScreen() {
 
         <View style={styles.field}>
           <Text style={eyebrow}>Served as</Text>
-          <View style={styles.segment}>
-            {CATEGORIES.map((c) => {
-              const active = c === category;
-              return (
-                <Pressable
-                  key={c}
-                  onPress={() => setCategory(c)}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: active }}
-                  style={[styles.segmentItem, active && styles.segmentItemActive]}
-                >
-                  <Text style={[styles.segmentText, active && styles.segmentTextActive]}>
-                    {CATEGORY_LABEL[c]}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
+          <Segment
+            items={CATEGORIES.map((c) => ({ value: c, label: CATEGORY_LABEL[c] }))}
+            value={category}
+            onChange={setCategory}
+          />
         </View>
 
         <View style={styles.field}>
@@ -188,27 +175,5 @@ const styles = StyleSheet.create({
     minHeight: 48,
   },
   area: { minHeight: 132, lineHeight: 24 },
-  segment: {
-    flexDirection: 'row',
-    backgroundColor: color.tile,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: color.edge,
-    padding: 3,
-    gap: 3,
-  },
-  segmentItem: {
-    flex: 1,
-    paddingVertical: space.md,
-    borderRadius: radius.sm,
-    alignItems: 'center',
-  },
-  segmentItemActive: { backgroundColor: color.ink },
-  segmentText: {
-    fontFamily: font.bodyMedium,
-    fontSize: 15,
-    color: color.slate,
-  },
-  segmentTextActive: { color: color.tile },
   actions: { gap: space.sm, marginTop: space.sm },
 });

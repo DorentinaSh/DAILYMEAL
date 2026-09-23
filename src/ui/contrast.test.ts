@@ -1,8 +1,11 @@
-import { color, SAVE_COLORS } from './theme';
+import { color, SAVE_COLORS, TAB_COLORS } from './theme';
 import { contrastRatio } from './contrast';
 
 /** WCAG 1.4.11: a control that isn't text still has to be seen. */
 const MIN_UI = 3;
+
+/** WCAG 1.4.3 for body-sized text, which is what a tab label is. */
+const MIN_TEXT = 4.5;
 
 describe('contrastRatio', () => {
   it('matches the known extremes', () => {
@@ -36,5 +39,29 @@ describe('the save control is legible in both states', () => {
   it('the off state rests on the app’s ordinary card surface', () => {
     expect(SAVE_COLORS.off.pill).toBe(color.tile);
     expect(SAVE_COLORS.off.border).toBe(color.edge);
+  });
+});
+
+describe('the segmented picker is legible in both states', () => {
+  for (const state of ['off', 'on'] as const) {
+    const { pill, label, count } = TAB_COLORS[state];
+
+    it(`${state}: the label reads against its pill`, () => {
+      expect(contrastRatio(label, pill)).toBeGreaterThanOrEqual(MIN_TEXT);
+    });
+
+    // The count is 11pt mono — the smallest type on the screen, and the first
+    // thing that goes muddy if a tone is picked by eye.
+    it(`${state}: the count reads against its pill`, () => {
+      expect(contrastRatio(count, pill)).toBeGreaterThanOrEqual(MIN_TEXT);
+    });
+  }
+
+  // Which tab you are on has to be obvious at a glance, not on inspection:
+  // the selected pill is the only thing saying so.
+  it('the selected pill separates from the unselected ones', () => {
+    expect(contrastRatio(TAB_COLORS.on.pill, TAB_COLORS.off.pill)).toBeGreaterThanOrEqual(
+      MIN_UI,
+    );
   });
 });
