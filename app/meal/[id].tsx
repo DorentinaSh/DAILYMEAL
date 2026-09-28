@@ -12,9 +12,12 @@ import { glazeFor } from '@/ui/glaze';
 import { MealMark } from '@/ui/MealMark';
 import { color, eyebrow, font, radius, space } from '@/ui/theme';
 
-/** The circle overlaps the panel by this much, so it straddles the seam. */
+/** The circle overlaps the sheet by this much, so it straddles the seam. */
 const HERO = 168;
 const OVERLAP = HERO / 2;
+/** The fixed bar: a 40pt control plus the breathing room around it. */
+const BAR_BLOCK = 40 + 8;
+const GAP = 16;
 
 function Chip({ label }: { label: string }) {
   return (
@@ -74,36 +77,26 @@ export default function MealDetailScreen() {
     <View style={styles.screen}>
       {/* The panel is a deep glaze, so the clock and battery must go pale. */}
       <StatusBar style="light" />
-      <ScrollView contentContainerStyle={styles.scroll}>
-        <View style={[styles.panel, { backgroundColor: panel, paddingTop: insets.top + space.sm }]}>
-          <View style={styles.panelBar}>
-            <Pressable
-              onPress={() => router.back()}
-              accessibilityRole="button"
-              accessibilityLabel="Back"
-              style={({ pressed }) => [styles.round, pressed && styles.roundPressed]}
-            >
-              <Text style={styles.chevron}>‹</Text>
-            </Pressable>
 
-            <Text style={styles.panelTitle}>{CATEGORY_LABEL[meal.category]}</Text>
+      {/* Layer 1: the glaze, fixed. The sheet rides up over it. */}
+      <View
+        style={[
+          styles.backdrop,
+          { backgroundColor: panel, height: insets.top + BAR_BLOCK + GAP + OVERLAP },
+        ]}
+      />
 
-            <Pressable
-              onPress={() => toggleSaved(meal.id)}
-              accessibilityRole="button"
-              accessibilityState={{ selected: !!meal.saved }}
-              accessibilityLabel={meal.saved ? 'Remove from saved' : 'Save for later'}
-              style={({ pressed }) => [styles.round, pressed && styles.roundPressed]}
-            >
-              <Text style={[styles.bookmark, meal.saved && styles.bookmarkOn]}>
-                {meal.saved ? '☑' : '☐'}
-              </Text>
-            </Pressable>
-          </View>
-
-          <View style={styles.heroWrap}>
-            <MealMark name={meal.name} uri={photoUri(meal)} size="hero" style={styles.hero} />
-          </View>
+      {/* Layer 2: everything that moves. The circle travels with the sheet —
+          left behind it would hang over the scrolling content. */}
+      <ScrollView
+        contentContainerStyle={[
+          styles.scroll,
+          { paddingTop: insets.top + BAR_BLOCK + GAP },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.heroWrap}>
+          <MealMark name={meal.name} uri={photoUri(meal)} size="hero" style={styles.hero} />
         </View>
 
         <View style={styles.sheet}>
@@ -156,6 +149,33 @@ export default function MealDetailScreen() {
           </View>
         </View>
       </ScrollView>
+
+      {/* Layer 3: the bar, fixed above the scroll so its buttons stay live and
+          the pale status text always has glaze behind it. */}
+      <View style={[styles.bar, { backgroundColor: panel, paddingTop: insets.top + space.sm }]}>
+        <Pressable
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="Back"
+          style={({ pressed }) => [styles.round, pressed && styles.roundPressed]}
+        >
+          <Text style={styles.chevron}>‹</Text>
+        </Pressable>
+
+        <Text style={styles.panelTitle}>{CATEGORY_LABEL[meal.category]}</Text>
+
+        <Pressable
+          onPress={() => toggleSaved(meal.id)}
+          accessibilityRole="button"
+          accessibilityState={{ selected: !!meal.saved }}
+          accessibilityLabel={meal.saved ? 'Remove from saved' : 'Save for later'}
+          style={({ pressed }) => [styles.round, pressed && styles.roundPressed]}
+        >
+          <Text style={[styles.bookmark, meal.saved && styles.bookmarkOn]}>
+            {meal.saved ? '\u2611' : '\u2610'}
+          </Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -164,12 +184,19 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.porcelain },
   scroll: { paddingBottom: space.huge },
 
-  panel: {
-    paddingHorizontal: space.xl,
-    // Room for the half of the circle that hangs below the panel.
-    paddingBottom: OVERLAP + space.lg,
+  backdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
   },
-  panelBar: {
+  bar: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: space.xl,
+    paddingBottom: space.sm,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -196,14 +223,21 @@ const styles = StyleSheet.create({
   bookmark: { fontSize: 20, lineHeight: 24, color: color.porcelain },
   bookmarkOn: { color: color.yolk },
 
-  heroWrap: { alignItems: 'center', marginTop: space.lg, height: OVERLAP },
+  heroWrap: {
+    alignItems: 'center',
+    // Claims only the top half; the circle overflows the rest onto the sheet,
+    // and zIndex is what puts it on top of the sheet rather than under it.
+    height: OVERLAP,
+    zIndex: 1,
+  },
   hero: { borderWidth: 4, borderColor: color.porcelain },
 
   sheet: {
     backgroundColor: color.porcelain,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
-    marginTop: -OVERLAP,
+    // Begins at the circle's midpoint, and clears its lower half before any
+    // text starts.
     paddingTop: OVERLAP + space.lg,
     paddingHorizontal: space.xl,
   },
