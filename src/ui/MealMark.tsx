@@ -24,6 +24,8 @@ const SIZES = {
   sm: { box: 44, corner: radius.md, letter: 21, band: 4 },
   md: { box: 72, corner: 12, letter: 34, band: 5 },
   lg: { box: 96, corner: radius.lg, letter: 46, band: 6 },
+  /** The recipe screen's hero. Corner is half the box, so it is a circle. */
+  hero: { box: 168, corner: 84, letter: 76, band: 10 },
 } as const;
 
 type Props = {

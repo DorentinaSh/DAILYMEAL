@@ -1,20 +1,36 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { mealById } from '@/domain/cycle';
 import { CATEGORY_LABEL } from '@/domain/types';
+import { photoUri } from '@/photos/files';
 import { useAppStore } from '@/store/useAppStore';
 import { Button } from '@/ui/Button';
-import { photoUri } from '@/photos/files';
+import { glazeFor } from '@/ui/glaze';
 import { MealMark } from '@/ui/MealMark';
-import { SaveButton } from '@/ui/SaveButton';
 import { color, eyebrow, font, radius, space } from '@/ui/theme';
+
+/** The circle overlaps the panel by this much, so it straddles the seam. */
+const HERO = 168;
+const OVERLAP = HERO / 2;
+
+function Chip({ label }: { label: string }) {
+  return (
+    <View style={styles.chip}>
+      <Text style={styles.chipText}>{label}</Text>
+    </View>
+  );
+}
 
 export default function MealDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const meal = useAppStore((s) => mealById(s, id ?? null));
+  const cycle = useAppStore((s) => (meal ? s.cycles[meal.category] : null));
   const removeMeal = useAppStore((s) => s.removeMeal);
   const toggleSaved = useAppStore((s) => s.toggleSaved);
+  const insets = useSafeAreaInsets();
 
   if (!meal) {
     return (
@@ -39,93 +55,190 @@ export default function MealDetailScreen() {
     ]);
   }
 
+  // The panel wears the meal's own glaze, so opening a meal is the most
+  // colourful thing the app does and every meal's screen is its own.
+  const panel = glazeFor(meal.name);
+
+  const place = cycle ? cycle.order.indexOf(meal.id) : -1;
+  const chips = [
+    meal.prepMinutes ? `${meal.prepMinutes} min` : null,
+    meal.ingredients.length
+      ? `${meal.ingredients.length} ingredient${meal.ingredients.length === 1 ? '' : 's'}`
+      : null,
+    place >= 0 && cycle && cycle.order.length > 1
+      ? `${place + 1} of ${cycle.order.length} this round`
+      : null,
+  ].filter((c): c is string => c !== null);
+
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
-      <View style={styles.head}>
-        <Text style={eyebrow}>{CATEGORY_LABEL[meal.category]}</Text>
-        <SaveButton
-          saved={!!meal.saved}
-          onPress={() => toggleSaved(meal.id)}
-          accessibilityLabel={meal.saved ? 'Remove from saved' : 'Save for later'}
-        />
-      </View>
-      <View style={styles.headline}>
-        <MealMark name={meal.name} uri={photoUri(meal)} size="lg" />
-        <View style={styles.headlineText}>
+    <View style={styles.screen}>
+      {/* The panel is a deep glaze, so the clock and battery must go pale. */}
+      <StatusBar style="light" />
+      <ScrollView contentContainerStyle={styles.scroll}>
+        <View style={[styles.panel, { backgroundColor: panel, paddingTop: insets.top + space.sm }]}>
+          <View style={styles.panelBar}>
+            <Pressable
+              onPress={() => router.back()}
+              accessibilityRole="button"
+              accessibilityLabel="Back"
+              style={({ pressed }) => [styles.round, pressed && styles.roundPressed]}
+            >
+              <Text style={styles.chevron}>‹</Text>
+            </Pressable>
+
+            <Text style={styles.panelTitle}>{CATEGORY_LABEL[meal.category]}</Text>
+
+            <Pressable
+              onPress={() => toggleSaved(meal.id)}
+              accessibilityRole="button"
+              accessibilityState={{ selected: !!meal.saved }}
+              accessibilityLabel={meal.saved ? 'Remove from saved' : 'Save for later'}
+              style={({ pressed }) => [styles.round, pressed && styles.roundPressed]}
+            >
+              <Text style={[styles.bookmark, meal.saved && styles.bookmarkOn]}>
+                {meal.saved ? '☑' : '☐'}
+              </Text>
+            </Pressable>
+          </View>
+
+          <View style={styles.heroWrap}>
+            <MealMark name={meal.name} uri={photoUri(meal)} size="hero" style={styles.hero} />
+          </View>
+        </View>
+
+        <View style={styles.sheet}>
           <Text style={styles.name}>{meal.name}</Text>
-          {meal.prepMinutes ? (
-            <Text style={styles.meta}>{meal.prepMinutes} min</Text>
-          ) : null}
-        </View>
-      </View>
 
-      {meal.ingredients.length > 0 && (
-        <View style={styles.section}>
-          <Text style={eyebrow}>Ingredients</Text>
-          <View style={styles.list}>
-            {meal.ingredients.map((item, i) => (
-              <View key={`${item}-${i}`} style={styles.listRow}>
-                <View style={styles.bullet} />
-                <Text style={styles.listText}>{item}</Text>
+          {chips.length > 0 && (
+            <View style={styles.chips}>
+              {chips.map((c) => (
+                <Chip key={c} label={c} />
+              ))}
+            </View>
+          )}
+
+          {meal.ingredients.length > 0 && (
+            <View style={styles.section}>
+              <Text style={eyebrow}>Ingredients</Text>
+              <View style={styles.list}>
+                {meal.ingredients.map((item, i) => (
+                  <View key={`${item}-${i}`} style={styles.listRow}>
+                    <View style={styles.bullet} />
+                    <Text style={styles.listText}>{item}</Text>
+                  </View>
+                ))}
               </View>
-            ))}
+            </View>
+          )}
+
+          {meal.steps.length > 0 && (
+            <View style={styles.section}>
+              <Text style={eyebrow}>Method</Text>
+              <View style={styles.steps}>
+                {meal.steps.map((step, i) => (
+                  <View key={`${step}-${i}`} style={styles.stepRow}>
+                    {/* Numbered because method genuinely is a sequence. */}
+                    <Text style={styles.stepNumber}>{String(i + 1).padStart(2, '0')}</Text>
+                    <Text style={styles.stepText}>{step}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          <View style={styles.actions}>
+            <Button
+              label="Edit"
+              variant="solid"
+              onPress={() => router.push(`/meal/edit?id=${meal.id}`)}
+            />
+            <Button label="Delete" variant="danger" onPress={confirmDelete} />
           </View>
         </View>
-      )}
-
-      {meal.steps.length > 0 && (
-        <View style={styles.section}>
-          <Text style={eyebrow}>Method</Text>
-          <View style={styles.steps}>
-            {meal.steps.map((step, i) => (
-              <View key={`${step}-${i}`} style={styles.stepRow}>
-                {/* Numbered because method genuinely is a sequence. */}
-                <Text style={styles.stepNumber}>{String(i + 1).padStart(2, '0')}</Text>
-                <Text style={styles.stepText}>{step}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-      )}
-
-      <View style={styles.actions}>
-        <Button
-          label="Edit"
-          variant="solid"
-          onPress={() => router.push(`/meal/edit?id=${meal.id}`)}
-        />
-        <Button label="Delete" variant="danger" onPress={confirmDelete} />
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.porcelain },
-  content: { padding: space.xl, paddingBottom: space.huge },
-  head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  headline: {
+  scroll: { paddingBottom: space.huge },
+
+  panel: {
+    paddingHorizontal: space.xl,
+    // Room for the half of the circle that hangs below the panel.
+    paddingBottom: OVERLAP + space.lg,
+  },
+  panelBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: space.lg,
-    marginTop: space.md,
+    justifyContent: 'space-between',
   },
-  headlineText: { flex: 1 },
+  panelTitle: {
+    ...eyebrow,
+    color: color.porcelain,
+  },
+  round: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(235, 239, 238, 0.16)',
+  },
+  roundPressed: { backgroundColor: 'rgba(235, 239, 238, 0.32)' },
+  chevron: {
+    fontFamily: font.body,
+    fontSize: 26,
+    lineHeight: 30,
+    color: color.porcelain,
+  },
+  bookmark: { fontSize: 20, lineHeight: 24, color: color.porcelain },
+  bookmarkOn: { color: color.yolk },
+
+  heroWrap: { alignItems: 'center', marginTop: space.lg, height: OVERLAP },
+  hero: { borderWidth: 4, borderColor: color.porcelain },
+
+  sheet: {
+    backgroundColor: color.porcelain,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    marginTop: -OVERLAP,
+    paddingTop: OVERLAP + space.lg,
+    paddingHorizontal: space.xl,
+  },
   name: {
     fontFamily: font.displayBold,
-    fontSize: 36,
-    lineHeight: 41,
+    fontSize: 32,
+    lineHeight: 37,
     color: color.ink,
-    letterSpacing: -0.6,
+    letterSpacing: -0.5,
+    textAlign: 'center',
   },
-  meta: {
+
+  chips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: space.sm,
+    marginTop: space.lg,
+  },
+  chip: {
+    backgroundColor: color.tile,
+    borderWidth: 1,
+    borderColor: color.edge,
+    borderRadius: 999,
+    paddingVertical: space.sm,
+    paddingHorizontal: space.md,
+  },
+  chipText: {
     fontFamily: font.mono,
-    fontSize: 12,
-    letterSpacing: 0.6,
+    fontSize: 11,
+    letterSpacing: 0.5,
     color: color.slate,
     textTransform: 'uppercase',
-    marginTop: space.sm,
   },
+
   section: { marginTop: space.xxl, gap: space.md },
   list: {
     backgroundColor: color.tile,
@@ -155,6 +268,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   actions: { marginTop: space.huge, gap: space.md },
+
   gone: {
     flex: 1,
     backgroundColor: color.porcelain,

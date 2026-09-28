@@ -84,7 +84,8 @@ export default function RootLayout() {
         }}
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="meal/[id]" options={{ title: '' }} />
+        {/* Draws its own coloured header, so the stack's would be a second one. */}
+        <Stack.Screen name="meal/[id]" options={{ headerShown: false }} />
         <Stack.Screen
           name="meal/edit"
           options={{ title: '', presentation: 'modal' }}
