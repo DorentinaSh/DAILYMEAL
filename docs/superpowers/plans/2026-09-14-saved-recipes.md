@@ -1,5 +1,23 @@
 # Saved Recipes Implementation Plan
 
+> **Superseded on 2026-09-28. Not implemented as written.**
+>
+> This design was built on the branch `worktree-saved-recipes` (tip `0b95ee7`),
+> which now exists only on the remote, and was never merged. What shipped on
+> `main` is a different shape: `Meal.saved` stayed, there is no `SavedRecipe`
+> collection, no `src/domain/saved.ts`, no migration and no fifth tab. Saved is
+> a third tab *inside* Meals, beside Breakfast and Lunch (`e935140`).
+>
+> The out-of-scope line about storing photos on `Meal` is also reversed — meals
+> carry `imageUrl` and `photoFile` now. See `2026-09-28-meal-photos-design.md`.
+>
+> Kept rather than deleted: the decisions it records are the reasoning the
+> shipped version answers differently, and the branch it describes is still
+> recoverable with
+> `git checkout -b worktree-saved-recipes origin/worktree-saved-recipes`.
+
+> **Do not execute this plan.** It builds the superseded design above.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Give saved recipes their own persisted collection, tab and screens, so a recipe found in search can be kept without ever becoming a meal.
