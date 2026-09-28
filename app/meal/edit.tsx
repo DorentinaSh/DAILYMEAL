@@ -14,6 +14,7 @@ import { mealById } from '@/domain/cycle';
 import { CATEGORIES, CATEGORY_LABEL, type Category } from '@/domain/types';
 import { useAppStore } from '@/store/useAppStore';
 import { Button } from '@/ui/Button';
+import { MealMark } from '@/ui/MealMark';
 import { Segment } from '@/ui/Segment';
 import { color, eyebrow, font, radius, space } from '@/ui/theme';
 
@@ -72,14 +73,17 @@ export default function MealEditScreen() {
 
         <View style={styles.field}>
           <Text style={eyebrow}>Name</Text>
-          <TextInput
-            value={name}
-            onChangeText={setName}
-            placeholder="Overnight oats"
-            placeholderTextColor={color.placeholder}
-            style={styles.input}
-            autoFocus={!existing}
-          />
+          <View style={styles.nameRow}>
+            <MealMark name={name} imageUrl={existing?.imageUrl} />
+            <TextInput
+              value={name}
+              onChangeText={setName}
+              placeholder="Overnight oats"
+              placeholderTextColor={color.placeholder}
+              style={[styles.input, styles.nameInput]}
+              autoFocus={!existing}
+            />
+          </View>
         </View>
 
         <View style={styles.field}>
@@ -162,6 +166,12 @@ const styles = StyleSheet.create({
     color: color.slate,
     marginTop: -2,
   },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.md,
+  },
+  nameInput: { flex: 1 },
   input: {
     backgroundColor: color.tile,
     borderWidth: 1,
