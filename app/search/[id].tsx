@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { CATEGORIES, CATEGORY_LABEL, type Category } from '@/domain/types';
+import { keptAsMeal } from '@/search/keep';
 import { defaultCategory } from '@/search/normalize';
 import { useAppStore } from '@/store/useAppStore';
 import { useSearchStore } from '@/store/useSearchStore';
@@ -34,15 +35,7 @@ export default function RecipePreviewScreen() {
 
   function save() {
     if (!hit) return;
-    createMeal({
-      name: hit.name,
-      category,
-      ingredients: hit.ingredients,
-      steps: hit.steps,
-      saved: keepForLater,
-      // The source doesn't publish a prep time; it stays yours to fill in.
-      prepMinutes: null,
-    });
+    createMeal(keptAsMeal(hit, category, keepForLater));
     router.back();
   }
 
@@ -128,7 +121,7 @@ const styles = StyleSheet.create({
     padding: space.xl,
     gap: space.lg,
   },
-  goneText: { fontFamily: font.body, fontSize: 15, color: color.mute },
+  goneText: { fontFamily: font.body, fontSize: 15, color: color.slate },
   photo: {
     width: '100%',
     aspectRatio: 4 / 3,
@@ -161,7 +154,7 @@ const styles = StyleSheet.create({
   stepNumber: {
     fontFamily: font.monoMedium,
     fontSize: 13,
-    color: color.mute,
+    color: color.slate,
     lineHeight: 22,
     width: 18,
   },

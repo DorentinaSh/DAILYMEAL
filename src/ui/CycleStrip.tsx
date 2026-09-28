@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
   fraction: {
     fontFamily: font.mono,
     fontSize: 11,
-    color: color.mute,
+    color: color.slate,
     letterSpacing: 0.5,
   },
 });

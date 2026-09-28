@@ -5,6 +5,7 @@ import { mealById } from '@/domain/cycle';
 import { CATEGORY_LABEL } from '@/domain/types';
 import { useAppStore } from '@/store/useAppStore';
 import { Button } from '@/ui/Button';
+import { MealMark } from '@/ui/MealMark';
 import { SaveButton } from '@/ui/SaveButton';
 import { color, eyebrow, font, radius, space } from '@/ui/theme';
 
@@ -47,6 +48,7 @@ export default function MealDetailScreen() {
           accessibilityLabel={meal.saved ? 'Remove from saved' : 'Save for later'}
         />
       </View>
+      <MealMark name={meal.name} imageUrl={meal.imageUrl} size="lg" style={styles.mark} />
       <Text style={styles.name}>{meal.name}</Text>
       {meal.prepMinutes ? (
         <Text style={styles.meta}>{meal.prepMinutes} min</Text>
@@ -97,6 +99,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.porcelain },
   content: { padding: space.xl, paddingBottom: space.huge },
   head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  mark: { marginBottom: space.md },
   name: {
     fontFamily: font.displayBold,
     fontSize: 36,

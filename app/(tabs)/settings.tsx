@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
   note: {
     fontFamily: font.body,
     fontSize: 14,
-    color: color.mute,
+    color: color.slate,
     lineHeight: 20,
   },
   alert: {
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
   footnote: {
     fontFamily: font.body,
     fontSize: 13,
-    color: color.mute,
+    color: color.slate,
     lineHeight: 19,
     marginTop: space.xl,
   },

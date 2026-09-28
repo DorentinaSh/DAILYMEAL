@@ -42,6 +42,26 @@ describe('the save control is legible in both states', () => {
   });
 });
 
+describe('the body-text tokens clear WCAG on both grounds', () => {
+  for (const [name, ground] of [
+    ['porcelain', color.porcelain],
+    ['tile', color.tile],
+  ] as const) {
+    it(`slate carries copy on ${name}`, () => {
+      expect(contrastRatio(color.slate, ground)).toBeGreaterThanOrEqual(MIN_TEXT);
+    });
+  }
+
+  // Mute is a marking colour — ticks, hairlines, the chevron, a disabled
+  // label. It has never cleared text contrast on either ground, which is why
+  // the copy that used to wear it wears slate instead. Asserted rather than
+  // commented so nobody reaches for it as a quiet grey again.
+  it('mute is not a text colour on either ground', () => {
+    expect(contrastRatio(color.mute, color.porcelain)).toBeLessThan(MIN_TEXT);
+    expect(contrastRatio(color.mute, color.tile)).toBeLessThan(MIN_TEXT);
+  });
+});
+
 describe('the segmented picker is legible in both states', () => {
   for (const state of ['off', 'on'] as const) {
     const { pill, label, count } = TAB_COLORS[state];

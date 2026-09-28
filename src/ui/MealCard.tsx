@@ -18,6 +18,7 @@ import {
 import type { Category, Meal } from '@/domain/types';
 import { CATEGORY_LABEL } from '@/domain/types';
 import { Button } from './Button';
+import { MealMark } from './MealMark';
 import { CycleStrip } from './CycleStrip';
 import { color, eyebrow, font, radius, space } from './theme';
 
@@ -79,7 +80,13 @@ export function MealCard({
 
       {meal ? (
         <Animated.View style={{ opacity: reduceMotion ? 1 : fade }}>
-          <Pressable onPress={onOpen} accessibilityRole="button">
+          <Pressable onPress={onOpen} accessibilityRole="button" accessibilityLabel={meal.name}>
+            <MealMark
+              name={meal.name}
+              imageUrl={meal.imageUrl}
+              size="md"
+              style={styles.mark}
+            />
             <Text style={styles.name}>{meal.name}</Text>
           </Pressable>
 
@@ -168,9 +175,10 @@ const styles = StyleSheet.create({
   time: {
     fontFamily: font.mono,
     fontSize: 11,
-    color: color.mute,
+    color: color.slate,
     letterSpacing: 0.5,
   },
+  mark: { marginBottom: space.md },
   name: {
     fontFamily: font.display,
     fontSize: 34,

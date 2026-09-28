@@ -18,6 +18,12 @@ export type Meal = {
   steps: string[];
   prepMinutes: number | null;
   /**
+   * The source's photo, for a meal that arrived from search. Optional and
+   * nullable for different reasons: absent means the meal was stored before
+   * meals had photos at all, null means this one has no photo to show.
+   */
+  imageUrl?: string | null;
+  /**
    * Kept for later, for whatever reason — not a favourite, and nothing to do
    * with the rotation. Optional because meals stored before this existed have
    * no such field, and absent reads as unsaved.

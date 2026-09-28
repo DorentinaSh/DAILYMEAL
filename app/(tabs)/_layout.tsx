@@ -15,7 +15,7 @@ function TabMark({
   shape: 'today' | 'search' | 'meals' | 'settings';
   focused: boolean;
 }) {
-  const tint = focused ? color.ink : color.mute;
+  const tint = focused ? color.ink : color.slate;
   if (shape === 'today') {
     return (
       <View style={styles.mark}>
@@ -57,7 +57,7 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: color.ink,
-        tabBarInactiveTintColor: color.mute,
+        tabBarInactiveTintColor: color.slate,
         tabBarStyle: {
           backgroundColor: color.tile,
           borderTopColor: color.edge,

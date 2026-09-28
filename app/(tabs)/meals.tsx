@@ -7,6 +7,7 @@ import { mealsIn } from '@/domain/cycle';
 import { CATEGORIES, CATEGORY_LABEL, type Category, type Meal } from '@/domain/types';
 import { useAppStore } from '@/store/useAppStore';
 import { Button } from '@/ui/Button';
+import { MealMark } from '@/ui/MealMark';
 import { Segment, type SegmentItem } from '@/ui/Segment';
 import { color, font, radius, space } from '@/ui/theme';
 
@@ -34,6 +35,12 @@ export default function MealsScreen() {
   const [tab, setTab] = useState<Tab>(CATEGORIES[0]);
 
   const saved = state.meals.filter((meal) => meal.saved);
+  // Today's pick in each category, so a row can show which meal is on now.
+  const servedToday = new Set(
+    CATEGORIES.map((category: Category) => state.today[category].mealId).filter(
+      (id): id is string => id !== null,
+    ),
+  );
   const meals = tab === 'saved' ? saved : mealsIn(state, tab);
 
   const tabs: SegmentItem<Tab>[] = [
@@ -82,6 +89,11 @@ export default function MealsScreen() {
                 accessibilityRole="button"
                 style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
               >
+                <MealMark
+                  name={meal.name}
+                  imageUrl={meal.imageUrl}
+                  today={servedToday.has(meal.id)}
+                />
                 <View style={styles.rowText}>
                   <Text style={styles.rowName}>{meal.name}</Text>
                   <Text style={styles.rowMeta}>{metaLine(meal, tab === 'saved')}</Text>
@@ -129,7 +141,7 @@ const styles = StyleSheet.create({
   empty: {
     fontFamily: font.body,
     fontSize: 15,
-    color: color.mute,
+    color: color.slate,
     lineHeight: 22,
     paddingTop: space.sm,
   },

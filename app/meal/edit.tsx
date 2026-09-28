@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
   hint: {
     fontFamily: font.body,
     fontSize: 13,
-    color: color.mute,
+    color: color.slate,
     marginTop: -2,
   },
   input: {

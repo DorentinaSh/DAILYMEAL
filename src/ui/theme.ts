@@ -14,9 +14,19 @@ export const color = {
   tile: '#FFFFFF',
   /** Primary text: deep petrol, almost black but never neutral. */
   ink: '#16302E',
-  /** Secondary text. */
-  slate: '#5F7370',
-  /** Tertiary text and inactive marks. */
+  /**
+   * Secondary text. Six points darker than it started: at #5F7370 it measured
+   * 4.34:1 on porcelain while carrying every lede and meta line in the app —
+   * just under the 4.5 WCAG asks of body copy. contrast.test.ts holds it above
+   * the line now, on porcelain and on tile.
+   */
+  slate: '#596D6A',
+  /**
+   * Marks, not words: ticks, hairlines, a chevron, a disabled label. It sits
+   * under 2.2:1 on porcelain and on tile, so copy that used to wear it wears
+   * slate instead. On ink it measures 6.2:1, which is where the tab count
+   * legitimately uses it.
+   */
   mute: '#9BABA8',
   /** Hairlines and dividers. */
   edge: '#D6DEDC',

@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
   cardPressed: { opacity: 0.62 },
   thumb: { width: 64, height: 64, borderRadius: radius.sm, backgroundColor: color.porcelain },
   thumbBlank: { alignItems: 'center', justifyContent: 'center' },
-  thumbLetter: { fontFamily: font.displayBold, fontSize: 24, color: color.mute },
+  thumbLetter: { fontFamily: font.displayBold, fontSize: 24, color: color.slate },
   cardText: { flex: 1, gap: space.xs },
   cardName: { fontFamily: font.bodyMedium, fontSize: 16, color: color.ink },
   cardMeta: { ...eyebrow, fontSize: 10 },
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
   emptyText: {
     fontFamily: font.body,
     fontSize: 15,
-    color: color.mute,
+    color: color.slate,
     lineHeight: 22,
   },
   retry: { alignSelf: 'flex-start' },
