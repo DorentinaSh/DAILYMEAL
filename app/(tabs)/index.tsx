@@ -70,6 +70,10 @@ const styles = StyleSheet.create({
     color: color.slate,
   },
   title: {
+    // The one 40pt title in the app. Today is the front door, it carries no
+    // list to get past, and the date above it is real information — so the
+    // display face is spent here. The other three tabs label a utility screen
+    // at 28 and do not need to shout it.
     fontFamily: font.displayBold,
     fontSize: 40,
     color: color.ink,

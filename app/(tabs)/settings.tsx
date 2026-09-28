@@ -135,9 +135,9 @@ const styles = StyleSheet.create({
   content: { padding: space.xl, paddingBottom: space.huge },
   title: {
     fontFamily: font.displayBold,
-    fontSize: 40,
+    fontSize: 28,
     color: color.ink,
-    letterSpacing: -0.8,
+    letterSpacing: -0.4,
   },
   lede: {
     fontFamily: font.body,

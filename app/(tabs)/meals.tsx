@@ -65,11 +65,6 @@ export default function MealsScreen() {
             />
           )}
         </View>
-        <Text style={styles.lede}>
-          {tab === 'saved'
-            ? 'The ones you kept for later. They rotate like everything else.'
-            : 'Everything here rotates. Each meal gets its turn before any repeats.'}
-        </Text>
         <Segment items={tabs} value={tab} onChange={setTab} as="tabs" style={styles.tabs} />
       </View>
 
@@ -126,16 +121,9 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: font.displayBold,
-    fontSize: 40,
+    fontSize: 28,
     color: color.ink,
-    letterSpacing: -0.8,
-  },
-  lede: {
-    fontFamily: font.body,
-    fontSize: 15,
-    color: color.slate,
-    lineHeight: 22,
-    marginTop: space.sm,
+    letterSpacing: -0.4,
   },
   tabs: { marginTop: space.lg },
   empty: {

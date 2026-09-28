@@ -37,11 +37,6 @@ export default function SearchScreen() {
     <SafeAreaView style={styles.screen} edges={['top']}>
       <View style={styles.head}>
         <Text style={styles.title}>Search</Text>
-        <Text style={styles.lede}>
-          Find a dish and keep it — it joins the rotation like anything you typed
-          yourself.
-        </Text>
-
         <View style={styles.field}>
           <TextInput
             value={query}
@@ -166,16 +161,9 @@ const styles = StyleSheet.create({
   head: { paddingHorizontal: space.xl, paddingTop: space.xl },
   title: {
     fontFamily: font.displayBold,
-    fontSize: 40,
+    fontSize: 28,
     color: color.ink,
-    letterSpacing: -0.8,
-  },
-  lede: {
-    fontFamily: font.body,
-    fontSize: 15,
-    color: color.slate,
-    lineHeight: 22,
-    marginTop: space.sm,
+    letterSpacing: -0.4,
   },
   field: {
     flexDirection: 'row',
