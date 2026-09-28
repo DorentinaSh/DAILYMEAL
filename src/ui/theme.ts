@@ -28,6 +28,13 @@ export const color = {
    * legitimately uses it.
    */
   mute: '#9BABA8',
+  /**
+   * Placeholder text, and nothing else. The lightest tone that still clears
+   * 4.5:1 on tile — deliberately lighter than slate, because a placeholder
+   * that matches the secondary text makes an empty field look like a filled
+   * one. Both halves of that are pinned in contrast.test.ts.
+   */
+  placeholder: '#657A77',
   /** Hairlines and dividers. */
   edge: '#D6DEDC',
   /** The single accent: today's pick. */

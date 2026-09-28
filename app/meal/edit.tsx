@@ -76,7 +76,7 @@ export default function MealEditScreen() {
             value={name}
             onChangeText={setName}
             placeholder="Overnight oats"
-            placeholderTextColor={color.mute}
+            placeholderTextColor={color.placeholder}
             style={styles.input}
             autoFocus={!existing}
           />
@@ -98,7 +98,7 @@ export default function MealEditScreen() {
             value={ingredients}
             onChangeText={setIngredients}
             placeholder={'rolled oats\nmilk\nhoney'}
-            placeholderTextColor={color.mute}
+            placeholderTextColor={color.placeholder}
             style={[styles.input, styles.area]}
             multiline
             textAlignVertical="top"
@@ -112,7 +112,7 @@ export default function MealEditScreen() {
             value={steps}
             onChangeText={setSteps}
             placeholder={'Stir everything together\nLeave overnight'}
-            placeholderTextColor={color.mute}
+            placeholderTextColor={color.placeholder}
             style={[styles.input, styles.area]}
             multiline
             textAlignVertical="top"
@@ -126,7 +126,7 @@ export default function MealEditScreen() {
             value={prep}
             onChangeText={setPrep}
             placeholder="5"
-            placeholderTextColor={color.mute}
+            placeholderTextColor={color.placeholder}
             keyboardType="number-pad"
             style={styles.input}
           />

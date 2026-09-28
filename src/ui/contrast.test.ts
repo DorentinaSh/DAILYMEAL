@@ -62,6 +62,22 @@ describe('the body-text tokens clear WCAG on both grounds', () => {
   });
 });
 
+describe('the placeholder tone', () => {
+  // All five placeholders in the app sit on tile.
+  it('clears WCAG for body text on tile', () => {
+    expect(contrastRatio(color.placeholder, color.tile)).toBeGreaterThanOrEqual(MIN_TEXT);
+  });
+
+  // The whole reason it is not just slate: a placeholder has to stay lighter
+  // than real secondary text, or an empty field reads as a filled one. These
+  // two pull in opposite directions, so both are pinned.
+  it('stays lighter than the secondary text it must not imitate', () => {
+    expect(contrastRatio(color.placeholder, color.tile)).toBeLessThan(
+      contrastRatio(color.slate, color.tile),
+    );
+  });
+});
+
 describe('the segmented picker is legible in both states', () => {
   for (const state of ['off', 'on'] as const) {
     const { pill, label, count } = TAB_COLORS[state];

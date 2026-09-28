@@ -42,7 +42,7 @@ export default function SearchScreen() {
             value={query}
             onChangeText={setQuery}
             placeholder="Chicken, eggs, pasta…"
-            placeholderTextColor={color.mute}
+            placeholderTextColor={color.placeholder}
             style={styles.input}
             autoCorrect={false}
             autoCapitalize="none"
