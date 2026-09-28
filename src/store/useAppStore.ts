@@ -11,12 +11,14 @@ import {
   dateKey,
   deleteMeal,
   makeId,
+  mealById,
   rollover,
   skip,
   toggleSaved,
   updateMeal,
 } from '@/domain/cycle';
 import type { AppState, Category, Meal } from '@/domain/types';
+import { deletePhoto } from '@/photos/files';
 import { persistStorage, STORAGE_KEY } from './storage';
 
 export type MealDraft = Omit<Meal, 'id'>;
@@ -37,7 +39,7 @@ export type Store = AppState & Actions & { hydrated: boolean };
 
 export const useAppStore = create<Store>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       ...createEmptyState(),
       hydrated: false,
 
@@ -49,7 +51,12 @@ export const useAppStore = create<Store>()(
 
       saveMeal: (meal) => set((s) => updateMeal(s, meal)),
 
-      removeMeal: (id) => set((s) => deleteMeal(s, id)),
+      // The file goes before the meal does, and outside the updater: deleteMeal
+      // is a pure function of state and file I/O has no business inside it.
+      removeMeal: (id) => {
+        deletePhoto(mealById(get(), id)?.photoFile);
+        set((s) => deleteMeal(s, id));
+      },
 
       toggleSaved: (id) => set((s) => toggleSaved(s, id)),
 

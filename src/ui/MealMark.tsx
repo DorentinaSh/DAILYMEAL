@@ -26,7 +26,8 @@ const SIZES = {
 
 type Props = {
   name: string;
-  imageUrl?: string | null;
+  /** Already resolved — see photos/paths.ts for why a filename will not do. */
+  uri?: string | null;
   /**
    * Wear the accent. Set it where a meal sits among its peers and today's is
    * worth finding — the Meals list. Today's own card does not need it: the
@@ -37,7 +38,7 @@ type Props = {
   style?: ViewStyle;
 };
 
-export function MealMark({ name, imageUrl, today = false, size = 'sm', style }: Props) {
+export function MealMark({ name, uri, today = false, size = 'sm', style }: Props) {
   const { box, corner, letter, band } = SIZES[size];
 
   return (
@@ -45,7 +46,7 @@ export function MealMark({ name, imageUrl, today = false, size = 'sm', style }: 
       style={[
         styles.frame,
         { width: box, height: box, borderRadius: corner },
-        !imageUrl && styles.tile,
+        !uri && styles.tile,
         style,
       ]}
       // The meal's name is right there with it everywhere this appears, so the
@@ -53,8 +54,8 @@ export function MealMark({ name, imageUrl, today = false, size = 'sm', style }: 
       accessible={false}
       importantForAccessibility="no-hide-descendants"
     >
-      {imageUrl ? (
-        <Image source={imageUrl} style={styles.photo} contentFit="cover" transition={180} />
+      {uri ? (
+        <Image source={uri} style={styles.photo} contentFit="cover" transition={180} />
       ) : (
         <Text style={[styles.letter, { fontSize: letter }]}>{initialFor(name)}</Text>
       )}

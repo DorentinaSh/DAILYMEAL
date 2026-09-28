@@ -5,6 +5,7 @@ import { mealById } from '@/domain/cycle';
 import { CATEGORY_LABEL } from '@/domain/types';
 import { useAppStore } from '@/store/useAppStore';
 import { Button } from '@/ui/Button';
+import { photoUri } from '@/photos/files';
 import { MealMark } from '@/ui/MealMark';
 import { SaveButton } from '@/ui/SaveButton';
 import { color, eyebrow, font, radius, space } from '@/ui/theme';
@@ -49,7 +50,7 @@ export default function MealDetailScreen() {
         />
       </View>
       <View style={styles.headline}>
-        <MealMark name={meal.name} imageUrl={meal.imageUrl} size="lg" />
+        <MealMark name={meal.name} uri={photoUri(meal)} size="lg" />
         <View style={styles.headlineText}>
           <Text style={styles.name}>{meal.name}</Text>
           {meal.prepMinutes ? (

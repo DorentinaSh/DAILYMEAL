@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -12,6 +13,8 @@ import {
 
 import { mealById } from '@/domain/cycle';
 import { CATEGORIES, CATEGORY_LABEL, type Category } from '@/domain/types';
+import { deletePhoto, photoUri, savePhoto } from '@/photos/files';
+import { chooseFromLibrary, takePhoto, type PickResult } from '@/photos/pick';
 import { useAppStore } from '@/store/useAppStore';
 import { Button } from '@/ui/Button';
 import { MealMark } from '@/ui/MealMark';
@@ -40,6 +43,43 @@ export default function MealEditScreen() {
   const [prep, setPrep] = useState(
     existing?.prepMinutes != null ? String(existing.prepMinutes) : '',
   );
+  /**
+   * undefined: untouched. A string: a pick sitting in the cache, not yet copied
+   * anywhere. null: removed. Nothing is written to disk until Save, so walking
+   * away from this screen leaves no file behind.
+   */
+  const [picked, setPicked] = useState<string | null | undefined>(undefined);
+
+  const shownUri =
+    picked !== undefined
+      ? picked ?? existing?.imageUrl ?? null
+      : existing
+        ? photoUri(existing)
+        : null;
+
+  // Only your own photo can be removed; the source's is what removing falls
+  // back to, so there would be nothing to fall back to twice.
+  const canRemove = picked ? true : picked === undefined && !!existing?.photoFile;
+
+  async function accept(pending: Promise<PickResult>) {
+    const result = await pending;
+    if (result.kind === 'picked') {
+      setPicked(result.uri);
+    } else if (result.kind === 'denied') {
+      Alert.alert(
+        'Permission needed',
+        'DAILYMEAL needs access to add a photo that way. You can allow it in Settings.',
+      );
+    }
+  }
+
+  function offerSources() {
+    Alert.alert('Add a photo', undefined, [
+      { text: 'Take photo', onPress: () => void accept(takePhoto()) },
+      { text: 'Choose from library', onPress: () => void accept(chooseFromLibrary()) },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
+  }
 
   const trimmedName = name.trim();
   const canSave = trimmedName.length > 0;
@@ -47,12 +87,25 @@ export default function MealEditScreen() {
   function save() {
     if (!canSave) return;
     const parsedPrep = Number.parseInt(prep, 10);
+
+    // The copy out of the cache happens here, once, and the old file goes only
+    // after the new one has landed.
+    let photoFile = existing?.photoFile ?? null;
+    if (picked) {
+      photoFile = savePhoto(picked);
+      deletePhoto(existing?.photoFile);
+    } else if (picked === null) {
+      deletePhoto(existing?.photoFile);
+      photoFile = null;
+    }
+
     const fields = {
       name: trimmedName,
       category,
       ingredients: toLines(ingredients),
       steps: toLines(steps),
       prepMinutes: Number.isFinite(parsedPrep) && parsedPrep > 0 ? parsedPrep : null,
+      photoFile,
     };
 
     if (existing) {
@@ -74,7 +127,7 @@ export default function MealEditScreen() {
         <View style={styles.field}>
           <Text style={eyebrow}>Name</Text>
           <View style={styles.nameRow}>
-            <MealMark name={name} imageUrl={existing?.imageUrl} />
+            <MealMark name={name} uri={shownUri} />
             <TextInput
               value={name}
               onChangeText={setName}
@@ -83,6 +136,25 @@ export default function MealEditScreen() {
               style={[styles.input, styles.nameInput]}
               autoFocus={!existing}
             />
+          </View>
+        </View>
+
+        <View style={styles.field}>
+          <Text style={eyebrow}>Photo</Text>
+          <Text style={styles.hint}>
+            {shownUri
+              ? 'Shown wherever this meal appears.'
+              : 'Optional. Without one the meal wears its initial.'}
+          </Text>
+          <View style={styles.photoRow}>
+            <Button
+              label={shownUri ? 'Change photo' : 'Add a photo'}
+              onPress={offerSources}
+              style={styles.grow}
+            />
+            {canRemove && (
+              <Button label="Remove" variant="quiet" onPress={() => setPicked(null)} />
+            )}
           </View>
         </View>
 
@@ -172,6 +244,8 @@ const styles = StyleSheet.create({
     gap: space.md,
   },
   nameInput: { flex: 1 },
+  photoRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  grow: { flex: 1 },
   input: {
     backgroundColor: color.tile,
     borderWidth: 1,

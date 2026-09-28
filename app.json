@@ -32,7 +32,14 @@
       "expo-font",
       "@react-native-community/datetimepicker",
       "expo-status-bar",
-      "expo-image"
+      "expo-image",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "DAILYMEAL uses your photos so a meal can show what it looks like.",
+          "cameraPermission": "DAILYMEAL uses the camera so you can photograph a meal you have just cooked."
+        }
+      ]
     ]
   }
 }

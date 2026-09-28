@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 
 import type { Category, Meal } from '@/domain/types';
+import { photoUri } from '@/photos/files';
 import { CATEGORY_LABEL } from '@/domain/types';
 import { Button } from './Button';
 import { MealMark } from './MealMark';
@@ -86,7 +87,7 @@ export function MealCard({
             accessibilityLabel={meal.name}
             style={styles.headline}
           >
-            <MealMark name={meal.name} imageUrl={meal.imageUrl} size="md" />
+            <MealMark name={meal.name} uri={photoUri(meal)} size="md" />
             <View style={styles.headlineText}>
               <Text style={styles.name}>{meal.name}</Text>
               <Text style={styles.meta}>

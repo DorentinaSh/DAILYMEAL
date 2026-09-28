@@ -24,6 +24,13 @@ export type Meal = {
    */
   imageUrl?: string | null;
   /**
+   * A photo you added, as a bare filename under the photos directory — never a
+   * path. Resolved against the documents directory at render time, because on
+   * iOS that directory moves between app versions, and a stored absolute URI
+   * would break on the next release without saying so.
+   */
+  photoFile?: string | null;
+  /**
    * Kept for later, for whatever reason — not a favourite, and nothing to do
    * with the rotation. Optional because meals stored before this existed have
    * no such field, and absent reads as unsaved.

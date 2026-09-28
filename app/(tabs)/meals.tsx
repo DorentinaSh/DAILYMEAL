@@ -7,6 +7,7 @@ import { mealsIn } from '@/domain/cycle';
 import { CATEGORIES, CATEGORY_LABEL, type Category, type Meal } from '@/domain/types';
 import { useAppStore } from '@/store/useAppStore';
 import { Button } from '@/ui/Button';
+import { photoUri } from '@/photos/files';
 import { MealMark } from '@/ui/MealMark';
 import { Segment, type SegmentItem } from '@/ui/Segment';
 import { color, font, radius, space } from '@/ui/theme';
@@ -86,7 +87,7 @@ export default function MealsScreen() {
               >
                 <MealMark
                   name={meal.name}
-                  imageUrl={meal.imageUrl}
+                  uri={photoUri(meal)}
                   today={servedToday.has(meal.id)}
                 />
                 <View style={styles.rowText}>
