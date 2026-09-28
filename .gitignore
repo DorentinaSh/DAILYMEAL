@@ -37,3 +37,8 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Claude Code — settings.json is shared, these are not: worktrees is a whole
+# second checkout, and settings.local.json is personal to one machine.
+.claude/worktrees/
+.claude/settings.local.json
