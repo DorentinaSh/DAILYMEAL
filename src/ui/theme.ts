@@ -94,6 +94,38 @@ export const SAVE_COLORS = {
 } as const;
 
 /**
+ * The glazes a mark wears when a meal has no photo, one picked from the meal's
+ * name. Deep ceramic colours rather than bright ones: they have to carry a
+ * porcelain letter, and they sit next to each other down a list. Every one is
+ * checked in contrast.test.ts — the letter against the glaze, and the yolk band
+ * of today's meal against it too.
+ *
+ * One per hue around the wheel — red, orange, yellow-green, cyan, blue, magenta
+ * — so two glazes next to each other in a list never read as the same colour.
+ *
+ * Ink is deliberately NOT among them. It was, and that made one mark in six
+ * identical to how marks looked before there were glazes at all, which is
+ * indistinguishable from the feature not working.
+ *
+ * Order is part of the contract. glazeFor indexes into this array, so inserting
+ * or reordering recolours meals people have had for months.
+ */
+export const GLAZES = [
+  /** Oxblood — red. */
+  '#6B1F22',
+  /** Sienna — orange. */
+  '#6B2D1E',
+  /** Olive — yellow-green. */
+  '#2E3A18',
+  /** Deep teal — cyan. */
+  '#0E3B3E',
+  /** Indigo — blue. */
+  '#22305C',
+  /** Plum — magenta. */
+  '#4A1E35',
+] as const;
+
+/**
  * The segmented picker, as each pill is drawn. Yolk is deliberately absent:
  * the accent means "this is what you're eating today" everywhere else in the
  * app, and spending it on "this is the list you're looking at" would blunt it.

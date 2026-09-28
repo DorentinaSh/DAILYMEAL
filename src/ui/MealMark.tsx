@@ -2,8 +2,9 @@
  * A meal's face.
  *
  * One square filled three ways: the source's photo when the meal came from
- * search, the initial in the display face when you typed it in yourself, and a
- * yolk band when this is the meal being served today. Before this, the recipes
+ * search, the initial in the display face on a glaze picked from the meal's own
+ * name when you typed it in yourself, and a yolk band when this is the meal
+ * being served today. Before this, the recipes
  * in Search had photos and the meals you actually owned had nothing, so the app
  * got plainer the more you used it.
  *
@@ -14,6 +15,7 @@
 import { Image } from 'expo-image';
 import { StyleSheet, Text, View, type ViewStyle } from 'react-native';
 
+import { glazeFor } from './glaze';
 import { initialFor } from './initial';
 import { color, font, radius } from './theme';
 
@@ -46,7 +48,7 @@ export function MealMark({ name, uri, today = false, size = 'sm', style }: Props
       style={[
         styles.frame,
         { width: box, height: box, borderRadius: corner },
-        !uri && styles.tile,
+        !uri && { backgroundColor: glazeFor(name) },
         style,
       ]}
       // The meal's name is right there with it everywhere this appears, so the
@@ -71,7 +73,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  tile: { backgroundColor: color.ink },
   photo: { width: '100%', height: '100%' },
   letter: {
     fontFamily: font.display,

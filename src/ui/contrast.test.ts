@@ -1,4 +1,4 @@
-import { color, SAVE_COLORS, TAB_COLORS } from './theme';
+import { color, GLAZES, SAVE_COLORS, TAB_COLORS } from './theme';
 import { contrastRatio } from './contrast';
 
 /** WCAG 1.4.11: a control that isn't text still has to be seen. */
@@ -59,6 +59,28 @@ describe('the body-text tokens clear WCAG on both grounds', () => {
   it('mute is not a text colour on either ground', () => {
     expect(contrastRatio(color.mute, color.porcelain)).toBeLessThan(MIN_TEXT);
     expect(contrastRatio(color.mute, color.tile)).toBeLessThan(MIN_TEXT);
+  });
+});
+
+describe('every glaze carries what is drawn on it', () => {
+  for (const glaze of GLAZES) {
+    it(`${glaze}: the initial reads against it`, () => {
+      expect(contrastRatio(color.porcelain, glaze)).toBeGreaterThanOrEqual(MIN_TEXT);
+    });
+
+    // Today's meal wears a yolk band across the foot of its mark, and that has
+    // to be seen on any glaze, not just on the petrol one it was drawn against.
+    it(`${glaze}: the yolk band stands off it`, () => {
+      expect(contrastRatio(color.yolk, glaze)).toBeGreaterThanOrEqual(MIN_UI);
+    });
+  }
+
+  // They are told apart by hue, not lightness, so the letter is what carries
+  // identity — the colour is recognition, never the only signal.
+  it('are all dark enough to be a ground for pale text', () => {
+    for (const glaze of GLAZES) {
+      expect(contrastRatio(glaze, color.tile)).toBeGreaterThanOrEqual(MIN_TEXT);
+    }
   });
 });
 
