@@ -48,11 +48,15 @@ export default function MealDetailScreen() {
           accessibilityLabel={meal.saved ? 'Remove from saved' : 'Save for later'}
         />
       </View>
-      <MealMark name={meal.name} imageUrl={meal.imageUrl} size="lg" style={styles.mark} />
-      <Text style={styles.name}>{meal.name}</Text>
-      {meal.prepMinutes ? (
-        <Text style={styles.meta}>{meal.prepMinutes} min</Text>
-      ) : null}
+      <View style={styles.headline}>
+        <MealMark name={meal.name} imageUrl={meal.imageUrl} size="lg" />
+        <View style={styles.headlineText}>
+          <Text style={styles.name}>{meal.name}</Text>
+          {meal.prepMinutes ? (
+            <Text style={styles.meta}>{meal.prepMinutes} min</Text>
+          ) : null}
+        </View>
+      </View>
 
       {meal.ingredients.length > 0 && (
         <View style={styles.section}>
@@ -99,14 +103,19 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.porcelain },
   content: { padding: space.xl, paddingBottom: space.huge },
   head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  mark: { marginBottom: space.md },
+  headline: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.lg,
+    marginTop: space.md,
+  },
+  headlineText: { flex: 1 },
   name: {
     fontFamily: font.displayBold,
     fontSize: 36,
     lineHeight: 41,
     color: color.ink,
     letterSpacing: -0.6,
-    marginTop: space.sm,
   },
   meta: {
     fontFamily: font.mono,

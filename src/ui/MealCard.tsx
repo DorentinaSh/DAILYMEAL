@@ -80,26 +80,27 @@ export function MealCard({
 
       {meal ? (
         <Animated.View style={{ opacity: reduceMotion ? 1 : fade }}>
-          <Pressable onPress={onOpen} accessibilityRole="button" accessibilityLabel={meal.name}>
-            <MealMark
-              name={meal.name}
-              imageUrl={meal.imageUrl}
-              size="md"
-              style={styles.mark}
-            />
-            <Text style={styles.name}>{meal.name}</Text>
+          <Pressable
+            onPress={onOpen}
+            accessibilityRole="button"
+            accessibilityLabel={meal.name}
+            style={styles.headline}
+          >
+            <MealMark name={meal.name} imageUrl={meal.imageUrl} size="md" />
+            <View style={styles.headlineText}>
+              <Text style={styles.name}>{meal.name}</Text>
+              <Text style={styles.meta}>
+                {[
+                  meal.prepMinutes ? `${meal.prepMinutes} min` : null,
+                  meal.ingredients.length
+                    ? `${meal.ingredients.length} ingredient${meal.ingredients.length === 1 ? '' : 's'}`
+                    : null,
+                ]
+                  .filter(Boolean)
+                  .join('  ·  ')}
+              </Text>
+            </View>
           </Pressable>
-
-          <Text style={styles.meta}>
-            {[
-              meal.prepMinutes ? `${meal.prepMinutes} min` : null,
-              meal.ingredients.length
-                ? `${meal.ingredients.length} ingredient${meal.ingredients.length === 1 ? '' : 's'}`
-                : null,
-            ]
-              .filter(Boolean)
-              .join('  ·  ')}
-          </Text>
 
           {meal.ingredients.length > 0 && (
             <View style={styles.list}>
@@ -178,13 +179,18 @@ const styles = StyleSheet.create({
     color: color.slate,
     letterSpacing: 0.5,
   },
-  mark: { marginBottom: space.md },
+  headline: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.md,
+  },
+  headlineText: { flex: 1 },
   name: {
     fontFamily: font.display,
-    fontSize: 34,
-    lineHeight: 39,
+    fontSize: 24,
+    lineHeight: 28,
     color: color.ink,
-    letterSpacing: -0.4,
+    letterSpacing: -0.3,
   },
   meta: {
     fontFamily: font.mono,
@@ -192,7 +198,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
     color: color.slate,
     textTransform: 'uppercase',
-    marginTop: space.sm,
+    marginTop: space.xs,
   },
   list: {
     marginTop: space.lg,
