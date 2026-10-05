@@ -1,8 +1,7 @@
 import { router } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   Pressable,
   StyleSheet,
@@ -17,10 +16,12 @@ import Svg, { Path } from 'react-native-svg';
 import { CATEGORIES, CATEGORY_LABEL, type Category, type Meal } from '@/domain/types';
 import { keptAsMeal, keptMealFor } from '@/search/keep';
 import { MIN_QUERY } from '@/search/mealdb';
+import { defaultCategory } from '@/search/normalize';
 import type { RecipeHit } from '@/search/types';
 import { useAppStore } from '@/store/useAppStore';
 import { useSearchStore, type SearchStatus } from '@/store/useSearchStore';
 import { Button } from '@/ui/Button';
+import { ChooseListSheet } from '@/ui/ChooseListSheet';
 import { MealMark } from '@/ui/MealMark';
 import { color, font, radius, space } from '@/ui/theme';
 
@@ -40,6 +41,19 @@ export default function SearchScreen() {
   const createMeal = useAppStore((s) => s.createMeal);
   const placeMeal = useAppStore((s) => s.placeMeal);
   const toggleSaved = useAppStore((s) => s.toggleSaved);
+
+  // The recipe the add sheet is open for. Kept after the sheet closes, so its
+  // name is still there while it slides away; `adding` is what opens it.
+  const [target, setTarget] = useState<{ hit: RecipeHit; meal: Meal | null } | null>(null);
+  const [adding, setAdding] = useState(false);
+
+  function add(category: Category) {
+    if (!target) return;
+    // Saved only already: move that meal in, never a second copy.
+    if (target.meal) placeMeal(target.meal.id, category);
+    else createMeal(keptAsMeal(target.hit, category, false));
+    setAdding(false);
+  }
 
   // Two columns inside the page's side padding, with the gap between them.
   const { width: screenWidth } = useWindowDimensions();
@@ -115,13 +129,10 @@ export default function SearchScreen() {
               hit={item}
               width={cardWidth}
               meal={meal}
-              onAdd={() =>
-                offerToAdd(item, (category) => {
-                  // Saved only already: move that meal in, never a second copy.
-                  if (meal) placeMeal(meal.id, category);
-                  else createMeal(keptAsMeal(item, category, false));
-                })
-              }
+              onAdd={() => {
+                setTarget({ hit: item, meal });
+                setAdding(true);
+              }}
               onSave={() =>
                 meal ? toggleSaved(meal.id) : createMeal(keptAsMeal(item, null, true))
               }
@@ -132,6 +143,17 @@ export default function SearchScreen() {
           <Empty status={status} query={query} onRetry={() => void run(query)} />
         }
       />
+
+      {target && (
+        <ChooseListSheet
+          visible={adding}
+          name={target.hit.name}
+          imageUrl={target.hit.imageUrl}
+          suggested={defaultCategory(target.hit.sourceCategory)}
+          onChoose={add}
+          onClose={() => setAdding(false)}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -164,22 +186,6 @@ function Sliders() {
 
 function RowGap() {
   return <View style={styles.rowGap} />;
-}
-
-/**
- * Asks which list a recipe joins, then hands the answer back. The caller adds
- * it exactly as the preview's own button does — through keptAsMeal, so a meal
- * is the same however it came in — or moves in the saved-only meal it already
- * is.
- */
-function offerToAdd(hit: RecipeHit, add: (category: Category) => void) {
-  Alert.alert(`Add ${hit.name} to…`, undefined, [
-    ...CATEGORIES.map((category) => ({
-      text: CATEGORY_LABEL[category],
-      onPress: () => add(category),
-    })),
-    { text: 'Cancel', style: 'cancel' as const },
-  ]);
 }
 
 /** A white plus, drawn so it sits dead centre whatever the font does. */
