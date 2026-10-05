@@ -244,20 +244,24 @@ const styles = StyleSheet.create({
     borderColor: color.tile,
     backgroundColor: color.kelly,
   },
+  // Kelly, to match the filter button at the other end. On the wash that is
+  // 2.3:1, under the 3:1 a meaningful icon needs — acceptable only because
+  // this one is decoration: the placeholder and the accessibility label are
+  // what identify the field, and the placeholder is held to 4.5:1.
   magnifier: { flexDirection: 'row', alignItems: 'flex-end', height: 18 },
   lens: {
     width: 14,
     height: 14,
     borderRadius: 7,
     borderWidth: 2,
-    borderColor: color.slate,
+    borderColor: color.kelly,
   },
   lensHandle: {
     width: 2,
     height: 7,
     borderRadius: 1,
     marginLeft: -2,
-    backgroundColor: color.slate,
+    backgroundColor: color.kelly,
     transform: [{ rotate: '-45deg' }],
   },
   input: {

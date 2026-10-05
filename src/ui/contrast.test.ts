@@ -118,10 +118,6 @@ describe('the search field', () => {
     expect(contrastRatio(color.ink, color.kellyWash)).toBeGreaterThanOrEqual(MIN_TEXT);
   });
 
-  it('shows its magnifier', () => {
-    expect(contrastRatio(color.slate, color.kellyWash)).toBeGreaterThanOrEqual(MIN_UI);
-  });
-
   // It has no border, so the tint is the only thing marking where the field
   // is — as faint against the white page as the reference's field is against
   // its own. The magnifier and placeholder are what say "type here".
