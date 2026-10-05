@@ -198,7 +198,14 @@ export function addMeal(
   meal: Meal,
   rng: Rng = defaultRng,
 ): AppState {
-  const { order, position } = state.cycles[meal.category];
+  const category = meal.category;
+  // Saved only: no loop to join and no day to move, and always saved, since
+  // Saved is the only place it can be seen.
+  if (category === null) {
+    return { ...state, meals: [...state.meals, { ...meal, saved: true }] };
+  }
+
+  const { order, position } = state.cycles[category];
   let cycle: Cycle;
   if (order.length === 0) {
     cycle = { order: [meal.id], position: 0 };
@@ -214,9 +221,9 @@ export function addMeal(
     {
       ...state,
       meals: [...state.meals, meal],
-      cycles: { ...state.cycles, [meal.category]: cycle },
+      cycles: { ...state.cycles, [category]: cycle },
     },
-    meal.category,
+    category,
   );
 }
 
@@ -229,6 +236,11 @@ export function deleteMeal(
   if (!meal) return state;
 
   const category = meal.category;
+  // Saved only: it was in no loop, so there is nothing to take it out of.
+  if (category === null) {
+    return { ...state, meals: state.meals.filter((m) => m.id !== id) };
+  }
+
   const { order, position } = state.cycles[category];
   const removedAt = order.indexOf(id);
   const rest = order.filter((mealId) => mealId !== id);
@@ -259,9 +271,14 @@ export function deleteMeal(
  * Keeps a meal for later, or stops keeping it. Deliberately not routed through
  * updateMeal: that path calls syncToday and re-derives the day's pick, and
  * bookmarking a dish has no business moving what you're eating.
+ *
+ * A saved-only meal is the exception: Saved is the only place it is, so taking
+ * it out of Saved deletes it rather than leaving it in no list at all.
  */
 export function toggleSaved(state: AppState, id: string): AppState {
-  if (!mealById(state, id)) return state;
+  const meal = mealById(state, id);
+  if (!meal) return state;
+  if (meal.category === null) return deleteMeal(state, id);
   return {
     ...state,
     meals: state.meals.map((m) => (m.id === id ? { ...m, saved: !m.saved } : m)),
@@ -277,15 +294,33 @@ export function updateMeal(
   if (!existing) return state;
 
   if (existing.category === meal.category) {
-    return syncToday(
-      {
-        ...state,
-        meals: state.meals.map((m) => (m.id === meal.id ? meal : m)),
-      },
-      meal.category,
-    );
+    const edited = {
+      ...state,
+      meals: state.meals.map((m) => (m.id === meal.id ? meal : m)),
+    };
+    // Saved only: in no loop, so there is no day to keep in step.
+    return meal.category === null ? edited : syncToday(edited, meal.category);
   }
 
-  // A category change is a move between two loops.
+  // A category change is a move between two loops — or into or out of none,
+  // which addMeal and deleteMeal both understand.
   return addMeal(deleteMeal(state, meal.id, rng), meal, rng);
+}
+
+/**
+ * Moves a saved-only meal into a list. It joins the loop exactly as a new meal
+ * does, at a random spot after today's pick, and keeps its bookmark. A meal
+ * that already has a list is left where it is: moving between lists is
+ * updateMeal's job, and a second path for it would be a second set of rules.
+ */
+export function placeMeal(
+  state: AppState,
+  id: string,
+  category: Category,
+  rng: Rng = defaultRng,
+): AppState {
+  const meal = mealById(state, id);
+  if (!meal || meal.category !== null) return state;
+  const without = { ...state, meals: state.meals.filter((m) => m.id !== id) };
+  return addMeal(without, { ...meal, category }, rng);
 }

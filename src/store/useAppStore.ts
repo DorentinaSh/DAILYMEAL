@@ -12,6 +12,7 @@ import {
   deleteMeal,
   makeId,
   mealById,
+  placeMeal,
   rollover,
   skip,
   toggleSaved,
@@ -31,6 +32,8 @@ type Actions = {
   saveMeal: (meal: Meal) => void;
   removeMeal: (id: string) => void;
   toggleSaved: (id: string) => void;
+  /** Moves a saved-only meal into Breakfast or Lunch. */
+  placeMeal: (id: string, category: Category) => void;
   setNotify: (category: Category, notify: boolean) => void;
   setTime: (category: Category, time: string) => void;
 };
@@ -58,7 +61,15 @@ export const useAppStore = create<Store>()(
         set((s) => deleteMeal(s, id));
       },
 
-      toggleSaved: (id) => set((s) => toggleSaved(s, id)),
+      // Unbookmarking a saved-only meal deletes it, so its photo file goes too —
+      // first, and outside the updater, exactly as in removeMeal.
+      toggleSaved: (id) => {
+        const meal = mealById(get(), id);
+        if (meal && meal.category === null) deletePhoto(meal.photoFile);
+        set((s) => toggleSaved(s, id));
+      },
+
+      placeMeal: (id, category) => set((s) => placeMeal(s, id, category)),
 
       setNotify: (category, notify) =>
         set((s) => ({

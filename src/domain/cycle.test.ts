@@ -6,6 +6,7 @@ import {
   dateKey,
   deleteMeal,
   mealsIn,
+  placeMeal,
   rollover,
   skip,
   toggleSaved,
@@ -37,6 +38,11 @@ function meal(id: string, category: Category = 'breakfast'): Meal {
     steps: ['do it'],
     prepMinutes: 5,
   };
+}
+
+/** A recipe kept for later and in no list: the only shape such a meal takes. */
+function savedOnly(id: string): Meal {
+  return { ...meal(id), category: null, saved: true };
 }
 
 /**
@@ -425,6 +431,118 @@ describe('toggleSaved', () => {
   });
 });
 
+describe('saved-only meals', () => {
+  it('are in no category', () => {
+    const s = addMeal(stateWith(['a', 'b'], 0), savedOnly('s'), zero);
+    expect(mealsIn(s, 'breakfast').map((m) => m.id)).toEqual(['a', 'b']);
+    expect(mealsIn(s, 'lunch')).toEqual([]);
+  });
+
+  it('are added without touching any cycle or today’s pick', () => {
+    const s = stateWith(['a', 'b'], 1);
+    const next = addMeal(s, savedOnly('s'), zero);
+    expect(next.meals.map((m) => m.id)).toEqual(['a', 'b', 's']);
+    expect(next.cycles).toEqual(s.cycles);
+    expect(next.today).toEqual(s.today);
+  });
+
+  // There is no other way for one to exist, so the domain enforces it rather
+  // than trusting every caller to remember.
+  it('are always stored as saved', () => {
+    const next = addMeal(createEmptyState(), { ...savedOnly('s'), saved: false }, zero);
+    expect(next.meals[0].saved).toBe(true);
+  });
+
+  // The whole point: something you only saved never turns up as today's meal.
+  it('are never served, however many days pass', () => {
+    let s = addMeal(stateWith(['a', 'b'], 0), savedOnly('s'), zero);
+    for (let day = 25; day <= 31; day++) {
+      s = rollover(s, `2026-08-${day}`, seeded(day));
+      expect(s.today.breakfast.mealId).not.toBe('s');
+      expect(s.today.lunch.mealId).toBeNull();
+    }
+  });
+
+  it('do not count towards a skip, and are never skipped to', () => {
+    const one = addMeal(stateWith(['a'], 0), savedOnly('s'), zero);
+    expect(canSkip(one, 'breakfast')).toBe(false);
+
+    const two = addMeal(stateWith(['a', 'b'], 0), savedOnly('s'), zero);
+    expect(skip(two, 'breakfast', zero).today.breakfast.mealId).toBe('b');
+  });
+
+  it('are deleted without touching any cycle or today’s pick', () => {
+    const s = addMeal(stateWith(['a', 'b'], 1), savedOnly('s'), zero);
+    const next = deleteMeal(s, 's', zero);
+    expect(next.meals.map((m) => m.id)).toEqual(['a', 'b']);
+    expect(next.cycles).toEqual(s.cycles);
+    expect(next.today).toEqual(s.today);
+  });
+
+  it('stay out of every cycle when edited', () => {
+    const s = addMeal(stateWith(['a'], 0), savedOnly('s'), zero);
+    const next = updateMeal(s, { ...savedOnly('s'), name: 'Renamed' }, zero);
+    expect(next.meals.find((m) => m.id === 's')?.name).toBe('Renamed');
+    expect(next.cycles).toEqual(s.cycles);
+    expect(next.today).toEqual(s.today);
+  });
+});
+
+describe('placeMeal', () => {
+  it('moves a saved-only meal into the loop after today’s pick', () => {
+    for (let seed = 1; seed <= 50; seed++) {
+      const s = addMeal(stateWith(['a', 'b', 'c'], 1), savedOnly('s'), zero);
+      const next = placeMeal(s, 's', 'breakfast', seeded(seed));
+      expect(next.cycles.breakfast.order.indexOf('s')).toBeGreaterThan(1);
+      expect(currentMeal(next, 'breakfast')?.id).toBe('b');
+    }
+  });
+
+  it('gives it the category and keeps its bookmark', () => {
+    const s = addMeal(createEmptyState(), savedOnly('s'), zero);
+    const next = placeMeal(s, 's', 'lunch', zero);
+    const placed = next.meals.find((m) => m.id === 's');
+    expect(placed?.category).toBe('lunch');
+    expect(placed?.saved).toBe(true);
+    expect(mealsIn(next, 'lunch').map((m) => m.id)).toEqual(['s']);
+  });
+
+  it('serves it at once when that list was empty', () => {
+    const s = addMeal(createEmptyState(), savedOnly('s'), zero);
+    expect(placeMeal(s, 's', 'lunch', zero).today.lunch.mealId).toBe('s');
+  });
+
+  // Moving between lists is updateMeal's job, and a quiet second path for it
+  // would be a second set of rules.
+  it('leaves a meal that already has a list where it is', () => {
+    const s = stateWith(['a', 'b'], 0);
+    expect(placeMeal(s, 'a', 'lunch', zero)).toEqual(s);
+  });
+
+  it('ignores an id that is not there', () => {
+    const s = stateWith(['a'], 0);
+    expect(placeMeal(s, 'nope', 'lunch', zero)).toEqual(s);
+  });
+});
+
+describe('toggleSaved on a saved-only meal', () => {
+  // Saved is the only place it is, so taking it out of Saved leaves it nowhere.
+  it('deletes it', () => {
+    const s = addMeal(stateWith(['a'], 0), savedOnly('s'), zero);
+    const next = toggleSaved(s, 's');
+    expect(next.meals.map((m) => m.id)).toEqual(['a']);
+    expect(next.cycles).toEqual(s.cycles);
+    expect(next.today).toEqual(s.today);
+  });
+
+  it('still only unbookmarks a meal that is in a list', () => {
+    const s = toggleSaved(stateWith(['a'], 0), 'a');
+    const next = toggleSaved(s, 'a');
+    expect(next.meals.map((m) => m.id)).toEqual(['a']);
+    expect(next.meals[0].saved).toBe(false);
+  });
+});
+
 describe('state is never mutated in place', () => {
   it('leaves the input untouched across every operation', () => {
     const s = stateWith(['a', 'b', 'c'], 0);
@@ -434,6 +552,16 @@ describe('state is never mutated in place', () => {
     addMeal(s, meal('d'), zero);
     deleteMeal(s, 'a', zero);
     updateMeal(s, { ...meal('a'), name: 'Changed' }, zero);
+    expect(JSON.stringify(s)).toBe(snapshot);
+  });
+
+  it('leaves the input untouched across the saved-only paths', () => {
+    const s = addMeal(stateWith(['a', 'b'], 0), savedOnly('s'), zero);
+    const snapshot = JSON.stringify(s);
+    placeMeal(s, 's', 'lunch', zero);
+    toggleSaved(s, 's');
+    deleteMeal(s, 's', zero);
+    updateMeal(s, { ...savedOnly('s'), name: 'Changed' }, zero);
     expect(JSON.stringify(s)).toBe(snapshot);
   });
 });

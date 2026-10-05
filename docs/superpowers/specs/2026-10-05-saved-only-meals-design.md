@@ -121,6 +121,13 @@ JSON in the persisted document.
 - `+` shows ✓, and stops offering itself, only when the recipe's meal is in
   Breakfast or Lunch. A saved-only recipe still shows `+`.
 
+### Recipe preview (`app/search/[id].tsx`)
+
+Found while building, not in the approved design: the preview's own
+`Add to breakfast / lunch` button always created a new meal, so a recipe
+bookmarked from its card first would end up as two. When the recipe is already
+a saved-only meal, the button `placeMeal`s it instead, keeping its bookmark.
+
 ### Saved tab (in Meals)
 
 - Lists both kinds together, as now. The meta line leads with the list, and a

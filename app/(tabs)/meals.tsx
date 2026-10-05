@@ -18,12 +18,12 @@ type Tab = Category | 'saved';
 /**
  * On the saved list a meal is out of its category's company, so the category
  * leads the line — that's the fact you lose by flattening the two lists into
- * one, and it costs a word to keep.
+ * one, and it costs a word to keep. A meal in no list says so instead.
  */
 function metaLine(meal: Meal, withCategory: boolean): string {
   const count = meal.ingredients.length;
   return [
-    withCategory ? CATEGORY_LABEL[meal.category] : null,
+    withCategory ? (meal.category ? CATEGORY_LABEL[meal.category] : 'Saved only') : null,
     meal.prepMinutes ? `${meal.prepMinutes} min` : null,
     `${count} ingredient${count === 1 ? '' : 's'}`,
   ]
@@ -73,7 +73,8 @@ export default function MealsScreen() {
         {meals.length === 0 ? (
           <Text style={styles.empty}>
             {tab === 'saved'
-              ? 'Nothing saved yet. Open a meal and tap the bookmark to keep it here.'
+              ? 'Nothing saved yet. Tap the bookmark on a meal or a recipe in Search to ' +
+                'keep it here.'
               : `No ${CATEGORY_LABEL[tab].toLowerCase()}s yet. Tap Add to make one.`}
           </Text>
         ) : (

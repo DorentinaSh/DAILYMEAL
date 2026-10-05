@@ -12,9 +12,10 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Svg, { Path } from 'react-native-svg';
 
-import { CATEGORIES, CATEGORY_LABEL, type Meal } from '@/domain/types';
-import { isKept, keptAsMeal } from '@/search/keep';
+import { CATEGORIES, CATEGORY_LABEL, type Category, type Meal } from '@/domain/types';
+import { keptAsMeal, keptMealFor } from '@/search/keep';
 import { MIN_QUERY } from '@/search/mealdb';
 import type { RecipeHit } from '@/search/types';
 import { useAppStore } from '@/store/useAppStore';
@@ -37,6 +38,8 @@ export default function SearchScreen() {
   const run = useSearchStore((s) => s.run);
   const meals = useAppStore((s) => s.meals);
   const createMeal = useAppStore((s) => s.createMeal);
+  const placeMeal = useAppStore((s) => s.placeMeal);
+  const toggleSaved = useAppStore((s) => s.toggleSaved);
 
   // Two columns inside the page's side padding, with the gap between them.
   const { width: screenWidth } = useWindowDimensions();
@@ -96,8 +99,8 @@ export default function SearchScreen() {
       <FlatList
         data={hits}
         keyExtractor={(hit) => hit.id}
-        // A card's tick comes from your meals, not from the hits, so the list
-        // has to be told that adding one is a reason to redraw.
+        // A card's tick and bookmark come from your meals, not from the hits,
+        // so the list has to be told that changing them is a reason to redraw.
         extraData={meals}
         numColumns={2}
         columnWrapperStyle={styles.row}
@@ -105,14 +108,26 @@ export default function SearchScreen() {
         contentContainerStyle={styles.list}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
-        renderItem={({ item }) => (
-          <ResultCard
-            hit={item}
-            width={cardWidth}
-            kept={isKept(item, meals)}
-            onAdd={() => offerToAdd(item, createMeal)}
-          />
-        )}
+        renderItem={({ item }) => {
+          const meal = keptMealFor(item, meals);
+          return (
+            <ResultCard
+              hit={item}
+              width={cardWidth}
+              meal={meal}
+              onAdd={() =>
+                offerToAdd(item, (category) => {
+                  // Saved only already: move that meal in, never a second copy.
+                  if (meal) placeMeal(meal.id, category);
+                  else createMeal(keptAsMeal(item, category, false));
+                })
+              }
+              onSave={() =>
+                meal ? toggleSaved(meal.id) : createMeal(keptAsMeal(item, null, true))
+              }
+            />
+          );
+        }}
         ListEmptyComponent={
           <Empty status={status} query={query} onRetry={() => void run(query)} />
         }
@@ -152,14 +167,16 @@ function RowGap() {
 }
 
 /**
- * Asks which list a recipe joins, then adds it exactly as the preview's own
- * button does — through keptAsMeal, so a meal is the same however it came in.
+ * Asks which list a recipe joins, then hands the answer back. The caller adds
+ * it exactly as the preview's own button does — through keptAsMeal, so a meal
+ * is the same however it came in — or moves in the saved-only meal it already
+ * is.
  */
-function offerToAdd(hit: RecipeHit, createMeal: (draft: Omit<Meal, 'id'>) => void) {
+function offerToAdd(hit: RecipeHit, add: (category: Category) => void) {
   Alert.alert(`Add ${hit.name} to…`, undefined, [
     ...CATEGORIES.map((category) => ({
       text: CATEGORY_LABEL[category],
-      onPress: () => createMeal(keptAsMeal(hit, category, false)),
+      onPress: () => add(category),
     })),
     { text: 'Cancel', style: 'cancel' as const },
   ]);
@@ -172,6 +189,46 @@ function Plus() {
       <View style={styles.plusBar} />
       <View style={[styles.plusBar, styles.plusBarUp]} />
     </View>
+  );
+}
+
+/**
+ * The card's save control, drawn the way the reference draws its heart: an
+ * outline at rest, filled when on — no pill behind it. Off is slate, which
+ * reads at 5.1:1 on the card. On is kelly, to match the add button below it;
+ * that is 2.3:1 against the card, under the 3:1 a state mark is meant to
+ * clear, and acceptable only because the state is also carried by the shape
+ * changing from outline to solid. 20pt drawn, 44pt to the thumb.
+ */
+function Bookmark({
+  saved,
+  label,
+  onPress,
+}: {
+  saved: boolean;
+  label: string;
+  onPress: () => void;
+}) {
+  const tint = saved ? color.kelly : color.slate;
+  return (
+    <Pressable
+      onPress={onPress}
+      hitSlop={12}
+      accessibilityRole="button"
+      accessibilityState={{ selected: saved }}
+      accessibilityLabel={label}
+      style={({ pressed }) => [styles.bookmark, pressed && styles.bookmarkPressed]}
+    >
+      <Svg width={20} height={20} viewBox="0 0 24 24">
+        <Path
+          d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"
+          fill={saved ? tint : 'none'}
+          stroke={tint}
+          strokeWidth={2}
+          strokeLinejoin="round"
+        />
+      </Svg>
+    </Pressable>
   );
 }
 
@@ -191,23 +248,32 @@ function Tick() {
  * and a made-up number would be shown as if it were fact. The ingredient
  * count takes the price's place, because it is real.
  *
- * The card's body and the add button are siblings rather than one inside the
- * other: a pressable around the button would fold it into the card for a
- * screen reader, and it could never be reached on its own.
+ * The bookmark takes the reference's heart's place: it saves the recipe to
+ * Saved only, outside every rotation, until it is moved into a list.
+ *
+ * The card's body, the bookmark and the add button are siblings rather than
+ * one inside another: a pressable around a button would fold it into the card
+ * for a screen reader, and it could never be reached on its own.
  */
 function ResultCard({
   hit,
   width,
-  kept,
+  meal,
   onAdd,
+  onSave,
 }: {
   hit: RecipeHit;
   width: number;
-  kept: boolean;
+  /** The meal this recipe became, if it is one of yours. */
+  meal: Meal | null;
   onAdd: () => void;
+  onSave: () => void;
 }) {
   const meta = [hit.sourceCategory, hit.area].filter(Boolean).join(' · ');
   const count = hit.ingredients.length;
+  // The tick means "in Breakfast or Lunch". Saved only still offers the plus.
+  const listed = meal !== null && meal.category !== null;
+  const saved = meal?.saved === true;
 
   return (
     <View style={[styles.card, { width }]}>
@@ -231,17 +297,25 @@ function ResultCard({
         )}
       </Pressable>
 
+      <Bookmark
+        saved={saved}
+        onPress={onSave}
+        label={saved ? `Remove ${hit.name} from Saved` : `Save ${hit.name}`}
+      />
+
       <Pressable
         onPress={onAdd}
-        disabled={kept}
+        disabled={listed}
         // 36pt drawn, 44pt to the thumb.
         hitSlop={4}
         accessibilityRole="button"
-        accessibilityLabel={kept ? `${hit.name} is in your meals` : `Add ${hit.name} to your meals`}
-        accessibilityState={{ disabled: kept }}
+        accessibilityLabel={
+          listed ? `${hit.name} is in your meals` : `Add ${hit.name} to breakfast or lunch`
+        }
+        accessibilityState={{ disabled: listed }}
         style={({ pressed }) => [styles.add, pressed && styles.addPressed]}
       >
-        {kept ? <Tick /> : <Plus />}
+        {listed ? <Tick /> : <Plus />}
       </Pressable>
     </View>
   );
@@ -426,6 +500,9 @@ const styles = StyleSheet.create({
     paddingTop: space.md,
     paddingRight: 36,
   },
+  // Where the reference's heart sits, in the card's top corner.
+  bookmark: { position: 'absolute', top: space.md, right: space.md },
+  bookmarkPressed: { opacity: 0.5 },
   // Flush in the corner, so its outer corner is the card's own.
   add: {
     position: 'absolute',

@@ -4,7 +4,7 @@ import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-nati
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { mealById } from '@/domain/cycle';
-import { CATEGORY_LABEL } from '@/domain/types';
+import { CATEGORIES, CATEGORY_LABEL } from '@/domain/types';
 import { photoUri } from '@/photos/files';
 import { useAppStore } from '@/store/useAppStore';
 import { Button } from '@/ui/Button';
@@ -29,9 +29,11 @@ function Chip({ label }: { label: string }) {
 export default function MealDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const meal = useAppStore((s) => mealById(s, id ?? null));
-  const cycle = useAppStore((s) => (meal ? s.cycles[meal.category] : null));
+  // A saved-only meal is in no loop, so it has no cycle and no place in one.
+  const cycle = useAppStore((s) => (meal?.category ? s.cycles[meal.category] : null));
   const removeMeal = useAppStore((s) => s.removeMeal);
   const toggleSaved = useAppStore((s) => s.toggleSaved);
+  const placeMeal = useAppStore((s) => s.placeMeal);
   const insets = useSafeAreaInsets();
 
   if (!meal) {
@@ -42,9 +44,12 @@ export default function MealDetailScreen() {
     );
   }
 
+  const savedOnly = meal.category === null;
+
   function confirmDelete() {
     if (!meal) return;
-    Alert.alert(`Delete ${meal.name}?`, 'It leaves the rotation for good.', [
+    const gone = savedOnly ? 'It leaves Saved for good.' : 'It leaves the rotation for good.';
+    Alert.alert(`Delete ${meal.name}?`, gone, [
       { text: 'Keep it', style: 'cancel' },
       {
         text: 'Delete',
@@ -55,6 +60,31 @@ export default function MealDetailScreen() {
         },
       },
     ]);
+  }
+
+  // Unbookmarking a saved-only meal deletes it, and this page is where that is
+  // least expected — so here, unlike on a search card, it asks first.
+  function onBookmark() {
+    if (!meal) return;
+    if (!savedOnly) {
+      toggleSaved(meal.id);
+      return;
+    }
+    Alert.alert(
+      'Remove from Saved?',
+      "It isn't in Breakfast or Lunch, so it will be deleted.",
+      [
+        { text: 'Keep it', style: 'cancel' },
+        {
+          text: 'Remove',
+          style: 'destructive',
+          onPress: () => {
+            toggleSaved(meal.id);
+            router.back();
+          },
+        },
+      ],
+    );
   }
 
   const place = cycle ? cycle.order.indexOf(meal.id) : -1;
@@ -130,9 +160,22 @@ export default function MealDetailScreen() {
           )}
 
           <View style={styles.actions}>
+            {/* Saved only: the way into a rotation. Each joins that list's loop
+                after today's pick, keeps the bookmark, and this page becomes
+                that list's meal. */}
+            {savedOnly &&
+              CATEGORIES.map((category) => (
+                <Button
+                  key={category}
+                  label={`Add to ${CATEGORY_LABEL[category].toLowerCase()}`}
+                  variant="solid"
+                  onPress={() => placeMeal(meal.id, category)}
+                />
+              ))}
+            {/* Outline beside the adds, so there are not three solid buttons. */}
             <Button
               label="Edit"
-              variant="solid"
+              variant={savedOnly ? 'outline' : 'solid'}
               onPress={() => router.push(`/meal/edit?id=${meal.id}`)}
             />
             <Button label="Delete" variant="danger" onPress={confirmDelete} />
@@ -154,10 +197,12 @@ export default function MealDetailScreen() {
           <Text style={styles.chevron}>‹</Text>
         </Pressable>
 
-        <Text style={styles.panelTitle}>{CATEGORY_LABEL[meal.category]}</Text>
+        <Text style={styles.panelTitle}>
+          {meal.category ? CATEGORY_LABEL[meal.category] : 'Saved'}
+        </Text>
 
         <Pressable
-          onPress={() => toggleSaved(meal.id)}
+          onPress={onBookmark}
           accessibilityRole="button"
           accessibilityState={{ selected: !!meal.saved }}
           accessibilityLabel={meal.saved ? 'Remove from saved' : 'Save for later'}

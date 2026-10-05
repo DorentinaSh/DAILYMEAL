@@ -35,6 +35,11 @@ export default function MealEditScreen() {
   const saveMeal = useAppStore((s) => s.saveMeal);
 
   const [name, setName] = useState(existing?.name ?? '');
+  // A saved-only meal keeps its empty list through an edit. Moving it into a
+  // rotation is the meal page's job, so the picker is not offered — and this
+  // has to be checked by hand: the `??` below reads null as missing and would
+  // quietly file it under Breakfast, which no type error would catch.
+  const savedOnly = existing?.category === null;
   const [category, setCategory] = useState<Category>(
     existing?.category ?? ((params.category as Category) ?? 'breakfast'),
   );
@@ -101,7 +106,7 @@ export default function MealEditScreen() {
 
     const fields = {
       name: trimmedName,
-      category,
+      category: savedOnly ? null : category,
       ingredients: toLines(ingredients),
       steps: toLines(steps),
       prepMinutes: Number.isFinite(parsedPrep) && parsedPrep > 0 ? parsedPrep : null,
@@ -158,14 +163,16 @@ export default function MealEditScreen() {
           </View>
         </View>
 
-        <View style={styles.field}>
-          <Text style={eyebrow}>Served as</Text>
-          <Segment
-            items={CATEGORIES.map((c) => ({ value: c, label: CATEGORY_LABEL[c] }))}
-            value={category}
-            onChange={setCategory}
-          />
-        </View>
+        {!savedOnly && (
+          <View style={styles.field}>
+            <Text style={eyebrow}>Served as</Text>
+            <Segment
+              items={CATEGORIES.map((c) => ({ value: c, label: CATEGORY_LABEL[c] }))}
+              value={category}
+              onChange={setCategory}
+            />
+          </View>
+        )}
 
         <View style={styles.field}>
           <Text style={eyebrow}>Ingredients</Text>

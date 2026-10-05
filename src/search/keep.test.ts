@@ -1,5 +1,5 @@
 import type { Meal } from '@/domain/types';
-import { isKept, keptAsMeal } from './keep';
+import { keptAsMeal, keptMealFor } from './keep';
 import type { RecipeHit } from './types';
 
 const shakshuka: RecipeHit = {
@@ -51,43 +51,56 @@ describe('keeping a found recipe as a meal', () => {
   it('does not invent an id — the store mints that when the meal is added', () => {
     expect(keptAsMeal(shakshuka, 'lunch', false)).not.toHaveProperty('id');
   });
+
+  // Saved only — the bookmark on a search card. A meal in no list is always
+  // saved, whatever the caller passed.
+  it('keeps a recipe with no list as saved', () => {
+    const meal = keptAsMeal(shakshuka, null, false);
+    expect(meal.category).toBeNull();
+    expect(meal.saved).toBe(true);
+  });
 });
 
-describe('telling whether a found recipe is already one of your meals', () => {
+describe('finding the meal a found recipe became', () => {
   const kept: Meal = { ...keptAsMeal(shakshuka, 'breakfast', false), id: 'm1' };
 
-  it('knows a recipe you kept', () => {
-    expect(isKept(shakshuka, [kept])).toBe(true);
+  it('finds a recipe you kept', () => {
+    expect(keptMealFor(shakshuka, [kept])).toBe(kept);
   });
 
-  it('knows nothing is kept when you have no meals', () => {
-    expect(isKept(shakshuka, [])).toBe(false);
+  it('finds one you only saved, so the card knows it is saved but in no list', () => {
+    const saved: Meal = { ...keptAsMeal(shakshuka, null, true), id: 'm4' };
+    expect(keptMealFor(shakshuka, [saved])?.category).toBeNull();
+  });
+
+  it('finds nothing when you have no meals', () => {
+    expect(keptMealFor(shakshuka, [])).toBeNull();
   });
 
   // A meal you typed yourself has no source photo, so sharing a name with a
   // recipe does not make it that recipe.
   it('does not mistake a meal you typed with the same name for it', () => {
     const typed: Meal = { ...kept, id: 'm2', imageUrl: undefined };
-    expect(isKept(shakshuka, [typed])).toBe(false);
+    expect(keptMealFor(shakshuka, [typed])).toBeNull();
   });
 
   // The photo is the recipe's identity, not the name: renaming the meal you
   // kept does not make the recipe addable again as if it were new.
-  it('still knows it after you rename the meal', () => {
+  it('still finds it after you rename the meal', () => {
     const renamed: Meal = { ...kept, name: 'Weekend shakshuka' };
-    expect(isKept(shakshuka, [renamed])).toBe(true);
+    expect(keptMealFor(shakshuka, [renamed])).toBe(renamed);
   });
 
   it('does not confuse it with a different recipe you kept', () => {
     const other: Meal = { ...kept, imageUrl: 'https://themealdb.example/omelette.jpg' };
-    expect(isKept(shakshuka, [other])).toBe(false);
+    expect(keptMealFor(shakshuka, [other])).toBeNull();
   });
 
   // With no photo there is nothing to recognise it by, and guessing from the
-  // name would tick recipes you never added.
+  // name would claim recipes you never kept.
   it('never claims a recipe with no photo, which it cannot recognise', () => {
     const bare = { ...shakshuka, imageUrl: null };
     const keptBare: Meal = { ...keptAsMeal(bare, 'lunch', false), id: 'm3' };
-    expect(isKept(bare, [keptBare])).toBe(false);
+    expect(keptMealFor(bare, [keptBare])).toBeNull();
   });
 });

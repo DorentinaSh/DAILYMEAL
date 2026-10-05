@@ -11,7 +11,14 @@ export type Category = (typeof CATEGORIES)[number];
 export type Meal = {
   id: string;
   name: string;
-  category: Category;
+  /**
+   * Which list the meal is served from — or null: saved only, kept to look at
+   * later and outside every rotation. The rotation only ever asks for meals in
+   * a category, so null keeps a meal out of it by construction rather than by
+   * a filter every reader would have to remember. A meal with no list is
+   * always saved; addMeal enforces it.
+   */
+  category: Category | null;
   /** One entry per line, as typed in the editor. */
   ingredients: string[];
   /** One entry per line, as typed in the editor. */

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { CATEGORIES, CATEGORY_LABEL, type Category } from '@/domain/types';
-import { keptAsMeal } from '@/search/keep';
+import { keptAsMeal, keptMealFor } from '@/search/keep';
 import { defaultCategory } from '@/search/normalize';
 import { useAppStore } from '@/store/useAppStore';
 import { useSearchStore } from '@/store/useSearchStore';
@@ -17,6 +17,8 @@ export default function RecipePreviewScreen() {
   // The list already fetched the whole recipe, so opening it costs no request.
   const hit = useSearchStore((s) => s.hits.find((candidate) => candidate.id === id) ?? null);
   const createMeal = useAppStore((s) => s.createMeal);
+  const placeMeal = useAppStore((s) => s.placeMeal);
+  const meals = useAppStore((s) => s.meals);
 
   const [category, setCategory] = useState<Category>(
     hit ? defaultCategory(hit.sourceCategory) : 'lunch',
@@ -35,7 +37,14 @@ export default function RecipePreviewScreen() {
 
   function save() {
     if (!hit) return;
-    createMeal(keptAsMeal(hit, category, keepForLater));
+    // Bookmarked from its card already: move that meal in, keeping its
+    // bookmark, rather than adding a second copy beside it.
+    const savedOnly = keptMealFor(hit, meals);
+    if (savedOnly && savedOnly.category === null) {
+      placeMeal(savedOnly.id, category);
+    } else {
+      createMeal(keptAsMeal(hit, category, keepForLater));
+    }
     router.back();
   }
 
