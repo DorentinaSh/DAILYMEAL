@@ -8,7 +8,6 @@ import { CATEGORY_LABEL } from '@/domain/types';
 import { photoUri } from '@/photos/files';
 import { useAppStore } from '@/store/useAppStore';
 import { Button } from '@/ui/Button';
-import { glazeFor } from '@/ui/glaze';
 import { MealMark } from '@/ui/MealMark';
 import { color, eyebrow, font, radius, space } from '@/ui/theme';
 
@@ -58,10 +57,6 @@ export default function MealDetailScreen() {
     ]);
   }
 
-  // The panel wears the meal's own glaze, so opening a meal is the most
-  // colourful thing the app does and every meal's screen is its own.
-  const panel = glazeFor(meal.name);
-
   const place = cycle ? cycle.order.indexOf(meal.id) : -1;
   const chips = [
     meal.prepMinutes ? `${meal.prepMinutes} min` : null,
@@ -75,16 +70,11 @@ export default function MealDetailScreen() {
 
   return (
     <View style={styles.screen}>
-      {/* The panel is a deep glaze, so the clock and battery must go pale. */}
-      <StatusBar style="light" />
+      {/* The green is bright, so the clock and battery stay dark. */}
+      <StatusBar style="dark" />
 
-      {/* Layer 1: the glaze, fixed. The sheet rides up over it. */}
-      <View
-        style={[
-          styles.backdrop,
-          { backgroundColor: panel, height: insets.top + BAR_BLOCK + GAP + OVERLAP },
-        ]}
-      />
+      {/* Layer 1 is the screen itself: green edge to edge, so wherever the
+          sheet is dragged there is green behind it, never a strip of page. */}
 
       {/* Layer 2: everything that moves. The circle travels with the sheet —
           left behind it would hang over the scrolling content. */}
@@ -147,12 +137,14 @@ export default function MealDetailScreen() {
             />
             <Button label="Delete" variant="danger" onPress={confirmDelete} />
           </View>
+
+          <View style={styles.sheetTail} pointerEvents="none" />
         </View>
       </ScrollView>
 
       {/* Layer 3: the bar, fixed above the scroll so its buttons stay live and
-          the pale status text always has glaze behind it. */}
-      <View style={[styles.bar, { backgroundColor: panel, paddingTop: insets.top + space.sm }]}>
+          the status text always has green behind it, not the scrolling sheet. */}
+      <View style={[styles.bar, { paddingTop: insets.top + space.sm }]}>
         <Pressable
           onPress={() => router.back()}
           accessibilityRole="button"
@@ -169,7 +161,11 @@ export default function MealDetailScreen() {
           accessibilityRole="button"
           accessibilityState={{ selected: !!meal.saved }}
           accessibilityLabel={meal.saved ? 'Remove from saved' : 'Save for later'}
-          style={({ pressed }) => [styles.round, pressed && styles.roundPressed]}
+          style={({ pressed }) => [
+            styles.round,
+            meal.saved && styles.roundOn,
+            pressed && styles.roundPressed,
+          ]}
         >
           <Text style={[styles.bookmark, meal.saved && styles.bookmarkOn]}>
             {meal.saved ? '\u2611' : '\u2610'}
@@ -181,20 +177,20 @@ export default function MealDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: color.porcelain },
-  scroll: { paddingBottom: space.huge },
+  // One green behind every recipe. The per-meal colour has not gone: it is
+  // the circle sitting on it, which is where a colour belongs when it stands
+  // for one meal rather than for the screen.
+  screen: { flex: 1, backgroundColor: color.kelly },
+  // Grows so a short recipe's sheet still reaches the bottom of the screen
+  // instead of ending mid-way with green below it.
+  scroll: { flexGrow: 1 },
 
-  backdrop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-  },
   bar: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
+    backgroundColor: color.kelly,
     paddingHorizontal: space.xl,
     paddingBottom: space.sm,
     flexDirection: 'row',
@@ -203,7 +199,7 @@ const styles = StyleSheet.create({
   },
   panelTitle: {
     ...eyebrow,
-    color: color.porcelain,
+    color: color.ink,
   },
   round: {
     width: 40,
@@ -211,17 +207,21 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(235, 239, 238, 0.16)',
+    backgroundColor: 'rgba(22, 48, 46, 0.12)',
   },
-  roundPressed: { backgroundColor: 'rgba(235, 239, 238, 0.32)' },
+  roundOn: { backgroundColor: color.ink },
+  roundPressed: { backgroundColor: 'rgba(22, 48, 46, 0.22)' },
   chevron: {
     fontFamily: font.body,
     fontSize: 26,
     lineHeight: 30,
-    color: color.porcelain,
+    color: color.ink,
   },
-  bookmark: { fontSize: 20, lineHeight: 24, color: color.porcelain },
-  bookmarkOn: { color: color.yolk },
+  // Saved fills the pill rather than recolouring the mark: the accent is
+  // 1.3:1 on this green, so a yolk tick would read as nothing happening —
+  // the same trap SAVE_COLORS documents.
+  bookmark: { fontSize: 20, lineHeight: 24, color: color.ink },
+  bookmarkOn: { color: color.porcelain },
 
   heroWrap: {
     alignItems: 'center',
@@ -240,6 +240,18 @@ const styles = StyleSheet.create({
     // text starts.
     paddingTop: OVERLAP + space.lg,
     paddingHorizontal: space.xl,
+    paddingBottom: space.huge,
+    flexGrow: 1,
+  },
+  // Hangs below the sheet without adding to the scroll height, so the iOS
+  // bounce past the end shows more sheet rather than a green gap under it.
+  sheetTail: {
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
+    height: 1000,
+    backgroundColor: color.porcelain,
   },
   name: {
     fontFamily: font.displayBold,

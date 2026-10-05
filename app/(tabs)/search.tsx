@@ -33,11 +33,16 @@ export default function SearchScreen() {
     return () => clearTimeout(timer);
   }, [query, run]);
 
+  // The filter button is drawn ahead of what it does. This is where it gets
+  // wired once filters exist; until then a press does nothing.
+  function openFilters() {}
+
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <View style={styles.head}>
         <Text style={styles.title}>Search</Text>
         <View style={styles.field}>
+          <Magnifier />
           <TextInput
             value={query}
             onChangeText={setQuery}
@@ -59,6 +64,14 @@ export default function SearchScreen() {
               <Text style={styles.clear}>×</Text>
             </Pressable>
           )}
+          <Pressable
+            onPress={openFilters}
+            accessibilityRole="button"
+            accessibilityLabel="Filter recipes"
+            style={({ pressed }) => [styles.filter, pressed && styles.filterPressed]}
+          >
+            <Sliders />
+          </Pressable>
         </View>
       </View>
 
@@ -74,6 +87,32 @@ export default function SearchScreen() {
         }
       />
     </SafeAreaView>
+  );
+}
+
+/** Drawn, like the tab marks, rather than pulled from an icon set. */
+function Magnifier() {
+  return (
+    <View style={styles.magnifier} accessible={false}>
+      <View style={styles.lens} />
+      <View style={styles.lensHandle} />
+    </View>
+  );
+}
+
+/** Two slider rails, their knobs at opposite ends. */
+function Sliders() {
+  return (
+    <View style={styles.sliders} accessible={false}>
+      <View style={styles.rail}>
+        <View style={styles.railLine} />
+        <View style={[styles.knob, { left: 2 }]} />
+      </View>
+      <View style={styles.rail}>
+        <View style={styles.railLine} />
+        <View style={[styles.knob, { right: 2 }]} />
+      </View>
+    </View>
   );
 }
 
@@ -165,17 +204,61 @@ const styles = StyleSheet.create({
     color: color.ink,
     letterSpacing: -0.4,
   },
+  // A soft green well rather than an outlined box: the tint marks the field,
+  // so it needs no border.
   field: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: space.sm,
+    gap: space.md,
     marginTop: space.lg,
-    paddingHorizontal: space.lg,
-    height: 48,
-    backgroundColor: color.tile,
+    paddingLeft: space.lg,
+    // The filter button sits inset by this much on every side it touches.
+    paddingRight: 6,
+    height: 52,
+    backgroundColor: color.kellyWash,
+    borderRadius: radius.lg,
+  },
+  filter: {
+    width: 40,
+    height: 40,
     borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: color.edge,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: color.kelly,
+  },
+  filterPressed: { opacity: 0.8 },
+  // White, as in the reference, by choice: it measures 2.5:1 on kelly, under
+  // the 3:1 a control's glyph is meant to clear, where ink would be 5.6:1.
+  // Kept white on purpose; the number is here so it is a known trade.
+  sliders: { width: 18, gap: 5 },
+  rail: { height: 6, justifyContent: 'center' },
+  railLine: { height: 2, borderRadius: 1, backgroundColor: color.tile },
+  // Filled with kelly so the rail looks to pass behind the ring, not through.
+  knob: {
+    position: 'absolute',
+    top: 0,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    borderWidth: 2,
+    borderColor: color.tile,
+    backgroundColor: color.kelly,
+  },
+  magnifier: { flexDirection: 'row', alignItems: 'flex-end', height: 18 },
+  lens: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    borderWidth: 2,
+    borderColor: color.slate,
+  },
+  lensHandle: {
+    width: 2,
+    height: 7,
+    borderRadius: 1,
+    marginLeft: -2,
+    backgroundColor: color.slate,
+    transform: [{ rotate: '-45deg' }],
   },
   input: {
     flex: 1,

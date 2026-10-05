@@ -84,11 +84,63 @@ describe('every glaze carries what is drawn on it', () => {
   });
 });
 
-describe('the placeholder tone', () => {
-  // All five placeholders in the app sit on tile.
-  it('clears WCAG for body text on tile', () => {
-    expect(contrastRatio(color.placeholder, color.tile)).toBeGreaterThanOrEqual(MIN_TEXT);
+describe('the recipe screen backdrop', () => {
+  // It is bright, so everything drawn on it is ink. Pale text measures 2.2:1
+  // here, which is why the bar on that screen is not pale.
+  it('carries the ink its bar is drawn in', () => {
+    expect(contrastRatio(color.ink, color.kelly)).toBeGreaterThanOrEqual(MIN_TEXT);
   });
+
+  it('will not carry pale text, which is why nothing pale is put on it', () => {
+    expect(contrastRatio(color.porcelain, color.kelly)).toBeLessThan(MIN_TEXT);
+  });
+
+  // The saved bookmark fills its pill instead of turning yolk. Asserted so
+  // nobody restores the accent here and gets a mark that cannot be seen.
+  it('cannot show a yolk mark, so the saved pill fills instead', () => {
+    expect(contrastRatio(color.yolk, color.kelly)).toBeLessThan(MIN_UI);
+    expect(contrastRatio(color.porcelain, color.ink)).toBeGreaterThanOrEqual(MIN_TEXT);
+  });
+
+  // The sheet rides over it. These two are close in lightness (2.2:1) and are
+  // told apart by hue instead — a bright green against a grey-green — which is
+  // why this asserts they differ at all rather than asserting a UI threshold
+  // that only applies to controls.
+  it('is not the same surface as the sheet', () => {
+    expect(color.kelly).not.toBe(color.porcelain);
+    expect(contrastRatio(color.kelly, color.porcelain)).toBeGreaterThan(1.5);
+  });
+});
+
+describe('the search field', () => {
+  // Typed text and the magnifier both sit on the wash.
+  it('carries what is typed into it', () => {
+    expect(contrastRatio(color.ink, color.kellyWash)).toBeGreaterThanOrEqual(MIN_TEXT);
+  });
+
+  it('shows its magnifier', () => {
+    expect(contrastRatio(color.slate, color.kellyWash)).toBeGreaterThanOrEqual(MIN_UI);
+  });
+  // It has no border, so the tint is the only thing marking where the field
+  // is. As faint against the page as the reference's field is against white —
+  // the magnifier and placeholder are what say "type here", not an outline.
+  it('is told apart from the page by its tint', () => {
+    expect(color.kellyWash).not.toBe(color.porcelain);
+    expect(contrastRatio(color.kellyWash, color.porcelain)).toBeGreaterThan(1.05);
+  });
+});
+
+describe('the placeholder tone', () => {
+  // The four on the edit form sit on tile; the search field's sits on the
+  // green wash, which is the darker of the two and so the one that binds.
+  for (const [name, ground] of [
+    ['tile', color.tile],
+    ['the search field', color.kellyWash],
+  ] as const) {
+    it(`clears WCAG for body text on ${name}`, () => {
+      expect(contrastRatio(color.placeholder, ground)).toBeGreaterThanOrEqual(MIN_TEXT);
+    });
+  }
 
   // The whole reason it is not just slate: a placeholder has to stay lighter
   // than real secondary text, or an empty field reads as a filled one. These

@@ -30,13 +30,29 @@ export const color = {
   mute: '#9BABA8',
   /**
    * Placeholder text, and nothing else. The lightest tone that still clears
-   * 4.5:1 on tile — deliberately lighter than slate, because a placeholder
-   * that matches the secondary text makes an empty field look like a filled
-   * one. Both halves of that are pinned in contrast.test.ts.
+   * 4.5:1 on tile and on the search field's green wash — the wash is the
+   * darker, so it set this, four points darker than the #657A77 that tile
+   * alone allowed. Still deliberately lighter than slate, because a
+   * placeholder that matches the secondary text makes an empty field look
+   * like a filled one. Both halves of that are pinned in contrast.test.ts.
    */
-  placeholder: '#657A77',
+  placeholder: '#617572',
   /** Hairlines and dividers. */
   edge: '#D6DEDC',
+  /**
+   * The recipe screen's backdrop. Bright enough that everything on it has to
+   * be dark: pale text measures 2.2:1 here and white 2.5:1, while ink reads
+   * at 5.6:1. That is why the bar on that screen is inked rather than pale,
+   * and why the saved bookmark fills instead of turning yolk — yolk on this
+   * green is 1.3:1, which is no mark at all.
+   */
+  kelly: '#4CBB17',
+  /**
+   * Kelly at field-fill strength: 8% of it over white. The search field wears
+   * it in place of a border, as faint against porcelain as a pale-green field
+   * is against a white page — the magnifier and placeholder do the telling.
+   */
+  kellyWash: '#F1FAEC',
   /** The single accent: today's pick. */
   yolk: '#F2B307',
   /** Yolk at card-fill strength. */
