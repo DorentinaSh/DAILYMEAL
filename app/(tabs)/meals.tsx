@@ -105,7 +105,7 @@ export default function MealsScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: color.porcelain },
+  screen: { flex: 1, backgroundColor: color.page },
   // The header sits outside the ScrollView so the tabs stay put while the
   // list under them runs long.
   header: {

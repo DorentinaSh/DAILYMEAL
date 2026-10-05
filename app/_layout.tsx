@@ -63,7 +63,7 @@ export default function RootLayout() {
   }, []);
 
   if (!fontsReady) {
-    return <View style={{ flex: 1, backgroundColor: color.porcelain }} />;
+    return <View style={{ flex: 1, backgroundColor: color.page }} />;
   }
 
   return (
@@ -71,8 +71,8 @@ export default function RootLayout() {
       <StatusBar style="dark" />
       <Stack
         screenOptions={{
-          contentStyle: { backgroundColor: color.porcelain },
-          headerStyle: { backgroundColor: color.porcelain },
+          contentStyle: { backgroundColor: color.page },
+          headerStyle: { backgroundColor: color.page },
           headerShadowVisible: false,
           headerTintColor: color.ink,
           // Without this the back button borrows the previous screen's title,

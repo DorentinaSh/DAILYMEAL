@@ -230,10 +230,10 @@ const styles = StyleSheet.create({
     height: OVERLAP,
     zIndex: 1,
   },
-  hero: { borderWidth: 4, borderColor: color.porcelain },
+  hero: { borderWidth: 4, borderColor: color.page },
 
   sheet: {
-    backgroundColor: color.porcelain,
+    backgroundColor: color.page,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     // Begins at the circle's midpoint, and clears its lower half before any
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 1000,
-    backgroundColor: color.porcelain,
+    backgroundColor: color.page,
   },
   name: {
     fontFamily: font.displayBold,
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
 
   gone: {
     flex: 1,
-    backgroundColor: color.porcelain,
+    backgroundColor: color.page,
     alignItems: 'center',
     justifyContent: 'center',
   },

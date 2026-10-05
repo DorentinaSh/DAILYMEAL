@@ -110,12 +110,12 @@ export default function RecipePreviewScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: color.porcelain },
+  screen: { flex: 1, backgroundColor: color.page },
   content: { padding: space.xl, paddingBottom: space.huge, gap: space.md },
   head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   gone: {
     flex: 1,
-    backgroundColor: color.porcelain,
+    backgroundColor: color.page,
     alignItems: 'center',
     justifyContent: 'center',
     padding: space.xl,
@@ -126,7 +126,8 @@ const styles = StyleSheet.create({
     width: '100%',
     aspectRatio: 4 / 3,
     borderRadius: radius.lg,
-    backgroundColor: color.tile,
+    // Holds the photo's place while it loads; white would vanish on the page.
+    backgroundColor: color.porcelain,
     marginBottom: space.sm,
   },
   name: {

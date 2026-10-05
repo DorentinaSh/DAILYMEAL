@@ -70,7 +70,7 @@ export default function TabsLayout() {
           letterSpacing: 1,
           textTransform: 'uppercase',
         },
-        sceneStyle: { backgroundColor: color.porcelain },
+        sceneStyle: { backgroundColor: color.page },
       }}
     >
       <Tabs.Screen

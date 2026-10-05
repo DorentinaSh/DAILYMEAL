@@ -1,14 +1,22 @@
 /**
  * Design tokens.
  *
- * Direction: glazed kitchen tile. A cool porcelain ground and deep petrol ink
- * rather than the warm cream a recipe app reaches for by default — this gets
- * read in a bright kitchen at 7am, so it wants to look awake, not rustic.
- * One hot accent (yolk) marks the meal being served today, and nothing else.
+ * Direction: a white page and deep petrol ink, rather than the warm cream a
+ * recipe app reaches for by default — this gets read in a bright kitchen at
+ * 7am, so it wants to look awake, not rustic. Kelly green carries the recipe
+ * screen and the search field; one hot accent (yolk) marks the meal being
+ * served today, and nothing else.
  */
 
 export const color = {
-  /** Page ground — cool, faintly green-grey, like glazed ceramic. */
+  /** Page ground: plain white, behind every screen and under the recipe sheet. */
+  page: '#FFFFFF',
+  /**
+   * Cool, faintly green-grey, like glazed ceramic. It was the page ground until
+   * the page went white; it stays for what needs a pale tone on white — a
+   * pressed row or pill, an empty thumbnail — and for pale marks on a dark
+   * ground, like a meal's letter on its glaze.
+   */
   porcelain: '#EBEFEE',
   /** Card surface. */
   tile: '#FFFFFF',
@@ -18,12 +26,12 @@ export const color = {
    * Secondary text. Six points darker than it started: at #5F7370 it measured
    * 4.34:1 on porcelain while carrying every lede and meta line in the app —
    * just under the 4.5 WCAG asks of body copy. contrast.test.ts holds it above
-   * the line now, on porcelain and on tile.
+   * the line now, on the page and on tile.
    */
   slate: '#596D6A',
   /**
    * Marks, not words: ticks, hairlines, a chevron, a disabled label. It sits
-   * under 2.2:1 on porcelain and on tile, so copy that used to wear it wears
+   * under 2.4:1 on the page and on tile, so copy that used to wear it wears
    * slate instead. On ink it measures 6.2:1, which is where the tab count
    * legitimately uses it.
    */
@@ -49,8 +57,8 @@ export const color = {
   kelly: '#4CBB17',
   /**
    * Kelly at field-fill strength: 8% of it over white. The search field wears
-   * it in place of a border, as faint against porcelain as a pale-green field
-   * is against a white page — the magnifier and placeholder do the telling.
+   * it in place of a border, 1.07:1 against the white page — as faint as the
+   * reference's own field. The magnifier and placeholder do the telling.
    */
   kellyWash: '#F1FAEC',
   /** The single accent: today's pick. */

@@ -58,7 +58,7 @@ export default function TodayScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: color.porcelain },
+  screen: { flex: 1, backgroundColor: color.page },
   content: {
     padding: space.xl,
     paddingBottom: space.huge,

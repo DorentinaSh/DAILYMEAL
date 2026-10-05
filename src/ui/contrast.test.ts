@@ -29,7 +29,7 @@ describe('the save control is legible in both states', () => {
   // The bug this guards: a bare yolk mark on the page sat at 1.6:1, so
   // switching the control on looked like nothing had happened.
   it('the on state is unmistakable against the page', () => {
-    expect(contrastRatio(SAVE_COLORS.on.pill, color.porcelain)).toBeGreaterThanOrEqual(
+    expect(contrastRatio(SAVE_COLORS.on.pill, color.page)).toBeGreaterThanOrEqual(
       MIN_UI,
     );
   });
@@ -44,7 +44,7 @@ describe('the save control is legible in both states', () => {
 
 describe('the body-text tokens clear WCAG on both grounds', () => {
   for (const [name, ground] of [
-    ['porcelain', color.porcelain],
+    ['the page', color.page],
     ['tile', color.tile],
   ] as const) {
     it(`slate carries copy on ${name}`, () => {
@@ -57,7 +57,7 @@ describe('the body-text tokens clear WCAG on both grounds', () => {
   // the copy that used to wear it wears slate instead. Asserted rather than
   // commented so nobody reaches for it as a quiet grey again.
   it('mute is not a text colour on either ground', () => {
-    expect(contrastRatio(color.mute, color.porcelain)).toBeLessThan(MIN_TEXT);
+    expect(contrastRatio(color.mute, color.page)).toBeLessThan(MIN_TEXT);
     expect(contrastRatio(color.mute, color.tile)).toBeLessThan(MIN_TEXT);
   });
 });
@@ -102,13 +102,13 @@ describe('the recipe screen backdrop', () => {
     expect(contrastRatio(color.porcelain, color.ink)).toBeGreaterThanOrEqual(MIN_TEXT);
   });
 
-  // The sheet rides over it. These two are close in lightness (2.2:1) and are
-  // told apart by hue instead — a bright green against a grey-green — which is
-  // why this asserts they differ at all rather than asserting a UI threshold
-  // that only applies to controls.
+  // The sheet rides over it, and the sheet is the page. These two are close-ish
+  // in lightness (2.5:1) and told apart mostly by hue — a bright green against
+  // white — which is why this asserts they differ at all rather than asserting
+  // a UI threshold that only applies to controls.
   it('is not the same surface as the sheet', () => {
-    expect(color.kelly).not.toBe(color.porcelain);
-    expect(contrastRatio(color.kelly, color.porcelain)).toBeGreaterThan(1.5);
+    expect(color.kelly).not.toBe(color.page);
+    expect(contrastRatio(color.kelly, color.page)).toBeGreaterThan(1.5);
   });
 });
 
@@ -121,12 +121,13 @@ describe('the search field', () => {
   it('shows its magnifier', () => {
     expect(contrastRatio(color.slate, color.kellyWash)).toBeGreaterThanOrEqual(MIN_UI);
   });
+
   // It has no border, so the tint is the only thing marking where the field
-  // is. As faint against the page as the reference's field is against white —
-  // the magnifier and placeholder are what say "type here", not an outline.
+  // is — as faint against the white page as the reference's field is against
+  // its own. The magnifier and placeholder are what say "type here".
   it('is told apart from the page by its tint', () => {
-    expect(color.kellyWash).not.toBe(color.porcelain);
-    expect(contrastRatio(color.kellyWash, color.porcelain)).toBeGreaterThan(1.05);
+    expect(color.kellyWash).not.toBe(color.page);
+    expect(contrastRatio(color.kellyWash, color.page)).toBeGreaterThan(1.05);
   });
 });
 

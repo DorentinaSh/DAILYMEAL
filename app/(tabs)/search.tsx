@@ -196,7 +196,7 @@ function Empty({
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: color.porcelain },
+  screen: { flex: 1, backgroundColor: color.page },
   head: { paddingHorizontal: space.xl, paddingTop: space.xl },
   title: {
     fontFamily: font.displayBold,
