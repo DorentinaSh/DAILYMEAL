@@ -68,6 +68,8 @@ export default function SearchScreen() {
           )}
           <Pressable
             onPress={openFilters}
+            // 36pt drawn, 44pt to the thumb.
+            hitSlop={4}
             accessibilityRole="button"
             accessibilityLabel="Filter recipes"
             style={({ pressed }) => [styles.filter, pressed && styles.filterPressed]}
@@ -217,14 +219,14 @@ const styles = StyleSheet.create({
     marginTop: space.xl,
     paddingLeft: space.lg,
     // The filter button sits inset by this much on every side it touches.
-    paddingRight: 6,
+    paddingRight: 8,
     height: 52,
     backgroundColor: color.kellyWash,
     borderRadius: radius.lg,
   },
   filter: {
-    width: 40,
-    height: 40,
+    width: 36,
+    height: 36,
     borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
@@ -234,7 +236,7 @@ const styles = StyleSheet.create({
   // White, as in the reference, by choice: it measures 2.5:1 on kelly, under
   // the 3:1 a control's glyph is meant to clear, where ink would be 5.6:1.
   // Kept white on purpose; the number is here so it is a known trade.
-  sliders: { width: 18, gap: 5 },
+  sliders: { width: 16, gap: 4 },
   rail: { height: 6, justifyContent: 'center' },
   railLine: { height: 2, borderRadius: 1, backgroundColor: color.tile },
   // Filled with kelly so the rail looks to pass behind the ring, not through.
