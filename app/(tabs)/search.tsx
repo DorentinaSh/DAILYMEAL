@@ -1,25 +1,33 @@
-import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useEffect } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Pressable,
   StyleSheet,
   Text,
   TextInput,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { CATEGORIES, CATEGORY_LABEL, type Meal } from '@/domain/types';
+import { isKept, keptAsMeal } from '@/search/keep';
 import { MIN_QUERY } from '@/search/mealdb';
 import type { RecipeHit } from '@/search/types';
+import { useAppStore } from '@/store/useAppStore';
 import { useSearchStore, type SearchStatus } from '@/store/useSearchStore';
 import { Button } from '@/ui/Button';
-import { color, eyebrow, font, radius, space } from '@/ui/theme';
+import { MealMark } from '@/ui/MealMark';
+import { color, font, radius, space } from '@/ui/theme';
 
 /** Long enough that a word is finished, short enough to feel immediate. */
 const DEBOUNCE_MS = 350;
+
+/** Between the two columns, and between rows. */
+const GRID_GAP = space.lg;
 
 export default function SearchScreen() {
   const query = useSearchStore((s) => s.query);
@@ -27,6 +35,12 @@ export default function SearchScreen() {
   const hits = useSearchStore((s) => s.hits);
   const setQuery = useSearchStore((s) => s.setQuery);
   const run = useSearchStore((s) => s.run);
+  const meals = useAppStore((s) => s.meals);
+  const createMeal = useAppStore((s) => s.createMeal);
+
+  // Two columns inside the page's side padding, with the gap between them.
+  const { width: screenWidth } = useWindowDimensions();
+  const cardWidth = (screenWidth - space.xl * 2 - GRID_GAP) / 2;
 
   useEffect(() => {
     const timer = setTimeout(() => void run(query), DEBOUNCE_MS);
@@ -82,10 +96,23 @@ export default function SearchScreen() {
       <FlatList
         data={hits}
         keyExtractor={(hit) => hit.id}
+        // A card's tick comes from your meals, not from the hits, so the list
+        // has to be told that adding one is a reason to redraw.
+        extraData={meals}
+        numColumns={2}
+        columnWrapperStyle={styles.row}
+        ItemSeparatorComponent={RowGap}
         contentContainerStyle={styles.list}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
-        renderItem={({ item }) => <ResultCard hit={item} />}
+        renderItem={({ item }) => (
+          <ResultCard
+            hit={item}
+            width={cardWidth}
+            kept={isKept(item, meals)}
+            onAdd={() => offerToAdd(item, createMeal)}
+          />
+        )}
         ListEmptyComponent={
           <Empty status={status} query={query} onRetry={() => void run(query)} />
         }
@@ -120,37 +147,103 @@ function Sliders() {
   );
 }
 
-function ResultCard({ hit }: { hit: RecipeHit }) {
-  return (
-    <Pressable
-      onPress={() => router.push(`/search/${hit.id}`)}
-      accessibilityRole="button"
-      style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
-    >
-      {hit.imageUrl ? (
-        <Image
-          source={hit.imageUrl}
-          style={styles.thumb}
-          contentFit="cover"
-          transition={180}
-        />
-      ) : (
-        <View style={[styles.thumb, styles.thumbBlank]}>
-          <Text style={styles.thumbLetter}>{hit.name.slice(0, 1).toUpperCase()}</Text>
-        </View>
-      )}
+function RowGap() {
+  return <View style={styles.rowGap} />;
+}
 
-      <View style={styles.cardText}>
+/**
+ * Asks which list a recipe joins, then adds it exactly as the preview's own
+ * button does — through keptAsMeal, so a meal is the same however it came in.
+ */
+function offerToAdd(hit: RecipeHit, createMeal: (draft: Omit<Meal, 'id'>) => void) {
+  Alert.alert(`Add ${hit.name} to…`, undefined, [
+    ...CATEGORIES.map((category) => ({
+      text: CATEGORY_LABEL[category],
+      onPress: () => createMeal(keptAsMeal(hit, category, false)),
+    })),
+    { text: 'Cancel', style: 'cancel' as const },
+  ]);
+}
+
+/** A white plus, drawn so it sits dead centre whatever the font does. */
+function Plus() {
+  return (
+    <View style={styles.glyph} accessible={false}>
+      <View style={styles.plusBar} />
+      <View style={[styles.plusBar, styles.plusBarUp]} />
+    </View>
+  );
+}
+
+/** A white tick: two sides of a box, turned. */
+function Tick() {
+  return (
+    <View style={styles.glyph} accessible={false}>
+      <View style={styles.tick} />
+    </View>
+  );
+}
+
+/**
+ * A recipe as the reference draws its dishes: a grey card, the dish in a
+ * circle, and an add button sitting in the corner. The price, rating and time
+ * on the reference's cards are left out — the source publishes none of them,
+ * and a made-up number would be shown as if it were fact. The ingredient
+ * count takes the price's place, because it is real.
+ *
+ * The card's body and the add button are siblings rather than one inside the
+ * other: a pressable around the button would fold it into the card for a
+ * screen reader, and it could never be reached on its own.
+ */
+function ResultCard({
+  hit,
+  width,
+  kept,
+  onAdd,
+}: {
+  hit: RecipeHit;
+  width: number;
+  kept: boolean;
+  onAdd: () => void;
+}) {
+  const meta = [hit.sourceCategory, hit.area].filter(Boolean).join(' · ');
+  const count = hit.ingredients.length;
+
+  return (
+    <View style={[styles.card, { width }]}>
+      <Pressable
+        onPress={() => router.push(`/search/${hit.id}`)}
+        accessibilityRole="button"
+        accessibilityLabel={`${hit.name}, ${meta}`}
+        style={({ pressed }) => [styles.cardBody, pressed && styles.cardPressed]}
+      >
+        <MealMark name={hit.name} uri={hit.imageUrl} size="card" style={styles.dish} />
         <Text style={styles.cardName} numberOfLines={2}>
           {hit.name}
         </Text>
-        <Text style={styles.cardMeta}>
-          {[hit.sourceCategory, hit.area].filter(Boolean).join('  ·  ')}
+        <Text style={styles.cardMeta} numberOfLines={1}>
+          {meta}
         </Text>
-      </View>
+        {count > 0 && (
+          <Text style={styles.cardCount}>
+            {count} ingredient{count === 1 ? '' : 's'}
+          </Text>
+        )}
+      </Pressable>
 
-      <Text style={styles.chevron}>›</Text>
-    </Pressable>
+      <Pressable
+        onPress={onAdd}
+        disabled={kept}
+        // 36pt drawn, 44pt to the thumb.
+        hitSlop={4}
+        accessibilityRole="button"
+        accessibilityLabel={kept ? `${hit.name} is in your meals` : `Add ${hit.name} to your meals`}
+        accessibilityState={{ disabled: kept }}
+        style={({ pressed }) => [styles.add, pressed && styles.addPressed]}
+      >
+        {kept ? <Tick /> : <Plus />}
+      </Pressable>
+    </View>
   );
 }
 
@@ -294,25 +387,78 @@ const styles = StyleSheet.create({
   },
   clear: { fontFamily: font.body, fontSize: 22, color: color.mute, lineHeight: 24 },
   list: { padding: space.xl, paddingBottom: space.huge },
+  // Cards in a row stretch to the taller one, so a one-line name and a
+  // two-line name still end level.
+  row: { gap: GRID_GAP },
+  rowGap: { height: GRID_GAP },
   card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space.md,
+    backgroundColor: color.porcelainWash,
+    borderRadius: radius.lg,
+  },
+  // Fills the card's height, which the row sets to its taller card, so the
+  // ingredient count can sit at the foot of both cards in a row.
+  cardBody: {
+    flex: 1,
     padding: space.md,
-    marginBottom: space.sm,
-    backgroundColor: color.tile,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: color.edge,
+    paddingTop: space.lg,
   },
   cardPressed: { opacity: 0.62 },
-  thumb: { width: 64, height: 64, borderRadius: radius.sm, backgroundColor: color.porcelain },
-  thumbBlank: { alignItems: 'center', justifyContent: 'center' },
-  thumbLetter: { fontFamily: font.displayBold, fontSize: 24, color: color.slate },
-  cardText: { flex: 1, gap: space.xs },
-  cardName: { fontFamily: font.bodyMedium, fontSize: 16, color: color.ink },
-  cardMeta: { ...eyebrow, fontSize: 10 },
-  chevron: { fontFamily: font.body, fontSize: 22, color: color.mute },
+  dish: { alignSelf: 'center' },
+  cardName: {
+    fontFamily: font.headline,
+    fontSize: 15,
+    lineHeight: 20,
+    color: color.ink,
+    marginTop: space.md,
+  },
+  cardMeta: {
+    fontFamily: font.body,
+    fontSize: 12,
+    color: color.slate,
+    marginTop: 2,
+  },
+  cardCount: {
+    fontFamily: font.bodyBold,
+    fontSize: 14,
+    color: color.ink,
+    // Pushed to the foot of the card, and kept clear of the add button.
+    marginTop: 'auto',
+    paddingTop: space.md,
+    paddingRight: 36,
+  },
+  // Flush in the corner, so its outer corner is the card's own.
+  add: {
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: color.kelly,
+    borderTopLeftRadius: radius.md,
+    borderBottomRightRadius: radius.lg,
+  },
+  addPressed: { opacity: 0.8 },
+  // White on kelly, the same known trade as the filter button's sliders.
+  glyph: { width: 14, height: 14, alignItems: 'center', justifyContent: 'center' },
+  plusBar: {
+    position: 'absolute',
+    width: 14,
+    height: 2,
+    borderRadius: 1,
+    backgroundColor: color.tile,
+  },
+  plusBarUp: { transform: [{ rotate: '90deg' }] },
+  tick: {
+    width: 6,
+    height: 11,
+    marginTop: -3,
+    borderRightWidth: 2,
+    borderBottomWidth: 2,
+    borderColor: color.tile,
+    transform: [{ rotate: '45deg' }],
+  },
   spinner: { marginTop: space.xxl },
   empty: { marginTop: space.lg, gap: space.lg },
   emptyText: {

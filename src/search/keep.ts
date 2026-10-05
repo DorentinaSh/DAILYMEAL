@@ -25,3 +25,17 @@ export function keptAsMeal(
     saved: keepForLater,
   };
 }
+
+/**
+ * Whether a found recipe is already one of your meals, so its card can show a
+ * tick instead of offering to add it again.
+ *
+ * Recognised by its photo URL, not its name. The source gives every dish its
+ * own photo and a meal you typed has none, so the URL can't match a meal that
+ * merely shares a name — and it survives you renaming the meal you kept. A
+ * recipe with no photo has nothing to recognise it by, and is never claimed.
+ */
+export function isKept(hit: RecipeHit, meals: readonly Meal[]): boolean {
+  if (!hit.imageUrl) return false;
+  return meals.some((meal) => meal.imageUrl === hit.imageUrl);
+}

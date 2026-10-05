@@ -127,6 +127,20 @@ describe('the search field', () => {
   });
 });
 
+describe('the search result card', () => {
+  it('carries its name and its meta line', () => {
+    expect(contrastRatio(color.ink, color.porcelainWash)).toBeGreaterThanOrEqual(MIN_TEXT);
+    expect(contrastRatio(color.slate, color.porcelainWash)).toBeGreaterThanOrEqual(MIN_TEXT);
+  });
+
+  // Borderless, like the reference's, so the fill alone sets it off the page —
+  // about as faintly as the reference's #F7F7F7 does on white.
+  it('is told apart from the page by its fill', () => {
+    expect(color.porcelainWash).not.toBe(color.page);
+    expect(contrastRatio(color.porcelainWash, color.page)).toBeGreaterThan(1.05);
+  });
+});
+
 describe('the placeholder tone', () => {
   // The four on the edit form sit on tile; the search field's sits on the
   // green wash, which is the darker of the two and so the one that binds.

@@ -18,6 +18,11 @@ export const color = {
    * ground, like a meal's letter on its glaze.
    */
   porcelain: '#EBEFEE',
+  /**
+   * Porcelain at half strength over white: the search result card. Borderless,
+   * like the reference's #F7F7F7 cards, so its fill alone sets it off the page.
+   */
+  porcelainWash: '#F5F7F6',
   /** Card surface. */
   tile: '#FFFFFF',
   /** Primary text: deep petrol, almost black but never neutral. */
