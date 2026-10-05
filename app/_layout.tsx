@@ -7,6 +7,7 @@ import { DMMono_400Regular } from '@expo-google-fonts/dm-mono/400Regular';
 import { DMMono_500Medium } from '@expo-google-fonts/dm-mono/500Medium';
 import { Fraunces_600SemiBold } from '@expo-google-fonts/fraunces/600SemiBold';
 import { Fraunces_700Bold } from '@expo-google-fonts/fraunces/700Bold';
+import { Poppins_600SemiBold } from '@expo-google-fonts/poppins/600SemiBold';
 import * as Notifications from 'expo-notifications';
 import { Stack, router } from 'expo-router';
 import { useFonts } from 'expo-font';
@@ -27,6 +28,7 @@ export default function RootLayout() {
     Archivo_600SemiBold,
     DMMono_400Regular,
     DMMono_500Medium,
+    Poppins_600SemiBold,
   });
 
   const hydrated = useAppStore((s) => s.hydrated);

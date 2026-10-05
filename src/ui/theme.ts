@@ -77,6 +77,8 @@ export const font = {
   bodyBold: 'Archivo_600SemiBold',
   mono: 'DMMono_400Regular',
   monoMedium: 'DMMono_500Medium',
+  /** Poppins, after the food-app reference: the search screen's headline. */
+  headline: 'Poppins_600SemiBold',
 } as const;
 
 /** 4pt base. Keeps vertical rhythm honest across screens. */

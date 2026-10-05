@@ -40,7 +40,9 @@ export default function SearchScreen() {
   return (
     <SafeAreaView style={styles.screen} edges={['top']}>
       <View style={styles.head}>
-        <Text style={styles.title}>Search</Text>
+        <Text style={styles.title} accessibilityRole="header">
+          Find your meals
+        </Text>
         <View style={styles.field}>
           <Magnifier />
           <TextInput
@@ -197,12 +199,14 @@ function Empty({
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.page },
-  head: { paddingHorizontal: space.xl, paddingTop: space.xl },
+  // Roomier than the other tabs: a headline this size wants air above it,
+  // and the field and results each get a clear step down from it.
+  head: { paddingHorizontal: space.xl, paddingTop: space.xxl },
+  // Poppins at the reference's weight and natural tracking.
   title: {
-    fontFamily: font.displayBold,
+    fontFamily: font.headline,
     fontSize: 28,
     color: color.ink,
-    letterSpacing: -0.4,
   },
   // A soft green well rather than an outlined box: the tint marks the field,
   // so it needs no border.
@@ -210,7 +214,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: space.md,
-    marginTop: space.lg,
+    marginTop: space.xl,
     paddingLeft: space.lg,
     // The filter button sits inset by this much on every side it touches.
     paddingRight: 6,
@@ -248,19 +252,30 @@ const styles = StyleSheet.create({
   // 2.3:1, under the 3:1 a meaningful icon needs — acceptable only because
   // this one is decoration: the placeholder and the accessibility label are
   // what identify the field, and the placeholder is held to 4.5:1.
-  magnifier: { flexDirection: 'row', alignItems: 'flex-end', height: 18 },
+  // The box is exactly the drawing's bounds, so the row's centring lines the
+  // whole magnifier up with the text: its middle lands on the field's middle,
+  // which is where Archivo's capitals are centred at this size (25.9 of 52).
+  // Drawn bottom-aligned in a taller box, it sat 2pt below them.
+  magnifier: { width: 17, height: 17 },
   lens: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
     width: 14,
     height: 14,
     borderRadius: 7,
     borderWidth: 2,
     borderColor: color.kelly,
   },
+  // Centred on the lens's 45° diagonal, 9.5 out from its middle, so it starts
+  // just inside the rim and runs straight out from it.
   lensHandle: {
+    position: 'absolute',
+    top: 10.2,
+    left: 12.7,
     width: 2,
     height: 7,
     borderRadius: 1,
-    marginLeft: -2,
     backgroundColor: color.kelly,
     transform: [{ rotate: '-45deg' }],
   },
@@ -270,9 +285,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: color.ink,
     padding: 0,
+    // Android pads the line for accents above it, which drops the text below
+    // the magnifier; iOS ignores both of these.
+    includeFontPadding: false,
+    textAlignVertical: 'center',
   },
   clear: { fontFamily: font.body, fontSize: 22, color: color.mute, lineHeight: 24 },
-  list: { padding: space.xl, paddingTop: space.lg, paddingBottom: space.huge },
+  list: { padding: space.xl, paddingBottom: space.huge },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
