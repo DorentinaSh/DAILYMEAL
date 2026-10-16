@@ -6,7 +6,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { mealsIn } from '@/domain/cycle';
 import { CATEGORIES, CATEGORY_LABEL, type Category, type Meal } from '@/domain/types';
 import { useAppStore } from '@/store/useAppStore';
-import { Button } from '@/ui/Button';
 import { ChipTabs, type ChipTab } from '@/ui/ChipTabs';
 import { photoUri } from '@/photos/files';
 import { MealMark } from '@/ui/MealMark';
@@ -59,11 +58,15 @@ export default function MealsScreen() {
         <View style={styles.titleRow}>
           <Text style={styles.title}>Meals</Text>
           {tab !== 'saved' && (
-            <Button
-              label="Add"
-              size="sm"
+            <Pressable
               onPress={() => router.push(`/meal/edit?category=${tab}`)}
-            />
+              accessibilityRole="button"
+              accessibilityLabel={`Add a meal to ${CATEGORY_LABEL[tab]}`}
+              hitSlop={space.sm}
+              style={({ pressed }) => [styles.add, pressed && styles.addPressed]}
+            >
+              <Text style={styles.addText}>+ Add</Text>
+            </Pressable>
           )}
         </View>
         <ChipTabs items={tabs} value={tab} onChange={setTab} style={styles.tabs} />
@@ -126,6 +129,16 @@ const styles = StyleSheet.create({
     fontSize: 28,
     color: color.leaf,
     letterSpacing: -0.4,
+  },
+  // A link, not a chip: green type and no box, so it never reads as a fourth
+  // list next to the ones below it.
+  add: { minHeight: 44, justifyContent: 'center' },
+  addPressed: { opacity: 0.6 },
+  addText: {
+    fontFamily: font.headline,
+    fontSize: 15,
+    lineHeight: 22,
+    color: color.leaf,
   },
   tabs: { marginTop: space.xl },
   empty: {
