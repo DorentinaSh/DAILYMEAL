@@ -6,7 +6,6 @@ import {
   Pressable,
   StyleSheet,
   Text,
-  TextInput,
   View,
   useWindowDimensions,
 } from 'react-native';
@@ -23,6 +22,7 @@ import { Button } from '@/ui/Button';
 import { ChooseListSheet } from '@/ui/ChooseListSheet';
 import { BookmarkIcon } from '@/ui/icons';
 import { MealMark } from '@/ui/MealMark';
+import { SearchField } from '@/ui/SearchField';
 import { color, font, radius, space } from '@/ui/theme';
 
 /** Long enough that a word is finished, short enough to feel immediate. */
@@ -74,29 +74,13 @@ export default function SearchScreen() {
         <Text style={styles.title} accessibilityRole="header">
           Find your meals
         </Text>
-        <View style={styles.field}>
-          <Magnifier />
-          <TextInput
-            value={query}
-            onChangeText={setQuery}
-            placeholder="Chicken, eggs, pasta…"
-            placeholderTextColor={color.placeholder}
-            style={styles.input}
-            autoCorrect={false}
-            autoCapitalize="none"
-            returnKeyType="search"
-            accessibilityLabel="Search recipes"
-          />
-          {query.length > 0 && (
-            <Pressable
-              onPress={() => setQuery('')}
-              hitSlop={12}
-              accessibilityRole="button"
-              accessibilityLabel="Clear search"
-            >
-              <Text style={styles.clear}>×</Text>
-            </Pressable>
-          )}
+        <SearchField
+          value={query}
+          onChangeText={setQuery}
+          placeholder="Chicken, eggs, pasta…"
+          accessibilityLabel="Search recipes"
+          style={styles.field}
+        >
           <Pressable
             onPress={openFilters}
             // 36pt drawn, 44pt to the thumb.
@@ -107,7 +91,7 @@ export default function SearchScreen() {
           >
             <Sliders />
           </Pressable>
-        </View>
+        </SearchField>
       </View>
 
       <FlatList
@@ -155,16 +139,6 @@ export default function SearchScreen() {
         />
       )}
     </SafeAreaView>
-  );
-}
-
-/** Drawn, like the tab marks, rather than pulled from an icon set. */
-function Magnifier() {
-  return (
-    <View style={styles.magnifier} accessible={false}>
-      <View style={styles.lens} />
-      <View style={styles.lensHandle} />
-    </View>
   );
 }
 
@@ -375,20 +349,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     color: color.leaf,
   },
-  // A soft green well rather than an outlined box: the tint marks the field,
-  // so it needs no border.
-  field: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space.md,
-    marginTop: space.xl,
-    paddingLeft: space.lg,
-    // The filter button sits inset by this much on every side it touches.
-    paddingRight: 8,
-    height: 52,
-    backgroundColor: color.leafWash,
-    borderRadius: radius.lg,
-  },
+  field: { marginTop: space.xl },
   filter: {
     width: 36,
     height: 36,
@@ -415,49 +376,6 @@ const styles = StyleSheet.create({
     borderColor: color.tile,
     backgroundColor: color.leaf,
   },
-  // The green, to match the filter button at the other end: 3.1:1 on the
-  // wash, just over the 3:1 a meaningful icon needs. The placeholder and the
-  // accessibility label are what identify the field all the same, and the
-  // placeholder is held to 4.5:1.
-  // The box is exactly the drawing's bounds, so the row's centring lines the
-  // whole magnifier up with the text: its middle lands on the field's middle,
-  // which is where Poppins's capitals are centred at this size (26.0 of 52).
-  // Drawn bottom-aligned in a taller box, it sat 2pt below them.
-  magnifier: { width: 17, height: 17 },
-  lens: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    borderWidth: 2,
-    borderColor: color.leaf,
-  },
-  // Centred on the lens's 45° diagonal, 9.5 out from its middle, so it starts
-  // just inside the rim and runs straight out from it.
-  lensHandle: {
-    position: 'absolute',
-    top: 10.2,
-    left: 12.7,
-    width: 2,
-    height: 7,
-    borderRadius: 1,
-    backgroundColor: color.leaf,
-    transform: [{ rotate: '-45deg' }],
-  },
-  input: {
-    flex: 1,
-    fontFamily: font.regular,
-    fontSize: 16,
-    color: color.ink,
-    padding: 0,
-    // Android pads the line for accents above it, which drops the text below
-    // the magnifier; iOS ignores both of these.
-    includeFontPadding: false,
-    textAlignVertical: 'center',
-  },
-  clear: { fontFamily: font.regular, fontSize: 22, color: color.mute, lineHeight: 24 },
   list: { padding: space.xl, paddingBottom: space.huge },
   // Cards in a row stretch to the taller one, so a one-line name and a
   // two-line name still end level.

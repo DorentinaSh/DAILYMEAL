@@ -4,12 +4,14 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { mealsIn } from '@/domain/cycle';
+import { matchesQuery } from '@/domain/find';
 import { CATEGORIES, CATEGORY_LABEL, type Category, type Meal } from '@/domain/types';
 import { useAppStore } from '@/store/useAppStore';
 import { ChipTabs, type ChipTab } from '@/ui/ChipTabs';
 import { photoUri } from '@/photos/files';
 import { ClockIcon, LeafIcon } from '@/ui/icons';
 import { MealMark } from '@/ui/MealMark';
+import { SearchField } from '@/ui/SearchField';
 import { color, font, space } from '@/ui/theme';
 
 /** One list at a time: a category's rotation, or everything kept for later. */
@@ -38,6 +40,9 @@ function factsFor(meal: Meal, withCategory: boolean): Fact[] {
 export default function MealsScreen() {
   const state = useAppStore();
   const [tab, setTab] = useState<Tab>(CATEGORIES[0]);
+  // One search for whichever list is open, kept when you switch lists so the
+  // same words can be tried on the next one.
+  const [query, setQuery] = useState('');
 
   const saved = state.meals.filter((meal) => meal.saved);
   // Today's pick in each category, so a row can show which meal is on now.
@@ -46,7 +51,10 @@ export default function MealsScreen() {
       (id): id is string => id !== null,
     ),
   );
-  const meals = tab === 'saved' ? saved : mealsIn(state, tab);
+  const inTab = tab === 'saved' ? saved : mealsIn(state, tab);
+  const meals = inTab.filter((meal) => matchesQuery(meal, query));
+  // What the list is called in a sentence: "breakfast", "lunch", "saved".
+  const listName = tab === 'saved' ? 'saved' : CATEGORY_LABEL[tab].toLowerCase();
 
   const tabs: ChipTab<Tab>[] = [
     ...CATEGORIES.map((category: Category) => ({
@@ -74,16 +82,29 @@ export default function MealsScreen() {
             </Pressable>
           )}
         </View>
+        <SearchField
+          value={query}
+          onChangeText={setQuery}
+          placeholder="Search"
+          accessibilityLabel={`Search ${listName} meals`}
+          style={styles.search}
+        />
         <ChipTabs items={tabs} value={tab} onChange={setTab} style={styles.tabs} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+      >
         {meals.length === 0 ? (
           <Text style={styles.empty}>
-            {tab === 'saved'
-              ? 'Nothing saved yet. Tap the bookmark on a meal or a recipe in Search to ' +
-                'keep it here.'
-              : `No ${CATEGORY_LABEL[tab].toLowerCase()}s yet. Tap Add to make one.`}
+            {inTab.length > 0
+              ? `No ${listName} meals match “${query.trim()}”.`
+              : tab === 'saved'
+                ? 'Nothing saved yet. Tap the bookmark on a meal or a recipe in Search to ' +
+                  'keep it here.'
+                : `No ${listName} meals yet. Tap Add to make one.`}
           </Text>
         ) : (
           <View style={styles.list}>
@@ -136,7 +157,10 @@ const styles = StyleSheet.create({
     paddingBottom: space.lg,
   },
   content: { paddingHorizontal: space.xl, paddingBottom: space.huge },
+  // As tall as the Add link, so the row keeps its height on the saved list
+  // where there's no Add, and the search and chips under it stay put.
   titleRow: {
+    minHeight: 44,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -157,7 +181,8 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     color: color.leaf,
   },
-  tabs: { marginTop: space.xl },
+  search: { marginTop: space.lg },
+  tabs: { marginTop: space.lg },
   empty: {
     fontFamily: font.regular,
     fontSize: 15,
