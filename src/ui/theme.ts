@@ -4,8 +4,8 @@
  * Direction: a white page and deep petrol ink, rather than the warm cream a
  * recipe app reaches for by default — this gets read in a bright kitchen at
  * 7am, so it wants to look awake, not rustic. Kelly green carries the recipe
- * screen and the search screen's controls; one hot accent (yolk) marks the
- * meal being served today, and nothing else.
+ * screen, the search screen's controls and the Meals tab's chips; one hot
+ * accent (yolk) marks the meal being served today, and nothing else.
  */
 
 export const color = {
@@ -54,8 +54,8 @@ export const color = {
   edge: '#D6DEDC',
   /**
    * The app's one green: the recipe screen's ground and its button, the search
-   * screen's filter and add buttons and saved bookmark, and the add sheet's
-   * suggested list. Bright, so white on it — every icon and label drawn there
+   * screen's filter and add buttons and saved bookmark, the add sheet's
+   * suggested list, and the chip you're on in the Meals tab. Bright, so white on it — every icon and label drawn there
    * the reference's way — measures only 2.5:1, a trade contrast.test.ts pins;
    * ink reads at 5.6:1.
    */
@@ -175,4 +175,17 @@ export const GLAZES = [
 export const TAB_COLORS = {
   off: { pill: color.tile, label: color.slate, count: color.slate },
   on: { pill: color.ink, label: color.tile, count: color.mute },
+} as const;
+
+/**
+ * The Meals tab's list chips, after the food-app reference's category chips.
+ * The one you're on is kelly with white type, like every other kelly control —
+ * the same 2.5:1 trade. The rest are pale pills with their names in the deeper
+ * green, 4.8:1 on them where kelly would be 2.3:1. Porcelain-washed with a
+ * porcelain edge: about as faint on the white page as the reference's grey
+ * chips are on its own.
+ */
+export const CHIP_COLORS = {
+  off: { pill: color.porcelainWash, border: color.porcelain, label: color.kellyDeep },
+  on: { pill: color.kelly, border: color.kelly, label: color.page },
 } as const;

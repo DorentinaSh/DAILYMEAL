@@ -7,9 +7,9 @@ import { mealsIn } from '@/domain/cycle';
 import { CATEGORIES, CATEGORY_LABEL, type Category, type Meal } from '@/domain/types';
 import { useAppStore } from '@/store/useAppStore';
 import { Button } from '@/ui/Button';
+import { ChipTabs, type ChipTab } from '@/ui/ChipTabs';
 import { photoUri } from '@/photos/files';
 import { MealMark } from '@/ui/MealMark';
-import { Segment, type SegmentItem } from '@/ui/Segment';
 import { color, font, radius, space } from '@/ui/theme';
 
 /** One list at a time: a category's rotation, or everything kept for later. */
@@ -44,13 +44,13 @@ export default function MealsScreen() {
   );
   const meals = tab === 'saved' ? saved : mealsIn(state, tab);
 
-  const tabs: SegmentItem<Tab>[] = [
+  const tabs: ChipTab<Tab>[] = [
     ...CATEGORIES.map((category: Category) => ({
       value: category,
       label: CATEGORY_LABEL[category],
-      badge: mealsIn(state, category).length,
+      count: mealsIn(state, category).length,
     })),
-    { value: 'saved', label: 'Saved', badge: saved.length },
+    { value: 'saved', label: 'Saved', count: saved.length },
   ];
 
   return (
@@ -66,7 +66,7 @@ export default function MealsScreen() {
             />
           )}
         </View>
-        <Segment items={tabs} value={tab} onChange={setTab} as="tabs" style={styles.tabs} />
+        <ChipTabs items={tabs} value={tab} onChange={setTab} style={styles.tabs} />
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
     color: color.ink,
     letterSpacing: -0.4,
   },
-  tabs: { marginTop: space.lg },
+  tabs: { marginTop: space.xl },
   empty: {
     fontFamily: font.body,
     fontSize: 15,

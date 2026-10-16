@@ -1,4 +1,4 @@
-import { color, GLAZES, SAVE_COLORS, TAB_COLORS } from './theme';
+import { CHIP_COLORS, color, GLAZES, SAVE_COLORS, TAB_COLORS } from './theme';
 import { contrastRatio } from './contrast';
 
 /** WCAG 1.4.11: a control that isn't text still has to be seen. */
@@ -186,5 +186,34 @@ describe('the segmented picker is legible in both states', () => {
     expect(contrastRatio(TAB_COLORS.on.pill, TAB_COLORS.off.pill)).toBeGreaterThanOrEqual(
       MIN_UI,
     );
+  });
+});
+
+describe('the Meals tab chips', () => {
+  // The chips you are not on carry their names in green, as the reference's
+  // do — the deeper green, since kelly would read at 2.3:1 on the pale pill.
+  it('off: the label reads against its pill', () => {
+    const { label, pill } = CHIP_COLORS.off;
+    expect(contrastRatio(label, pill)).toBeGreaterThanOrEqual(MIN_TEXT);
+  });
+
+  // A pale pill on the white page, as faint as the reference's grey ones; the
+  // edge is what draws it, so it has to be darker than the fill it rings.
+  it('off: the pill is drawn on the page by its edge', () => {
+    const { border, pill } = CHIP_COLORS.off;
+    expect(contrastRatio(border, color.page)).toBeGreaterThan(contrastRatio(pill, color.page));
+  });
+
+  // White on kelly, like every kelly control: the 2.5:1 trade pinned above.
+  it('on: is drawn the way the other kelly controls are', () => {
+    expect(CHIP_COLORS.on.pill).toBe(color.kelly);
+    expect(CHIP_COLORS.on.label).toBe(color.page);
+  });
+
+  // Under the 3:1 a control asks for on lightness alone, so the hue — green
+  // against grey — and the label flipping to white do the rest of the telling.
+  it('the chip you are on separates from the others', () => {
+    expect(contrastRatio(CHIP_COLORS.on.pill, CHIP_COLORS.off.pill)).toBeGreaterThanOrEqual(2);
+    expect(CHIP_COLORS.on.label).not.toBe(CHIP_COLORS.off.label);
   });
 });
