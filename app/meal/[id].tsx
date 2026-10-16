@@ -11,7 +11,7 @@ import { photoUri } from '@/photos/files';
 import { useAppStore } from '@/store/useAppStore';
 import { ChooseListSheet } from '@/ui/ChooseListSheet';
 import { FoodDoodles } from '@/ui/FoodDoodles';
-import { BookmarkIcon, ChevronLeftIcon } from '@/ui/icons';
+import { BookmarkIcon, ChevronLeftIcon, LeafIcon } from '@/ui/icons';
 import { MealMark } from '@/ui/MealMark';
 import { color, font, space } from '@/ui/theme';
 
@@ -47,14 +47,7 @@ function FactIcon({ kind }: { kind: FactKind }) {
       </Svg>
     );
   }
-  if (kind === 'ingredients') {
-    return (
-      <Svg width={18} height={18} viewBox="0 0 24 24">
-        <Path d="M4 20C4 10.6 10.6 4 20 4c0 9.4-6.6 16-16 16z" fill={color.leaf} />
-        <Path d="M4 20l9-9" stroke={color.page} strokeWidth={1.8} strokeLinecap="round" />
-      </Svg>
-    );
-  }
+  if (kind === 'ingredients') return <LeafIcon />;
   return (
     <Svg width={18} height={18} viewBox="0 0 24 24">
       <Path

@@ -24,6 +24,8 @@ const SIZES = {
   sm: { box: 44, corner: radius.md, letter: 21, band: 4 },
   md: { box: 72, corner: 12, letter: 34, band: 5 },
   lg: { box: 96, corner: radius.lg, letter: 46, band: 6 },
+  /** A Meals list card's dish: a rounded square, as the list reference draws it. */
+  row: { box: 64, corner: 14, letter: 30, band: 5 },
   /** The add sheet's header: the dish you are adding, a small circle. */
   thumb: { box: 48, corner: 24, letter: 22, band: 4 },
   /** A search result card's dish. A circle, like the hero, at card scale. */

@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -8,26 +8,31 @@ import { CATEGORIES, CATEGORY_LABEL, type Category, type Meal } from '@/domain/t
 import { useAppStore } from '@/store/useAppStore';
 import { ChipTabs, type ChipTab } from '@/ui/ChipTabs';
 import { photoUri } from '@/photos/files';
+import { ClockIcon, LeafIcon } from '@/ui/icons';
 import { MealMark } from '@/ui/MealMark';
-import { color, font, radius, space } from '@/ui/theme';
+import { color, font, space } from '@/ui/theme';
 
 /** One list at a time: a category's rotation, or everything kept for later. */
 type Tab = Category | 'saved';
 
+type Fact = { icon: 'time' | 'ingredients' | null; text: string };
+
 /**
- * On the saved list a meal is out of its category's company, so the category
- * leads the line — that's the fact you lose by flattening the two lists into
- * one, and it costs a word to keep. A meal in no list says so instead.
+ * The line under a meal's name, each fact beside its own small mark, as the
+ * list reference sets its time and rating. On the saved list a meal is out of
+ * its category's company, so the category leads the line — that's the fact
+ * you lose by flattening the two lists into one, and it costs a word to keep.
+ * A meal in no list says so instead.
  */
-function metaLine(meal: Meal, withCategory: boolean): string {
+function factsFor(meal: Meal, withCategory: boolean): Fact[] {
   const count = meal.ingredients.length;
-  return [
-    withCategory ? (meal.category ? CATEGORY_LABEL[meal.category] : 'Saved only') : null,
-    meal.prepMinutes ? `${meal.prepMinutes} min` : null,
-    `${count} ingredient${count === 1 ? '' : 's'}`,
-  ]
-    .filter(Boolean)
-    .join('  ·  ');
+  const facts: Fact[] = [];
+  if (withCategory) {
+    facts.push({ icon: null, text: meal.category ? CATEGORY_LABEL[meal.category] : 'Saved only' });
+  }
+  if (meal.prepMinutes) facts.push({ icon: 'time', text: `${meal.prepMinutes} min` });
+  facts.push({ icon: 'ingredients', text: `${count} ingredient${count === 1 ? '' : 's'}` });
+  return facts;
 }
 
 export default function MealsScreen() {
@@ -93,12 +98,25 @@ export default function MealsScreen() {
                   name={meal.name}
                   uri={photoUri(meal)}
                   today={servedToday.has(meal.id)}
+                  size="row"
                 />
                 <View style={styles.rowText}>
-                  <Text style={styles.rowName}>{meal.name}</Text>
-                  <Text style={styles.rowMeta}>{metaLine(meal, tab === 'saved')}</Text>
+                  <Text style={styles.rowName} numberOfLines={2}>
+                    {meal.name}
+                  </Text>
+                  <View style={styles.facts}>
+                    {factsFor(meal, tab === 'saved').map((fact, i) => (
+                      <Fragment key={fact.text}>
+                        {i > 0 && <View style={styles.dot} />}
+                        <View style={styles.fact}>
+                          {fact.icon === 'time' && <ClockIcon tint={color.ink} />}
+                          {fact.icon === 'ingredients' && <LeafIcon size={16} />}
+                          <Text style={styles.factText}>{fact.text}</Text>
+                        </View>
+                      </Fragment>
+                    ))}
+                  </View>
                 </View>
-                <Text style={styles.chevron}>›</Text>
               </Pressable>
             ))}
           </View>
@@ -148,39 +166,40 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     paddingTop: space.sm,
   },
-  list: {
-    backgroundColor: color.tile,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: color.edge,
-    overflow: 'hidden',
-  },
+  list: { gap: space.sm },
+  // The list reference's row, a card of its own with no border and no
+  // chevron: the whole card is the button. Grey on the white page, the way
+  // the search cards sit, where the reference sets white cards on a grey page.
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: space.lg,
-    paddingHorizontal: space.lg,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: color.edge,
-    gap: space.md,
+    gap: space.lg,
+    padding: space.md,
+    borderRadius: 20,
+    backgroundColor: color.porcelainWash,
   },
   rowPressed: { backgroundColor: color.porcelain },
-  rowText: { flex: 1, gap: 2 },
+  rowText: { flex: 1, gap: space.xs },
   rowName: {
-    fontFamily: font.bodyMedium,
+    fontFamily: font.poppins,
     fontSize: 17,
+    lineHeight: 24,
     color: color.ink,
   },
-  rowMeta: {
-    fontFamily: font.mono,
-    fontSize: 11,
+  facts: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    columnGap: space.sm,
+    rowGap: 2,
+  },
+  fact: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  factText: {
+    fontFamily: font.poppins,
+    fontSize: 13,
+    lineHeight: 18,
     color: color.slate,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
   },
-  chevron: {
-    fontFamily: font.body,
-    fontSize: 22,
-    color: color.mute,
-  },
+  // A mark, not a word: mute, as the reference's pale dot is.
+  dot: { width: 4, height: 4, borderRadius: 2, backgroundColor: color.mute },
 });

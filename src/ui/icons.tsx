@@ -2,7 +2,9 @@
  * Icons drawn as paths, for the marks the box-and-border glyphs elsewhere
  * cannot make: a bookmark's notch, a chevron's stroke weight.
  */
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Circle, Path } from 'react-native-svg';
+
+import { color } from './theme';
 
 /**
  * The bookmark, drawn the way the reference draws its heart: an outline at
@@ -43,6 +45,36 @@ export function ChevronLeftIcon({ tint, size = 20 }: { tint: string; size?: numb
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+    </Svg>
+  );
+}
+
+/** A clock face in outline: the list reference's mark beside a time. */
+export function ClockIcon({ tint, size = 16 }: { tint: string; size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Circle cx={12} cy={12} r={9} fill="none" stroke={tint} strokeWidth={1.8} />
+      <Path
+        d="M12 7.5V12l3 2"
+        fill="none"
+        stroke={tint}
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+/**
+ * A leaf in the app's green with a white vein, beside an ingredient count —
+ * on the meal page and in the Meals list, so the two say it the same way.
+ */
+export function LeafIcon({ size = 18 }: { size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Path d="M4 20C4 10.6 10.6 4 20 4c0 9.4-6.6 16-16 16z" fill={color.leaf} />
+      <Path d="M4 20l9-9" stroke={color.page} strokeWidth={1.8} strokeLinecap="round" />
     </Svg>
   );
 }
