@@ -84,11 +84,11 @@ const styles = StyleSheet.create({
   },
   pressed: { backgroundColor: color.porcelain },
   label: {
-    fontFamily: font.bodyMedium,
+    fontFamily: font.medium,
     fontSize: 15,
   },
   badge: {
-    fontFamily: font.mono,
+    fontFamily: font.regular,
     fontSize: 11,
   },
 });

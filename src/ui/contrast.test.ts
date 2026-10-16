@@ -97,7 +97,7 @@ describe('leaf, the one green', () => {
     expect(contrastRatio(color.page, color.leaf)).toBeLessThan(MIN_TEXT);
   });
 
-  // The add sheet's SUGGESTED tag is 10pt mono, the smallest type on the
+  // The add sheet's SUGGESTED tag is 10pt caps, the smallest type on the
   // green, so it wears ink — the strongest thing the green carries.
   it('carries ink more strongly than white, for its smallest type', () => {
     expect(contrastRatio(color.ink, color.leaf)).toBeGreaterThan(
@@ -178,7 +178,7 @@ describe('the segmented picker is legible in both states', () => {
       expect(contrastRatio(label, pill)).toBeGreaterThanOrEqual(MIN_TEXT);
     });
 
-    // The count is 11pt mono — the smallest type on the screen, and the first
+    // The count is 11pt — the smallest type on the screen, and the first
     // thing that goes muddy if a tone is picked by eye.
     it(`${state}: the count reads against its pill`, () => {
       expect(contrastRatio(count, pill)).toBeGreaterThanOrEqual(MIN_TEXT);

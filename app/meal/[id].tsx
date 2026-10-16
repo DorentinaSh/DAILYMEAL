@@ -353,7 +353,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   title: {
-    fontFamily: font.poppinsMedium,
+    fontFamily: font.medium,
     fontSize: 16,
     lineHeight: 22,
     color: color.page,
@@ -414,7 +414,7 @@ const styles = StyleSheet.create({
     backgroundColor: color.page,
   },
   name: {
-    fontFamily: font.headline,
+    fontFamily: font.semibold,
     fontSize: 26,
     lineHeight: 34,
     color: color.ink,
@@ -423,7 +423,7 @@ const styles = StyleSheet.create({
   // sheet, under the 4.5 text asks, chosen for the match. It is one word, and
   // the name above it says what the page is.
   listName: {
-    fontFamily: font.poppinsMedium,
+    fontFamily: font.medium,
     fontSize: 17,
     lineHeight: 24,
     color: color.leaf,
@@ -442,7 +442,7 @@ const styles = StyleSheet.create({
   factsSpread: { justifyContent: 'space-between' },
   fact: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
   factText: {
-    fontFamily: font.poppins,
+    fontFamily: font.regular,
     fontSize: 14,
     lineHeight: 20,
     color: color.ink,
@@ -450,7 +450,7 @@ const styles = StyleSheet.create({
 
   section: { marginTop: space.xl, gap: space.sm },
   heading: {
-    fontFamily: font.headline,
+    fontFamily: font.semibold,
     fontSize: 17,
     lineHeight: 24,
     color: color.ink,
@@ -468,7 +468,7 @@ const styles = StyleSheet.create({
   // Slate rather than the reference's #9D9D9D, which is 2.7:1 on white; this
   // is the recipe, read at arm's length over a stove.
   bodyText: {
-    fontFamily: font.poppins,
+    fontFamily: font.regular,
     fontSize: 15,
     lineHeight: 24,
     color: color.slate,
@@ -477,7 +477,7 @@ const styles = StyleSheet.create({
   steps: { gap: space.md },
   stepRow: { flexDirection: 'row', gap: space.md },
   stepNumber: {
-    fontFamily: font.poppinsMedium,
+    fontFamily: font.medium,
     fontSize: 15,
     lineHeight: 24,
     color: color.leaf,
@@ -495,7 +495,7 @@ const styles = StyleSheet.create({
   },
   primaryPressed: { opacity: 0.8 },
   primaryText: {
-    fontFamily: font.poppinsMedium,
+    fontFamily: font.medium,
     fontSize: 16,
     lineHeight: 22,
     color: color.page,
@@ -504,7 +504,7 @@ const styles = StyleSheet.create({
   quiet: { minHeight: 44, paddingHorizontal: space.md, justifyContent: 'center' },
   quietPressed: { opacity: 0.5 },
   quietText: {
-    fontFamily: font.poppinsMedium,
+    fontFamily: font.medium,
     fontSize: 15,
     lineHeight: 22,
     color: color.ink,
@@ -517,5 +517,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  goneText: { fontFamily: font.body, fontSize: 16, color: color.slate },
+  goneText: { fontFamily: font.regular, fontSize: 16, color: color.slate },
 });

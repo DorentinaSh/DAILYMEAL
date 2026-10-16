@@ -2,7 +2,7 @@
  * A meal's face.
  *
  * One square filled three ways: the source's photo when the meal came from
- * search, the initial in the display face on a glaze picked from the meal's own
+ * search, the initial in semibold on a glaze picked from the meal's own
  * name when you typed it in yourself, and a yolk band when this is the meal
  * being served today. Before this, the recipes
  * in Search had photos and the meals you actually owned had nothing, so the app
@@ -83,9 +83,8 @@ const styles = StyleSheet.create({
   },
   photo: { width: '100%', height: '100%' },
   letter: {
-    fontFamily: font.display,
+    fontFamily: font.semibold,
     color: color.porcelain,
-    // Fraunces at these sizes sits high in its box without this.
     textAlign: 'center',
   },
   band: {

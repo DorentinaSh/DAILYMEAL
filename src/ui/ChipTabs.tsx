@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
   },
   pressed: { backgroundColor: color.porcelain },
   label: {
-    fontFamily: font.headline,
+    fontFamily: font.semibold,
     fontSize: 14,
     lineHeight: 20,
   },

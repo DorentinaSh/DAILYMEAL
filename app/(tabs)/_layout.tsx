@@ -65,7 +65,7 @@ export default function TabsLayout() {
           paddingTop: 10,
         },
         tabBarLabelStyle: {
-          fontFamily: font.monoMedium,
+          fontFamily: font.medium,
           fontSize: 10,
           letterSpacing: 1,
           textTransform: 'uppercase',

@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   },
   head: { flexDirection: 'row', alignItems: 'center', gap: space.md },
   headText: { flex: 1, gap: 2 },
-  name: { fontFamily: font.headline, fontSize: 18, lineHeight: 24, color: color.ink },
+  name: { fontFamily: font.semibold, fontSize: 18, lineHeight: 24, color: color.ink },
 
   tiles: { flexDirection: 'row', gap: space.md, marginTop: space.xl },
   // The search cards' grey, borderless; the border is reserved, transparent,
@@ -209,9 +209,9 @@ const styles = StyleSheet.create({
   },
   tileSuggested: { backgroundColor: color.leafWash, borderColor: color.leaf },
   tilePressed: { opacity: 0.7 },
-  tileLabel: { fontFamily: font.headline, fontSize: 17, color: color.ink, marginTop: 'auto' },
-  tileCount: { fontFamily: font.body, fontSize: 13, color: color.slate, marginTop: 2 },
-  tileReminder: { fontFamily: font.mono, fontSize: 12, color: color.slate, marginTop: 2 },
+  tileLabel: { fontFamily: font.semibold, fontSize: 17, color: color.ink, marginTop: 'auto' },
+  tileCount: { fontFamily: font.regular, fontSize: 13, color: color.slate, marginTop: 2 },
+  tileReminder: { fontFamily: font.regular, fontSize: 12, color: color.slate, marginTop: 2 },
   // Ink on the green: 4.2:1, the strongest type it carries — white would be
   // 3.4:1, and this is the smallest type on it.
   tag: {
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.sm,
   },
   tagText: {
-    fontFamily: font.monoMedium,
+    fontFamily: font.medium,
     fontSize: 10,
     letterSpacing: 0.8,
     textTransform: 'uppercase',
@@ -238,5 +238,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.xl,
     marginTop: space.md,
   },
-  cancelText: { fontFamily: font.bodyMedium, fontSize: 15, color: color.slate },
+  cancelText: { fontFamily: font.medium, fontSize: 15, color: color.slate },
 });

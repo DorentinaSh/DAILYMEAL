@@ -77,18 +77,15 @@ export const color = {
   chili: '#C4442C',
 } as const;
 
+/**
+ * One face, Poppins, after the food-app reference: the search screen's title
+ * set the voice, and every screen speaks in it. Titles and names are semibold,
+ * like that title; labels and buttons medium; reading text regular.
+ */
 export const font = {
-  display: 'Fraunces_600SemiBold',
-  displayBold: 'Fraunces_700Bold',
-  body: 'Archivo_400Regular',
-  bodyMedium: 'Archivo_500Medium',
-  bodyBold: 'Archivo_600SemiBold',
-  mono: 'DMMono_400Regular',
-  monoMedium: 'DMMono_500Medium',
-  /** Poppins, after the food-app reference: headlines, and the recipe screen. */
-  headline: 'Poppins_600SemiBold',
-  poppins: 'Poppins_400Regular',
-  poppinsMedium: 'Poppins_500Medium',
+  regular: 'Poppins_400Regular',
+  medium: 'Poppins_500Medium',
+  semibold: 'Poppins_600SemiBold',
 } as const;
 
 /** 4pt base. Keeps vertical rhythm honest across screens. */
@@ -108,9 +105,9 @@ export const radius = {
   lg: 16,
 } as const;
 
-/** Mono labels are always uppercase and tracked out — the kitchen-ticket voice. */
+/** Small labels are always uppercase and tracked out, so they read as labels, not copy. */
 export const eyebrow = {
-  fontFamily: font.monoMedium,
+  fontFamily: font.medium,
   fontSize: 11,
   letterSpacing: 1.2,
   textTransform: 'uppercase' as const,

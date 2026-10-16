@@ -134,13 +134,12 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.page },
   content: { padding: space.xl, paddingBottom: space.huge },
   title: {
-    fontFamily: font.displayBold,
+    fontFamily: font.semibold,
     fontSize: 28,
     color: color.leaf,
-    letterSpacing: -0.4,
   },
   lede: {
-    fontFamily: font.body,
+    fontFamily: font.regular,
     fontSize: 15,
     color: color.slate,
     lineHeight: 22,
@@ -169,18 +168,18 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   timeLabel: {
-    fontFamily: font.body,
+    fontFamily: font.regular,
     fontSize: 15,
     color: color.slate,
   },
   timeValue: {
-    fontFamily: font.monoMedium,
+    fontFamily: font.medium,
     fontSize: 20,
     color: color.ink,
     letterSpacing: 0.5,
   },
   note: {
-    fontFamily: font.body,
+    fontFamily: font.regular,
     fontSize: 14,
     color: color.slate,
     lineHeight: 20,
@@ -192,13 +191,13 @@ const styles = StyleSheet.create({
     backgroundColor: color.yolkWash,
   },
   alertText: {
-    fontFamily: font.body,
+    fontFamily: font.regular,
     fontSize: 14,
     color: color.ink,
     lineHeight: 20,
   },
   footnote: {
-    fontFamily: font.body,
+    fontFamily: font.regular,
     fontSize: 13,
     color: color.slate,
     lineHeight: 19,

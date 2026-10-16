@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.62 },
   disabled: { opacity: 1, borderColor: color.edge, backgroundColor: 'transparent' },
   label: {
-    fontFamily: font.bodyMedium,
+    fontFamily: font.medium,
     fontSize: 15,
     color: color.ink,
   },

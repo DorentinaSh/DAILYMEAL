@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
     gap: space.md,
   },
   time: {
-    fontFamily: font.mono,
+    fontFamily: font.regular,
     fontSize: 11,
     color: color.slate,
     letterSpacing: 0.5,
@@ -187,14 +187,13 @@ const styles = StyleSheet.create({
   },
   headlineText: { flex: 1 },
   name: {
-    fontFamily: font.display,
+    fontFamily: font.semibold,
     fontSize: 24,
     lineHeight: 28,
     color: color.ink,
-    letterSpacing: -0.3,
   },
   meta: {
-    fontFamily: font.mono,
+    fontFamily: font.regular,
     fontSize: 11,
     letterSpacing: 0.6,
     color: color.slate,
@@ -220,7 +219,7 @@ const styles = StyleSheet.create({
     backgroundColor: color.yolk,
   },
   listText: {
-    fontFamily: font.body,
+    fontFamily: font.regular,
     fontSize: 16,
     color: color.ink,
     flex: 1,
@@ -232,7 +231,7 @@ const styles = StyleSheet.create({
   },
   grow: { flex: 1 },
   note: {
-    fontFamily: font.body,
+    fontFamily: font.regular,
     fontSize: 13,
     color: color.slate,
     marginTop: space.md,
@@ -243,12 +242,12 @@ const styles = StyleSheet.create({
     paddingBottom: space.xs,
   },
   emptyTitle: {
-    fontFamily: font.display,
+    fontFamily: font.semibold,
     fontSize: 24,
     color: color.ink,
   },
   emptyBody: {
-    fontFamily: font.body,
+    fontFamily: font.regular,
     fontSize: 15,
     color: color.slate,
     lineHeight: 22,

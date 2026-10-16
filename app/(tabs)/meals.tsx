@@ -143,24 +143,23 @@ const styles = StyleSheet.create({
     gap: space.md,
   },
   title: {
-    fontFamily: font.displayBold,
+    fontFamily: font.semibold,
     fontSize: 28,
     color: color.leaf,
-    letterSpacing: -0.4,
   },
   // A link, not a chip: green type and no box, so it never reads as a fourth
   // list next to the ones below it.
   add: { minHeight: 44, justifyContent: 'center' },
   addPressed: { opacity: 0.6 },
   addText: {
-    fontFamily: font.headline,
+    fontFamily: font.semibold,
     fontSize: 15,
     lineHeight: 22,
     color: color.leaf,
   },
   tabs: { marginTop: space.xl },
   empty: {
-    fontFamily: font.body,
+    fontFamily: font.regular,
     fontSize: 15,
     color: color.slate,
     lineHeight: 22,
@@ -181,7 +180,7 @@ const styles = StyleSheet.create({
   rowPressed: { backgroundColor: color.porcelain },
   rowText: { flex: 1, gap: space.xs },
   rowName: {
-    fontFamily: font.poppins,
+    fontFamily: font.regular,
     fontSize: 17,
     lineHeight: 24,
     color: color.ink,
@@ -195,7 +194,7 @@ const styles = StyleSheet.create({
   },
   fact: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   factText: {
-    fontFamily: font.poppins,
+    fontFamily: font.regular,
     fontSize: 13,
     lineHeight: 18,
     color: color.slate,

@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     backgroundColor: color.yolk,
   },
   fraction: {
-    fontFamily: font.mono,
+    fontFamily: font.regular,
     fontSize: 11,
     color: color.slate,
     letterSpacing: 0.5,

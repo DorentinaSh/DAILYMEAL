@@ -1,12 +1,5 @@
 // Imported per weight, not from the package root: the root module requires
 // every weight it ships, which would bundle megabytes of unused fonts.
-import { Archivo_400Regular } from '@expo-google-fonts/archivo/400Regular';
-import { Archivo_500Medium } from '@expo-google-fonts/archivo/500Medium';
-import { Archivo_600SemiBold } from '@expo-google-fonts/archivo/600SemiBold';
-import { DMMono_400Regular } from '@expo-google-fonts/dm-mono/400Regular';
-import { DMMono_500Medium } from '@expo-google-fonts/dm-mono/500Medium';
-import { Fraunces_600SemiBold } from '@expo-google-fonts/fraunces/600SemiBold';
-import { Fraunces_700Bold } from '@expo-google-fonts/fraunces/700Bold';
 import { Poppins_400Regular } from '@expo-google-fonts/poppins/400Regular';
 import { Poppins_500Medium } from '@expo-google-fonts/poppins/500Medium';
 import { Poppins_600SemiBold } from '@expo-google-fonts/poppins/600SemiBold';
@@ -23,13 +16,6 @@ import { color, font } from '@/ui/theme';
 
 export default function RootLayout() {
   const [fontsReady] = useFonts({
-    Fraunces_600SemiBold,
-    Fraunces_700Bold,
-    Archivo_400Regular,
-    Archivo_500Medium,
-    Archivo_600SemiBold,
-    DMMono_400Regular,
-    DMMono_500Medium,
     Poppins_400Regular,
     Poppins_500Medium,
     Poppins_600SemiBold,
@@ -86,7 +72,7 @@ export default function RootLayout() {
           // and puts the literal '(tabs)' in the chrome. A bare chevron suits
           // headers that carry no title anyway.
           headerBackButtonDisplayMode: 'minimal',
-          headerTitleStyle: { fontFamily: font.bodyBold, fontSize: 17 },
+          headerTitleStyle: { fontFamily: font.semibold, fontSize: 17 },
         }}
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

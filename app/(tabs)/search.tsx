@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
   head: { paddingHorizontal: space.xl, paddingTop: space.xxl },
   // Poppins at the reference's weight and natural tracking.
   title: {
-    fontFamily: font.headline,
+    fontFamily: font.semibold,
     fontSize: 28,
     color: color.leaf,
   },
@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
   // placeholder is held to 4.5:1.
   // The box is exactly the drawing's bounds, so the row's centring lines the
   // whole magnifier up with the text: its middle lands on the field's middle,
-  // which is where Archivo's capitals are centred at this size (25.9 of 52).
+  // which is where Poppins's capitals are centred at this size (26.0 of 52).
   // Drawn bottom-aligned in a taller box, it sat 2pt below them.
   magnifier: { width: 17, height: 17 },
   lens: {
@@ -448,7 +448,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontFamily: font.body,
+    fontFamily: font.regular,
     fontSize: 16,
     color: color.ink,
     padding: 0,
@@ -457,7 +457,7 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
     textAlignVertical: 'center',
   },
-  clear: { fontFamily: font.body, fontSize: 22, color: color.mute, lineHeight: 24 },
+  clear: { fontFamily: font.regular, fontSize: 22, color: color.mute, lineHeight: 24 },
   list: { padding: space.xl, paddingBottom: space.huge },
   // Cards in a row stretch to the taller one, so a one-line name and a
   // two-line name still end level.
@@ -477,20 +477,20 @@ const styles = StyleSheet.create({
   cardPressed: { opacity: 0.62 },
   dish: { alignSelf: 'center' },
   cardName: {
-    fontFamily: font.headline,
+    fontFamily: font.semibold,
     fontSize: 15,
     lineHeight: 20,
     color: color.ink,
     marginTop: space.md,
   },
   cardMeta: {
-    fontFamily: font.body,
+    fontFamily: font.regular,
     fontSize: 12,
     color: color.slate,
     marginTop: 2,
   },
   cardCount: {
-    fontFamily: font.bodyBold,
+    fontFamily: font.semibold,
     fontSize: 14,
     color: color.ink,
     // Pushed to the foot of the card, and kept clear of the add button.
@@ -537,7 +537,7 @@ const styles = StyleSheet.create({
   spinner: { marginTop: space.xxl },
   empty: { marginTop: space.lg, gap: space.lg },
   emptyText: {
-    fontFamily: font.body,
+    fontFamily: font.regular,
     fontSize: 15,
     color: color.slate,
     lineHeight: 22,
