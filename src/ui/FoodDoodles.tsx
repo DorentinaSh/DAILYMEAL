@@ -4,9 +4,10 @@
  * cup, a leaf, cherries and a slice of bread, scattered and turned across one
  * tile that repeats.
  *
- * Drawn in the deeper green at under half strength, so they are texture, not
- * picture — the white icons and title in the bar have to stay the loudest
- * thing on the green.
+ * Drawn in ink at a sixth strength, which over the green makes a darker green
+ * line — about 1.2:1 against the ground, as faint as the reference's own — so
+ * they are texture, not picture. The white icons and title in the bar have to
+ * stay the loudest thing on the green.
  *
  * It always fills the window from its top-left corner, so two of them — one
  * behind the scroll, one inside the fixed bar — line up into a single
@@ -67,8 +68,8 @@ export function FoodDoodles() {
               <Path
                 d={d}
                 fill="none"
-                stroke={color.kellyDeep}
-                strokeOpacity={0.45}
+                stroke={color.ink}
+                strokeOpacity={0.16}
                 strokeWidth={1.3}
                 strokeLinecap="round"
                 strokeLinejoin="round"

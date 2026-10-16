@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: font.displayBold,
     fontSize: 28,
-    color: color.ink,
+    color: color.leaf,
     letterSpacing: -0.4,
   },
   lede: {

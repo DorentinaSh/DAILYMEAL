@@ -3,8 +3,8 @@
  * the system alert, which looked like a different app had interrupted this
  * one — grey stacked buttons in the platform's font, and a different look on
  * every phone. This one is the same everywhere and speaks the app's language:
- * the rounded white sheet of the recipe screen, the cards' greys, kelly for
- * the list the recipe's own category points to.
+ * the rounded white sheet of the recipe screen, the cards' greys, the green
+ * for the list the recipe's own category points to.
  *
  * Each tile says something true about its list — how many meals it holds and
  * when it reminds you — so the choice is made knowing what is there. One tap
@@ -207,17 +207,18 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
     backgroundColor: color.porcelainWash,
   },
-  tileSuggested: { backgroundColor: color.kellyWash, borderColor: color.kelly },
+  tileSuggested: { backgroundColor: color.leafWash, borderColor: color.leaf },
   tilePressed: { opacity: 0.7 },
   tileLabel: { fontFamily: font.headline, fontSize: 17, color: color.ink, marginTop: 'auto' },
   tileCount: { fontFamily: font.body, fontSize: 13, color: color.slate, marginTop: 2 },
   tileReminder: { fontFamily: font.mono, fontSize: 12, color: color.slate, marginTop: 2 },
-  // Ink on kelly: 5.6:1, enough for type this small.
+  // Ink on the green: 4.2:1, the strongest type it carries — white would be
+  // 3.4:1, and this is the smallest type on it.
   tag: {
     position: 'absolute',
     top: space.md,
     right: space.md,
-    backgroundColor: color.kelly,
+    backgroundColor: color.leaf,
     borderRadius: 999,
     paddingVertical: 2,
     paddingHorizontal: space.sm,

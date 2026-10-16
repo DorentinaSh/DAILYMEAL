@@ -7,6 +7,9 @@ const MIN_UI = 3;
 /** WCAG 1.4.3 for body-sized text, which is what a tab label is. */
 const MIN_TEXT = 4.5;
 
+/** WCAG 1.4.3 for large text — 18pt, or 14pt bold — like a screen's title. */
+const MIN_LARGE_TEXT = 3;
+
 describe('contrastRatio', () => {
   it('matches the known extremes', () => {
     expect(contrastRatio('#000000', '#FFFFFF')).toBeCloseTo(21, 1);
@@ -84,48 +87,50 @@ describe('every glaze carries what is drawn on it', () => {
   });
 });
 
-describe('kelly, the one green', () => {
-  // The add sheet's SUGGESTED tag is ink on kelly; pale text on it would not be.
-  it('carries ink, and only ink, as body text', () => {
-    expect(contrastRatio(color.ink, color.kelly)).toBeGreaterThanOrEqual(MIN_TEXT);
-    expect(contrastRatio(color.porcelain, color.kelly)).toBeLessThan(MIN_TEXT);
+describe('leaf, the one green', () => {
+  // The reference's own green, and the only one in the app. White on it is
+  // every button's glyph and label, as the reference draws them: 3.4:1, enough
+  // for a control, short of the 4.5 small text asks. Asserted both ways so it
+  // stays a known trade, not a pass.
+  it('carries white at control strength', () => {
+    expect(contrastRatio(color.page, color.leaf)).toBeGreaterThanOrEqual(MIN_UI);
+    expect(contrastRatio(color.page, color.leaf)).toBeLessThan(MIN_TEXT);
   });
 
-  // The search buttons and the recipe screen's bar and button are white on
-  // kelly, as the reference draws them, and white measures 2.5:1 here — short
-  // of even the 3:1 a control needs. A trade taken on purpose for the look;
-  // asserted so nobody mistakes it for a pass.
-  it('does not reach control contrast for the white drawn on it', () => {
-    expect(contrastRatio(color.page, color.kelly)).toBeLessThan(MIN_UI);
+  // The add sheet's SUGGESTED tag is 10pt mono, the smallest type on the
+  // green, so it wears ink — the strongest thing the green carries.
+  it('carries ink more strongly than white, for its smallest type', () => {
+    expect(contrastRatio(color.ink, color.leaf)).toBeGreaterThan(
+      contrastRatio(color.page, color.leaf),
+    );
   });
 
-  // The recipe sheet rides over it, and the sheet is the page: a bright green
-  // against white, told apart mostly by hue.
+  // Green type on white — every screen's title, the list name under a meal's
+  // name, the step numbers — is this same green, not a darker one kept for
+  // text: 3.4:1, which a large title clears and small text does not.
+  it('reads as a large title on the page', () => {
+    expect(contrastRatio(color.leaf, color.page)).toBeGreaterThanOrEqual(MIN_LARGE_TEXT);
+    expect(contrastRatio(color.leaf, color.page)).toBeLessThan(MIN_TEXT);
+  });
+
+  // The recipe sheet rides over it, and the sheet is the page.
   it('is not the same surface as the sheet', () => {
-    expect(contrastRatio(color.kelly, color.page)).toBeGreaterThan(1.5);
-  });
-
-  // Kelly is 2.5:1 on the sheet. The list name under a meal's name wears it
-  // anyway, to match the buttons; green text that has to be read — the step
-  // numbers — wears the deeper green.
-  it('has a deeper green that reads as text on the sheet', () => {
-    expect(contrastRatio(color.kellyDeep, color.page)).toBeGreaterThanOrEqual(MIN_TEXT);
-    expect(contrastRatio(color.kelly, color.page)).toBeLessThan(MIN_TEXT);
+    expect(contrastRatio(color.leaf, color.page)).toBeGreaterThan(1.5);
   });
 });
 
 describe('the search field', () => {
   // Typed text and the magnifier both sit on the wash.
   it('carries what is typed into it', () => {
-    expect(contrastRatio(color.ink, color.kellyWash)).toBeGreaterThanOrEqual(MIN_TEXT);
+    expect(contrastRatio(color.ink, color.leafWash)).toBeGreaterThanOrEqual(MIN_TEXT);
   });
 
   // It has no border, so the tint is the only thing marking where the field
   // is — as faint against the white page as the reference's field is against
   // its own. The magnifier and placeholder are what say "type here".
   it('is told apart from the page by its tint', () => {
-    expect(color.kellyWash).not.toBe(color.page);
-    expect(contrastRatio(color.kellyWash, color.page)).toBeGreaterThan(1.05);
+    expect(color.leafWash).not.toBe(color.page);
+    expect(contrastRatio(color.leafWash, color.page)).toBeGreaterThan(1.05);
   });
 });
 
@@ -148,7 +153,7 @@ describe('the placeholder tone', () => {
   // green wash, which is the darker of the two and so the one that binds.
   for (const [name, ground] of [
     ['tile', color.tile],
-    ['the search field', color.kellyWash],
+    ['the search field', color.leafWash],
   ] as const) {
     it(`clears WCAG for body text on ${name}`, () => {
       expect(contrastRatio(color.placeholder, ground)).toBeGreaterThanOrEqual(MIN_TEXT);
@@ -190,11 +195,12 @@ describe('the segmented picker is legible in both states', () => {
 });
 
 describe('the Meals tab chips', () => {
-  // The chips you are not on carry their names in green, as the reference's
-  // do — the deeper green, since kelly would read at 2.3:1 on the pale pill.
+  // The chips you are not on carry their names in the one green, as the
+  // reference's do: 3.1:1 on the pale pill, under the 4.5 a 14pt label asks —
+  // the same trade as all green type.
   it('off: the label reads against its pill', () => {
     const { label, pill } = CHIP_COLORS.off;
-    expect(contrastRatio(label, pill)).toBeGreaterThanOrEqual(MIN_TEXT);
+    expect(contrastRatio(label, pill)).toBeGreaterThanOrEqual(MIN_UI);
   });
 
   // A pale pill on the white page, as faint as the reference's grey ones; the
@@ -204,16 +210,18 @@ describe('the Meals tab chips', () => {
     expect(contrastRatio(border, color.page)).toBeGreaterThan(contrastRatio(pill, color.page));
   });
 
-  // White on kelly, like every kelly control: the 2.5:1 trade pinned above.
-  it('on: is drawn the way the other kelly controls are', () => {
-    expect(CHIP_COLORS.on.pill).toBe(color.kelly);
+  // White on the green, like every green control.
+  it('on: is drawn the way the other green controls are', () => {
+    expect(CHIP_COLORS.on.pill).toBe(color.leaf);
     expect(CHIP_COLORS.on.label).toBe(color.page);
   });
 
-  // Under the 3:1 a control asks for on lightness alone, so the hue — green
-  // against grey — and the label flipping to white do the rest of the telling.
+  // Which list you are on has to be obvious at a glance: the filled chip
+  // stands off the pale ones at control strength, and its label flips too.
   it('the chip you are on separates from the others', () => {
-    expect(contrastRatio(CHIP_COLORS.on.pill, CHIP_COLORS.off.pill)).toBeGreaterThanOrEqual(2);
+    expect(contrastRatio(CHIP_COLORS.on.pill, CHIP_COLORS.off.pill)).toBeGreaterThanOrEqual(
+      MIN_UI,
+    );
     expect(CHIP_COLORS.on.label).not.toBe(CHIP_COLORS.off.label);
   });
 });

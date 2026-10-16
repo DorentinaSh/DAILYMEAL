@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: font.displayBold,
     fontSize: 30,
-    color: color.ink,
+    color: color.leaf,
     letterSpacing: -0.5,
   },
   field: { gap: space.sm },

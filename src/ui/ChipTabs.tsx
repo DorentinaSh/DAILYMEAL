@@ -25,7 +25,7 @@ type Props<T extends string> = {
 /**
  * Which list the Meals tab shows, as the food-app reference draws its
  * categories: a row of separate rounded chips in Poppins, the one you're on
- * filled in kelly, the others pale with green names.
+ * filled in the app's green, the others pale with green names.
  */
 export function ChipTabs<T extends string>({ items, value, onChange, style }: Props<T>) {
   return (

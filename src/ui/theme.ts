@@ -3,9 +3,10 @@
  *
  * Direction: a white page and deep petrol ink, rather than the warm cream a
  * recipe app reaches for by default — this gets read in a bright kitchen at
- * 7am, so it wants to look awake, not rustic. Kelly green carries the recipe
- * screen, the search screen's controls and the Meals tab's chips; one hot
- * accent (yolk) marks the meal being served today, and nothing else.
+ * 7am, so it wants to look awake, not rustic. One green, the food-app
+ * reference's own, carries every screen's title, the recipe screen, the search
+ * screen's controls and the Meals tab's chips; one hot accent (yolk) marks the
+ * meal being served today, and nothing else.
  */
 
 export const color = {
@@ -53,25 +54,21 @@ export const color = {
   /** Hairlines and dividers. */
   edge: '#D6DEDC',
   /**
-   * The app's one green: the recipe screen's ground and its button, the search
-   * screen's filter and add buttons and saved bookmark, the add sheet's
-   * suggested list, and the chip you're on in the Meals tab. Bright, so white on it — every icon and label drawn there
-   * the reference's way — measures only 2.5:1, a trade contrast.test.ts pins;
-   * ink reads at 5.6:1.
+   * The app's one green, sampled from the food-app reference's ground and
+   * button: every screen's title, the recipe screen's ground and its button,
+   * the search screen's buttons and saved bookmark, the Meals tab's chips, and
+   * the add sheet's suggested list. White on it and it on white both measure
+   * 3.4:1 — enough for a control or a large title, short of the 4.5 small text
+   * asks. That is a trade contrast.test.ts pins, taken over keeping a second,
+   * darker green for type.
    */
-  kelly: '#4CBB17',
+  leaf: '#459F2E',
   /**
-   * Kelly at field-fill strength: 8% of it over white. The search field wears
-   * it in place of a border, 1.07:1 against the white page — as faint as the
-   * reference's own field. The magnifier and placeholder do the telling.
+   * The reference's search-field tint of it. The field wears it in place of a
+   * border, 1.07:1 against the white page; the magnifier and placeholder do
+   * the telling.
    */
-  kellyWash: '#F1FAEC',
-  /**
-   * Kelly at text strength: green text on the white recipe sheet that has to
-   * be read, like the method's step numbers. Kelly's hue, darkened until it
-   * clears 4.5:1.
-   */
-  kellyDeep: '#2F7D10',
+  leafWash: '#EDFCE9',
   /** The single accent: today's pick. */
   yolk: '#F2B307',
   /** Yolk at card-fill strength. */
@@ -179,13 +176,12 @@ export const TAB_COLORS = {
 
 /**
  * The Meals tab's list chips, after the food-app reference's category chips.
- * The one you're on is kelly with white type, like every other kelly control —
- * the same 2.5:1 trade. The rest are pale pills with their names in the deeper
- * green, 4.8:1 on them where kelly would be 2.3:1. Porcelain-washed with a
- * porcelain edge: about as faint on the white page as the reference's grey
- * chips are on its own.
+ * The one you're on is the green with white type, like every other green
+ * control. The rest are pale pills with their names in the same green, 3.1:1
+ * on them. Porcelain-washed with a porcelain edge: about as faint on the white
+ * page as the reference's grey chips are on its own.
  */
 export const CHIP_COLORS = {
-  off: { pill: color.porcelainWash, border: color.porcelain, label: color.kellyDeep },
-  on: { pill: color.kelly, border: color.kelly, label: color.page },
+  off: { pill: color.porcelainWash, border: color.porcelain, label: color.leaf },
+  on: { pill: color.leaf, border: color.leaf, label: color.page },
 } as const;

@@ -201,10 +201,10 @@ function Plus() {
 /**
  * The card's save control, drawn the way the reference draws its heart: an
  * outline at rest, filled when on — no pill behind it. Off is slate, which
- * reads at 5.1:1 on the card. On is kelly, to match the add button below it;
- * that is 2.3:1 against the card, under the 3:1 a state mark is meant to
- * clear, and acceptable only because the state is also carried by the shape
- * changing from outline to solid. 20pt drawn, 44pt to the thumb.
+ * reads at 5.1:1 on the card. On is the green, to match the add button below
+ * it: 3.1:1 against the card, just over the 3:1 a state mark needs, and the
+ * shape changing from outline to solid says it again. 20pt drawn, 44pt to the
+ * thumb.
  */
 function Bookmark({
   saved,
@@ -215,7 +215,7 @@ function Bookmark({
   label: string;
   onPress: () => void;
 }) {
-  const tint = saved ? color.kelly : color.slate;
+  const tint = saved ? color.leaf : color.slate;
   return (
     <Pressable
       onPress={onPress}
@@ -373,7 +373,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: font.headline,
     fontSize: 28,
-    color: color.ink,
+    color: color.leaf,
   },
   // A soft green well rather than an outlined box: the tint marks the field,
   // so it needs no border.
@@ -386,7 +386,7 @@ const styles = StyleSheet.create({
     // The filter button sits inset by this much on every side it touches.
     paddingRight: 8,
     height: 52,
-    backgroundColor: color.kellyWash,
+    backgroundColor: color.leafWash,
     borderRadius: radius.lg,
   },
   filter: {
@@ -395,16 +395,16 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: color.kelly,
+    backgroundColor: color.leaf,
   },
   filterPressed: { opacity: 0.8 },
-  // White, as in the reference, by choice: it measures 2.5:1 on kelly, under
-  // the 3:1 a control's glyph is meant to clear, where ink would be 5.6:1.
-  // Kept white on purpose; the number is here so it is a known trade.
+  // White, as in the reference: 3.4:1 on the green, over the 3:1 a control's
+  // glyph needs.
   sliders: { width: 16, gap: 4 },
   rail: { height: 6, justifyContent: 'center' },
   railLine: { height: 2, borderRadius: 1, backgroundColor: color.tile },
-  // Filled with kelly so the rail looks to pass behind the ring, not through.
+  // Filled with the green so the rail looks to pass behind the ring, not
+  // through.
   knob: {
     position: 'absolute',
     top: 0,
@@ -413,12 +413,12 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     borderWidth: 2,
     borderColor: color.tile,
-    backgroundColor: color.kelly,
+    backgroundColor: color.leaf,
   },
-  // Kelly, to match the filter button at the other end. On the wash that is
-  // 2.3:1, under the 3:1 a meaningful icon needs — acceptable only because
-  // this one is decoration: the placeholder and the accessibility label are
-  // what identify the field, and the placeholder is held to 4.5:1.
+  // The green, to match the filter button at the other end: 3.1:1 on the
+  // wash, just over the 3:1 a meaningful icon needs. The placeholder and the
+  // accessibility label are what identify the field all the same, and the
+  // placeholder is held to 4.5:1.
   // The box is exactly the drawing's bounds, so the row's centring lines the
   // whole magnifier up with the text: its middle lands on the field's middle,
   // which is where Archivo's capitals are centred at this size (25.9 of 52).
@@ -432,7 +432,7 @@ const styles = StyleSheet.create({
     height: 14,
     borderRadius: 7,
     borderWidth: 2,
-    borderColor: color.kelly,
+    borderColor: color.leaf,
   },
   // Centred on the lens's 45° diagonal, 9.5 out from its middle, so it starts
   // just inside the rim and runs straight out from it.
@@ -443,7 +443,7 @@ const styles = StyleSheet.create({
     width: 2,
     height: 7,
     borderRadius: 1,
-    backgroundColor: color.kelly,
+    backgroundColor: color.leaf,
     transform: [{ rotate: '-45deg' }],
   },
   input: {
@@ -510,12 +510,12 @@ const styles = StyleSheet.create({
     height: 36,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: color.kelly,
+    backgroundColor: color.leaf,
     borderTopLeftRadius: radius.md,
     borderBottomRightRadius: radius.lg,
   },
   addPressed: { opacity: 0.8 },
-  // White on kelly, the same known trade as the filter button's sliders.
+  // White on the green, like the filter button's sliders.
   glyph: { width: 14, height: 14, alignItems: 'center', justifyContent: 'center' },
   plusBar: {
     position: 'absolute',

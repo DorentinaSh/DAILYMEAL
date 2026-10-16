@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     // at 28 and do not need to shout it.
     fontFamily: font.displayBold,
     fontSize: 40,
-    color: color.ink,
+    color: color.leaf,
     letterSpacing: -0.8,
     marginTop: space.xs,
   },

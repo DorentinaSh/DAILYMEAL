@@ -50,7 +50,7 @@ function FactIcon({ kind }: { kind: FactKind }) {
   if (kind === 'ingredients') {
     return (
       <Svg width={18} height={18} viewBox="0 0 24 24">
-        <Path d="M4 20C4 10.6 10.6 4 20 4c0 9.4-6.6 16-16 16z" fill={color.kelly} />
+        <Path d="M4 20C4 10.6 10.6 4 20 4c0 9.4-6.6 16-16 16z" fill={color.leaf} />
         <Path d="M4 20l9-9" stroke={color.page} strokeWidth={1.8} strokeLinecap="round" />
       </Svg>
     );
@@ -337,10 +337,10 @@ export default function MealDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  // The search buttons' green behind every recipe. The per-meal colour has not
+  // The app's one green behind every recipe. The per-meal colour has not
   // gone: it is the circle sitting on it, which is where a colour belongs when
   // it stands for one meal rather than for the screen.
-  screen: { flex: 1, backgroundColor: color.kelly },
+  screen: { flex: 1, backgroundColor: color.leaf },
   // Grows so a short recipe's sheet still reaches the bottom of the screen
   // instead of ending mid-way with green below it.
   scroll: { flexGrow: 1 },
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    backgroundColor: color.kelly,
+    backgroundColor: color.leaf,
     // Crops its copy of the drawings to the bar.
     overflow: 'hidden',
     paddingHorizontal: space.xl,
@@ -426,14 +426,14 @@ const styles = StyleSheet.create({
     lineHeight: 34,
     color: color.ink,
   },
-  // The buttons' own green, as the reference prints its price — 2.5:1 on the
+  // The buttons' own green, as the reference prints its price — 3.4:1 on the
   // sheet, under the 4.5 text asks, chosen for the match. It is one word, and
   // the name above it says what the page is.
   listName: {
     fontFamily: font.poppinsMedium,
     fontSize: 17,
     lineHeight: 24,
-    color: color.kelly,
+    color: color.leaf,
     marginTop: 2,
   },
 
@@ -469,7 +469,7 @@ const styles = StyleSheet.create({
     width: 5,
     height: 5,
     borderRadius: 2.5,
-    backgroundColor: color.kelly,
+    backgroundColor: color.leaf,
     marginTop: 10,
   },
   // Slate rather than the reference's #9D9D9D, which is 2.7:1 on white; this
@@ -487,7 +487,7 @@ const styles = StyleSheet.create({
     fontFamily: font.poppinsMedium,
     fontSize: 15,
     lineHeight: 24,
-    color: color.kellyDeep,
+    color: color.leaf,
     minWidth: 18,
   },
 
@@ -495,12 +495,12 @@ const styles = StyleSheet.create({
   primary: {
     minHeight: 56,
     borderRadius: 14,
-    backgroundColor: color.kelly,
+    backgroundColor: color.leaf,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: space.lg,
   },
-  primaryPressed: { backgroundColor: color.kellyDeep },
+  primaryPressed: { opacity: 0.8 },
   primaryText: {
     fontFamily: font.poppinsMedium,
     fontSize: 16,
