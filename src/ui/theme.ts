@@ -4,8 +4,8 @@
  * Direction: a white page and deep petrol ink, rather than the warm cream a
  * recipe app reaches for by default — this gets read in a bright kitchen at
  * 7am, so it wants to look awake, not rustic. Kelly green carries the recipe
- * screen and the search field; one hot accent (yolk) marks the meal being
- * served today, and nothing else.
+ * screen and the search screen's controls; one hot accent (yolk) marks the
+ * meal being served today, and nothing else.
  */
 
 export const color = {
@@ -53,11 +53,11 @@ export const color = {
   /** Hairlines and dividers. */
   edge: '#D6DEDC',
   /**
-   * The recipe screen's backdrop. Bright enough that everything on it has to
-   * be dark: pale text measures 2.2:1 here and white 2.5:1, while ink reads
-   * at 5.6:1. That is why the bar on that screen is inked rather than pale,
-   * and why the saved bookmark fills instead of turning yolk — yolk on this
-   * green is 1.3:1, which is no mark at all.
+   * The app's one green: the recipe screen's ground and its button, the search
+   * screen's filter and add buttons and saved bookmark, and the add sheet's
+   * suggested list. Bright, so white on it — every icon and label drawn there
+   * the reference's way — measures only 2.5:1, a trade contrast.test.ts pins;
+   * ink reads at 5.6:1.
    */
   kelly: '#4CBB17',
   /**
@@ -66,6 +66,12 @@ export const color = {
    * reference's own field. The magnifier and placeholder do the telling.
    */
   kellyWash: '#F1FAEC',
+  /**
+   * Kelly at text strength: green text on the white recipe sheet that has to
+   * be read, like the method's step numbers. Kelly's hue, darkened until it
+   * clears 4.5:1.
+   */
+  kellyDeep: '#2F7D10',
   /** The single accent: today's pick. */
   yolk: '#F2B307',
   /** Yolk at card-fill strength. */
@@ -82,8 +88,10 @@ export const font = {
   bodyBold: 'Archivo_600SemiBold',
   mono: 'DMMono_400Regular',
   monoMedium: 'DMMono_500Medium',
-  /** Poppins, after the food-app reference: the search screen's headline. */
+  /** Poppins, after the food-app reference: headlines, and the recipe screen. */
   headline: 'Poppins_600SemiBold',
+  poppins: 'Poppins_400Regular',
+  poppinsMedium: 'Poppins_500Medium',
 } as const;
 
 /** 4pt base. Keeps vertical rhythm honest across screens. */

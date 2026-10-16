@@ -84,31 +84,33 @@ describe('every glaze carries what is drawn on it', () => {
   });
 });
 
-describe('the recipe screen backdrop', () => {
-  // It is bright, so everything drawn on it is ink. Pale text measures 2.2:1
-  // here, which is why the bar on that screen is not pale.
-  it('carries the ink its bar is drawn in', () => {
+describe('kelly, the one green', () => {
+  // The add sheet's SUGGESTED tag is ink on kelly; pale text on it would not be.
+  it('carries ink, and only ink, as body text', () => {
     expect(contrastRatio(color.ink, color.kelly)).toBeGreaterThanOrEqual(MIN_TEXT);
-  });
-
-  it('will not carry pale text, which is why nothing pale is put on it', () => {
     expect(contrastRatio(color.porcelain, color.kelly)).toBeLessThan(MIN_TEXT);
   });
 
-  // The saved bookmark fills its pill instead of turning yolk. Asserted so
-  // nobody restores the accent here and gets a mark that cannot be seen.
-  it('cannot show a yolk mark, so the saved pill fills instead', () => {
-    expect(contrastRatio(color.yolk, color.kelly)).toBeLessThan(MIN_UI);
-    expect(contrastRatio(color.porcelain, color.ink)).toBeGreaterThanOrEqual(MIN_TEXT);
+  // The search buttons and the recipe screen's bar and button are white on
+  // kelly, as the reference draws them, and white measures 2.5:1 here — short
+  // of even the 3:1 a control needs. A trade taken on purpose for the look;
+  // asserted so nobody mistakes it for a pass.
+  it('does not reach control contrast for the white drawn on it', () => {
+    expect(contrastRatio(color.page, color.kelly)).toBeLessThan(MIN_UI);
   });
 
-  // The sheet rides over it, and the sheet is the page. These two are close-ish
-  // in lightness (2.5:1) and told apart mostly by hue — a bright green against
-  // white — which is why this asserts they differ at all rather than asserting
-  // a UI threshold that only applies to controls.
+  // The recipe sheet rides over it, and the sheet is the page: a bright green
+  // against white, told apart mostly by hue.
   it('is not the same surface as the sheet', () => {
-    expect(color.kelly).not.toBe(color.page);
     expect(contrastRatio(color.kelly, color.page)).toBeGreaterThan(1.5);
+  });
+
+  // Kelly is 2.5:1 on the sheet. The list name under a meal's name wears it
+  // anyway, to match the buttons; green text that has to be read — the step
+  // numbers — wears the deeper green.
+  it('has a deeper green that reads as text on the sheet', () => {
+    expect(contrastRatio(color.kellyDeep, color.page)).toBeGreaterThanOrEqual(MIN_TEXT);
+    expect(contrastRatio(color.kelly, color.page)).toBeLessThan(MIN_TEXT);
   });
 });
 

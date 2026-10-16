@@ -11,7 +11,6 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Svg, { Path } from 'react-native-svg';
 
 import { CATEGORIES, CATEGORY_LABEL, type Category, type Meal } from '@/domain/types';
 import { keptAsMeal, keptMealFor } from '@/search/keep';
@@ -22,6 +21,7 @@ import { useAppStore } from '@/store/useAppStore';
 import { useSearchStore, type SearchStatus } from '@/store/useSearchStore';
 import { Button } from '@/ui/Button';
 import { ChooseListSheet } from '@/ui/ChooseListSheet';
+import { BookmarkIcon } from '@/ui/icons';
 import { MealMark } from '@/ui/MealMark';
 import { color, font, radius, space } from '@/ui/theme';
 
@@ -225,15 +225,7 @@ function Bookmark({
       accessibilityLabel={label}
       style={({ pressed }) => [styles.bookmark, pressed && styles.bookmarkPressed]}
     >
-      <Svg width={20} height={20} viewBox="0 0 24 24">
-        <Path
-          d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"
-          fill={saved ? tint : 'none'}
-          stroke={tint}
-          strokeWidth={2}
-          strokeLinejoin="round"
-        />
-      </Svg>
+      <BookmarkIcon tint={tint} filled={saved} />
     </Pressable>
   );
 }

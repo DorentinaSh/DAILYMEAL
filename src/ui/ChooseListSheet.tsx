@@ -33,8 +33,12 @@ type Props = {
   /** The recipe being added. */
   name: string;
   imageUrl: string | null;
-  /** The list the recipe's own category points to; both tiles still work. */
-  suggested: Category;
+  /**
+   * The list the recipe's own category points to; both tiles still work. Null
+   * when there is nothing to go on — a saved meal does not remember the
+   * category it was found under — and then neither tile is singled out.
+   */
+  suggested: Category | null;
   onChoose: (category: Category) => void;
   onClose: () => void;
 };

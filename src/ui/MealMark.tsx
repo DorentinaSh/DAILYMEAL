@@ -29,7 +29,7 @@ const SIZES = {
   /** A search result card's dish. A circle, like the hero, at card scale. */
   card: { box: 100, corner: 50, letter: 46, band: 6 },
   /** The recipe screen's hero. Corner is half the box, so it is a circle. */
-  hero: { box: 168, corner: 84, letter: 76, band: 10 },
+  hero: { box: 256, corner: 128, letter: 116, band: 14 },
 } as const;
 
 type Props = {
