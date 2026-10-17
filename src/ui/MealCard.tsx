@@ -1,9 +1,6 @@
 /**
- * Today's card for one category.
- *
- * The ingredient list sits on the face of the card rather than behind a tap,
- * because the question this screen answers is "can I make this right now?"
- * and that is answered by reading the list against what is in the kitchen.
+ * Today's card for one category: the meal, how long it takes and how many
+ * ingredients it needs. The ingredients themselves are a tap away, on Recipe.
  */
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -103,17 +100,6 @@ export function MealCard({
             </View>
           </Pressable>
 
-          {meal.ingredients.length > 0 && (
-            <View style={styles.list}>
-              {meal.ingredients.map((item, i) => (
-                <View key={`${item}-${i}`} style={styles.listRow}>
-                  <View style={styles.bullet} />
-                  <Text style={styles.listText}>{item}</Text>
-                </View>
-              ))}
-            </View>
-          )}
-
           <View style={styles.actions}>
             <Button
               label="Show another"
@@ -199,30 +185,6 @@ const styles = StyleSheet.create({
     color: color.slate,
     textTransform: 'uppercase',
     marginTop: space.xs,
-  },
-  list: {
-    marginTop: space.lg,
-    borderTopWidth: 1,
-    borderTopColor: color.edge,
-    paddingTop: space.lg,
-    gap: space.sm,
-  },
-  listRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space.md,
-  },
-  bullet: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: color.yolk,
-  },
-  listText: {
-    fontFamily: font.regular,
-    fontSize: 16,
-    color: color.ink,
-    flex: 1,
   },
   actions: {
     flexDirection: 'row',
