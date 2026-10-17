@@ -44,9 +44,8 @@ export const color = {
   mute: '#9BABA8',
   /**
    * Placeholder text, and nothing else. The lightest tone that still clears
-   * 4.5:1 on tile and on the search field's green wash — the wash is the
-   * darker, so it set this, four points darker than the #657A77 that tile
-   * alone allowed. Still deliberately lighter than slate, because a
+   * 4.5:1 on tile and on the search field's green — the field is the darker,
+   * so it binds, though at 4.8:1 there it has room to spare. Still deliberately lighter than slate, because a
    * placeholder that matches the secondary text makes an empty field look
    * like a filled one. Both halves of that are pinned in contrast.test.ts.
    */
@@ -63,12 +62,14 @@ export const color = {
    * darker green for type.
    */
   leaf: '#459F2E',
-  /**
-   * The reference's search-field tint of it. The field wears it in place of a
-   * border, 1.07:1 against the white page; the magnifier and placeholder do
-   * the telling.
-   */
+  /** The palest tint of it, behind the add sheet's suggested list. */
   leafWash: '#EDFCE9',
+  /**
+   * The search field's tint, a step paler than the wash: a hint of green that
+   * marks the bar without a border, 1.02:1 against the white page. The green
+   * magnifier reads at 3.3:1 on it.
+   */
+  leafField: '#F8FEF6',
   /** The single accent: today's pick. */
   yolk: '#F2B307',
   /** Yolk at card-fill strength. */

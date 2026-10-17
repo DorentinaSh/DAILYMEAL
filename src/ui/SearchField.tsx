@@ -74,13 +74,13 @@ const styles = StyleSheet.create({
     gap: space.md,
     paddingHorizontal: space.lg,
     height: 52,
-    backgroundColor: color.leafWash,
+    backgroundColor: color.leafField,
     borderRadius: radius.lg,
   },
   // A button at the end sits inset by this much on every side it touches.
   fieldWithButton: { paddingRight: 8 },
-  // The green, as Search's filter button is: 3.1:1 on the
-  // wash, just over the 3:1 a meaningful icon needs. The placeholder and the
+  // The green, as Search's filter button is: 3.3:1 on the
+  // field, over the 3:1 a meaningful icon needs. The placeholder and the
   // accessibility label are what identify the field all the same, and the
   // placeholder is held to 4.5:1.
   // The box is exactly the drawing's bounds, so the row's centring lines the

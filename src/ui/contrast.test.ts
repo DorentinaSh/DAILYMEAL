@@ -122,15 +122,28 @@ describe('leaf, the one green', () => {
 describe('the search field', () => {
   // Typed text and the magnifier both sit on the wash.
   it('carries what is typed into it', () => {
-    expect(contrastRatio(color.ink, color.leafWash)).toBeGreaterThanOrEqual(MIN_TEXT);
+    expect(contrastRatio(color.ink, color.leafField)).toBeGreaterThanOrEqual(MIN_TEXT);
+  });
+
+  // The green magnifier is the field's one mark, so it is held to the 3:1 a
+  // meaningful icon needs.
+  it('shows its magnifier', () => {
+    expect(contrastRatio(color.leaf, color.leafField)).toBeGreaterThanOrEqual(MIN_UI);
   });
 
   // It has no border, so the tint is the only thing marking where the field
   // is — as faint against the white page as the reference's field is against
   // its own. The magnifier and placeholder are what say "type here".
   it('is told apart from the page by its tint', () => {
-    expect(color.leafWash).not.toBe(color.page);
-    expect(contrastRatio(color.leafWash, color.page)).toBeGreaterThan(1.05);
+    expect(color.leafField).not.toBe(color.page);
+    expect(contrastRatio(color.leafField, color.page)).toBeGreaterThan(1.02);
+  });
+
+  // A step paler than the add sheet's wash: a hint of green, not a block of it.
+  it('is a paler tint than the wash', () => {
+    expect(contrastRatio(color.leafField, color.page)).toBeLessThan(
+      contrastRatio(color.leafWash, color.page),
+    );
   });
 });
 
@@ -153,7 +166,7 @@ describe('the placeholder tone', () => {
   // green wash, which is the darker of the two and so the one that binds.
   for (const [name, ground] of [
     ['tile', color.tile],
-    ['the search field', color.leafWash],
+    ['the search field', color.leafField],
   ] as const) {
     it(`clears WCAG for body text on ${name}`, () => {
       expect(contrastRatio(color.placeholder, ground)).toBeGreaterThanOrEqual(MIN_TEXT);
