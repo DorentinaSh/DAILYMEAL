@@ -78,3 +78,45 @@ export function LeafIcon({ size = 18 }: { size?: number }) {
     </Svg>
   );
 }
+
+/** Forward: the back chevron turned round, at the same weight. */
+export function ChevronRightIcon({ tint, size = 18 }: { tint: string; size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Path
+        d="M9 5l7 7-7 7"
+        fill="none"
+        stroke={tint}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+/** Two arrows chasing round: where a meal sits in this round of the rotation. */
+export function LoopIcon({ tint = color.ink, size = 18 }: { tint?: string; size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Path
+        d="M17 2l3 3-3 3M4 11V9a4 4 0 0 1 4-4h12M7 22l-3-3 3-3M20 13v2a4 4 0 0 1-4 4H4"
+        fill="none"
+        stroke={tint}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+/** A plate seen from above, rim and well: the app's mark in a reminder. */
+export function PlateIcon({ tint, size = 22 }: { tint: string; size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Circle cx={12} cy={12} r={8} fill="none" stroke={tint} strokeWidth={1.8} />
+      <Circle cx={12} cy={12} r={3.5} fill="none" stroke={tint} strokeWidth={1.8} />
+    </Svg>
+  );
+}

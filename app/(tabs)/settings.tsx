@@ -13,10 +13,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { mealsIn } from '@/domain/cycle';
+import { nearbyTimes } from '@/domain/day';
 import { WINDOW_DAYS } from '@/domain/schedule';
-import { CATEGORIES, CATEGORY_LABEL, type Category } from '@/domain/types';
+import { CATEGORIES, CATEGORY_LABEL, DEFAULT_TIMES, type Category } from '@/domain/types';
 import { requestPermission } from '@/notifications/client';
 import { useAppStore } from '@/store/useAppStore';
+import { ReminderPreview } from '@/ui/ReminderPreview';
+import { TimeChip } from '@/ui/TimeChip';
 import { color, eyebrow, font, radius, space } from '@/ui/theme';
 
 function toDate(time: string): Date {
@@ -54,58 +57,96 @@ export default function SettingsScreen() {
           A reminder names the meal, so you can decide before you’re out of bed.
         </Text>
 
-        <View style={styles.panel}>
-          {CATEGORIES.map((category, i) => {
+        <View style={styles.cards}>
+          {CATEGORIES.map((category) => {
             const { notify, time } = state.settings[category];
             const count = mealsIn(state, category).length;
+            const label = CATEGORY_LABEL[category];
+            // Around the usual time rather than the chosen one, so picking a
+            // chip never moves the chips.
+            const presets = nearbyTimes(DEFAULT_TIMES[category]);
+            const custom = !presets.includes(time);
+            const picking = editing === category;
+
             return (
-              <View key={category} style={[styles.block, i > 0 && styles.blockDivided]}>
+              <View key={category} style={styles.card}>
                 <View style={styles.rowBetween}>
-                  <Text style={eyebrow}>{CATEGORY_LABEL[category]}</Text>
+                  <Text style={styles.name}>{label}</Text>
                   <Switch
                     value={notify}
                     onValueChange={(on) => toggle(category, on)}
-                    trackColor={{ true: color.yolk, false: color.edge }}
+                    trackColor={{ true: color.leaf, false: color.edge }}
+                    ios_backgroundColor={color.edge}
                     thumbColor={color.tile}
                     disabled={count === 0}
+                    accessibilityLabel={`${label} reminders`}
                   />
                 </View>
 
                 {count === 0 ? (
                   <Text style={styles.note}>
-                    Add a {CATEGORY_LABEL[category].toLowerCase()} first — there’s nothing
-                    to announce yet.
+                    Add a {label.toLowerCase()} first — there’s nothing to announce yet.
                   </Text>
                 ) : notify ? (
-                  <Pressable
-                    onPress={() => setEditing(editing === category ? null : category)}
-                    accessibilityRole="button"
-                    style={styles.timeRow}
-                  >
-                    <Text style={styles.timeLabel}>Remind me at</Text>
-                    <Text style={styles.timeValue}>{time}</Text>
-                  </Pressable>
+                  <>
+                    <View style={styles.preview}>
+                      <Text style={eyebrow}>Your reminder</Text>
+                      {/* The category only. The reminder itself still names
+                          the day's meal. */}
+                      <ReminderPreview
+                        title={label}
+                        body={`Time for ${label.toLowerCase()}`}
+                        time={time}
+                      />
+                    </View>
+
+                    <View style={styles.chips}>
+                      {presets.map((preset) => (
+                        <TimeChip
+                          key={preset}
+                          label={preset}
+                          selected={preset === time}
+                          accessibilityLabel={`Remind me at ${preset}`}
+                          onPress={() => {
+                            setEditing(null);
+                            state.setTime(category, preset);
+                          }}
+                        />
+                      ))}
+                      {/* Any other minute. Once one is chosen, this chip is
+                          the one that wears it. */}
+                      <TimeChip
+                        label={custom ? time : 'Other'}
+                        clock
+                        selected={custom}
+                        accessibilityLabel={
+                          custom ? `Remind me at ${time}. Pick another time` : 'Pick another time'
+                        }
+                        onPress={() => setEditing(picking ? null : category)}
+                      />
+                    </View>
+
+                    {picking && (
+                      <DateTimePicker
+                        value={toDate(time)}
+                        mode="time"
+                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                        // The app is light-only, but iOS draws the spinner in the
+                        // device's appearance — white digits on a pale card in dark
+                        // mode. Match the times around it instead.
+                        themeVariant="light"
+                        textColor={color.ink}
+                        onChange={(event, picked) => {
+                          if (Platform.OS !== 'ios') setEditing(null);
+                          if (event.type === 'set' && picked) {
+                            state.setTime(category, toTime(picked));
+                          }
+                        }}
+                      />
+                    )}
+                  </>
                 ) : (
                   <Text style={styles.note}>Reminders are off.</Text>
-                )}
-
-                {editing === category && (
-                  <DateTimePicker
-                    value={toDate(time)}
-                    mode="time"
-                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                    // The app is light-only, but iOS draws the spinner in the
-                    // device's appearance — white digits on a white card in dark
-                    // mode. Match the time on the row above instead.
-                    themeVariant="light"
-                    textColor={color.ink}
-                    onChange={(event, picked) => {
-                      if (Platform.OS !== 'ios') setEditing(null);
-                      if (event.type === 'set' && picked) {
-                        state.setTime(category, toTime(picked));
-                      }
-                    }}
-                  />
                 )}
               </View>
             );
@@ -145,39 +186,28 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginTop: space.sm,
   },
-  panel: {
-    marginTop: space.xl,
-    backgroundColor: color.tile,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: color.edge,
-  },
-  block: { padding: space.lg, gap: space.md },
-  blockDivided: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: color.edge,
+  cards: { marginTop: space.xl, gap: space.lg },
+  // Borderless and porcelain-washed, like a search result card: the fill
+  // alone sets each meal's reminder off the page.
+  card: {
+    backgroundColor: color.porcelainWash,
+    borderRadius: 24,
+    padding: 20,
+    gap: space.lg,
   },
   rowBetween: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  timeRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'space-between',
-  },
-  timeLabel: {
-    fontFamily: font.regular,
-    fontSize: 15,
-    color: color.slate,
-  },
-  timeValue: {
-    fontFamily: font.medium,
+  name: {
+    fontFamily: font.semibold,
     fontSize: 20,
+    lineHeight: 28,
     color: color.ink,
-    letterSpacing: 0.5,
   },
+  preview: { gap: space.sm },
+  chips: { flexDirection: 'row', gap: space.sm },
   note: {
     fontFamily: font.regular,
     fontSize: 14,

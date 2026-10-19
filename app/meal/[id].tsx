@@ -11,7 +11,7 @@ import { photoUri } from '@/photos/files';
 import { useAppStore } from '@/store/useAppStore';
 import { ChooseListSheet } from '@/ui/ChooseListSheet';
 import { FoodDoodles } from '@/ui/FoodDoodles';
-import { BookmarkIcon, ChevronLeftIcon, LeafIcon } from '@/ui/icons';
+import { BookmarkIcon, ChevronLeftIcon, LeafIcon, LoopIcon } from '@/ui/icons';
 import { MealMark } from '@/ui/MealMark';
 import { color, font, space } from '@/ui/theme';
 
@@ -48,18 +48,7 @@ function FactIcon({ kind }: { kind: FactKind }) {
     );
   }
   if (kind === 'ingredients') return <LeafIcon />;
-  return (
-    <Svg width={18} height={18} viewBox="0 0 24 24">
-      <Path
-        d="M17 2l3 3-3 3M4 11V9a4 4 0 0 1 4-4h12M7 22l-3-3 3-3M20 13v2a4 4 0 0 1-4 4H4"
-        fill="none"
-        stroke={color.ink}
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </Svg>
-  );
+  return <LoopIcon />;
 }
 
 function QuietButton({

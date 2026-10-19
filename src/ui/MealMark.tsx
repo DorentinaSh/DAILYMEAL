@@ -32,6 +32,13 @@ const SIZES = {
   card: { box: 100, corner: 50, letter: 46, band: 6 },
   /** The recipe screen's hero. Corner is half the box, so it is a circle. */
   hero: { box: 256, corner: 128, letter: 116, band: 14 },
+  /**
+   * Today's first meal: the hero a size down, so its name and buttons still
+   * fit above the fold.
+   */
+  spotlight: { box: 200, corner: 100, letter: 92, band: 12 },
+  /** The rest of today, in the rows under it. */
+  later: { box: 56, corner: 28, letter: 26, band: 4 },
 } as const;
 
 type Props = {

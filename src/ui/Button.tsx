@@ -5,7 +5,7 @@ import { color, font, radius, space } from './theme';
 type Props = {
   label: string;
   onPress: () => void;
-  variant?: 'solid' | 'outline' | 'quiet' | 'danger';
+  variant?: 'solid' | 'leaf' | 'outline' | 'quiet' | 'danger';
   disabled?: boolean;
   style?: ViewStyle;
 };
@@ -26,6 +26,7 @@ export function Button({
       style={({ pressed }) => [
         styles.base,
         variant === 'solid' && styles.solid,
+        variant === 'leaf' && styles.leaf,
         variant === 'outline' && styles.outline,
         variant === 'quiet' && styles.quiet,
         variant === 'danger' && styles.danger,
@@ -37,7 +38,7 @@ export function Button({
       <Text
         style={[
           styles.label,
-          variant === 'solid' && styles.solidLabel,
+          (variant === 'solid' || variant === 'leaf') && styles.solidLabel,
           variant === 'danger' && styles.dangerLabel,
           disabled && styles.disabledLabel,
         ]}
@@ -58,6 +59,9 @@ const styles = StyleSheet.create({
     minHeight: 46,
   },
   solid: { backgroundColor: color.ink },
+  // The recipe screen's button: white on the one green, 3.4:1, the trade
+  // contrast.test.ts pins for every green control.
+  leaf: { backgroundColor: color.leaf },
   outline: { borderWidth: 1, borderColor: color.edge, backgroundColor: color.tile },
   quiet: { backgroundColor: 'transparent' },
   danger: { borderWidth: 1, borderColor: color.chili, backgroundColor: 'transparent' },

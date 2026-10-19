@@ -183,3 +183,13 @@ export const CHIP_COLORS = {
   off: { pill: color.porcelainWash, border: color.porcelain, label: color.leaf },
   on: { pill: color.leaf, border: color.leaf, label: color.page },
 } as const;
+
+/**
+ * Settings' reminder-time chips. They sit on a porcelain-washed card rather
+ * than the page, so the ones you are not on are white pills drawn by an edge,
+ * their times in the green; the one you are on is the Meals tab's green chip.
+ */
+export const TIME_CHIP_COLORS = {
+  off: { pill: color.tile, border: color.edge, label: color.leaf },
+  on: CHIP_COLORS.on,
+} as const;

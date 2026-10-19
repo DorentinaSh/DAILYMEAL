@@ -1,4 +1,11 @@
-import { CHIP_COLORS, color, GLAZES, SAVE_COLORS, TAB_COLORS } from './theme';
+import {
+  CHIP_COLORS,
+  color,
+  GLAZES,
+  SAVE_COLORS,
+  TAB_COLORS,
+  TIME_CHIP_COLORS,
+} from './theme';
 import { contrastRatio } from './contrast';
 
 /** WCAG 1.4.11: a control that isn't text still has to be seen. */
@@ -236,5 +243,49 @@ describe('the Meals tab chips', () => {
       MIN_UI,
     );
     expect(CHIP_COLORS.on.label).not.toBe(CHIP_COLORS.off.label);
+  });
+});
+
+describe('the Today screen', () => {
+  // The greeting is the green's only type: white, at title size.
+  it('carries its greeting on the green', () => {
+    expect(contrastRatio(color.page, color.leaf)).toBeGreaterThanOrEqual(MIN_LARGE_TEXT);
+  });
+
+  // UP NEXT · BREAKFAST · 07:30 is 11pt caps on yolk, so it is held to the
+  // body-text line, not the large-text one.
+  it('carries the up-next tag on yolk', () => {
+    expect(contrastRatio(color.ink, color.yolk)).toBeGreaterThanOrEqual(MIN_TEXT);
+  });
+});
+
+describe('the reminder settings', () => {
+  // Each meal's reminder sits on a porcelain-washed card, and its switch is
+  // the green: it has to show it is on against that card, not just the page.
+  it('shows a switch that is on against its card', () => {
+    expect(contrastRatio(color.leaf, color.porcelainWash)).toBeGreaterThanOrEqual(MIN_UI);
+  });
+
+  it('off: the chip label reads against its pill', () => {
+    const { label, pill } = TIME_CHIP_COLORS.off;
+    expect(contrastRatio(label, pill)).toBeGreaterThanOrEqual(MIN_UI);
+  });
+
+  // White on a pale card is barely there, so the edge draws the pill.
+  it('off: the chip is drawn on its card by its edge', () => {
+    const { border, pill } = TIME_CHIP_COLORS.off;
+    expect(contrastRatio(border, color.porcelainWash)).toBeGreaterThan(
+      contrastRatio(pill, color.porcelainWash),
+    );
+  });
+
+  it('on: the chip is the green with white type, like the Meals chips', () => {
+    expect(TIME_CHIP_COLORS.on).toEqual(CHIP_COLORS.on);
+  });
+
+  it('the chosen time stands off the others', () => {
+    expect(
+      contrastRatio(TIME_CHIP_COLORS.on.pill, TIME_CHIP_COLORS.off.pill),
+    ).toBeGreaterThanOrEqual(MIN_UI);
   });
 });
