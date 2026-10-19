@@ -79,22 +79,6 @@ export function LeafIcon({ size = 18 }: { size?: number }) {
   );
 }
 
-/** Forward: the back chevron turned round, at the same weight. */
-export function ChevronRightIcon({ tint, size = 18 }: { tint: string; size?: number }) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 24 24">
-      <Path
-        d="M9 5l7 7-7 7"
-        fill="none"
-        stroke={tint}
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </Svg>
-  );
-}
-
 /** Two arrows chasing round: where a meal sits in this round of the rotation. */
 export function LoopIcon({ tint = color.ink, size = 18 }: { tint?: string; size?: number }) {
   return (

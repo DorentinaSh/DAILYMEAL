@@ -8,7 +8,6 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { CATEGORY_LABEL, type Category, type Meal } from '@/domain/types';
 import { photoUri } from '@/photos/files';
 import { EmptyPlate } from './EmptyPlate';
-import { ChevronRightIcon } from './icons';
 import { MealMark } from './MealMark';
 import { color, font, space } from './theme';
 
@@ -47,7 +46,6 @@ export function DayMealRow({ category, meal, time, onPress }: Props) {
         </Text>
         <Text style={styles.detail}>{detail}</Text>
       </View>
-      <ChevronRightIcon tint={color.slate} />
     </Pressable>
   );
 }
